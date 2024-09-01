@@ -44,13 +44,10 @@ class VPNController extends Controller
         
             // Cek apakah nama pengguna sudah ada
             $existingUsernames = array_column($response, 'name');
-            $originalUsername = $username;
-            $increment = 1;
         
-            while (in_array($username, $existingUsernames)) {
-                // Tambahkan angka increment jika username sudah ada
-                $username = $originalUsername . $increment;
-                $increment++;
+            if (in_array($username, $existingUsernames)) {
+                // Jika username sudah ada, kembalikan respons error dan hentikan proses
+                return response()->json(['error' => "Username '$username' already exists. Please choose a different username."], 400);
             }
         
             // Oktet yang tetap
@@ -83,7 +80,7 @@ class VPNController extends Controller
         
             // Membuat query untuk menambahkan PPP secret
             $query = new Query('/ppp/secret/add');
-            $query->equal('name', $username) // Menggunakan username yang sudah di-update
+            $query->equal('name', $username)
                   ->equal('password', $password)
                   ->equal('comment', $akuncomment)
                   ->equal('profile', 'IP-Tunnel-VPN')
@@ -182,7 +179,7 @@ class VPNController extends Controller
                           ->equal('dst-address-list', 'ip-public')
                           ->equal('action', 'dst-nat')
                           ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', $dstPort2) // Set to-ports to the fetched API port
+                          ->equal('to-ports', $dstPort2) // Set to-ports to the incremented port
                           ->equal('comment', $akuncomment . '_WEB');
         
                 $natResponse2 = $client->query($natQuery2)->read();
@@ -202,6 +199,7 @@ class VPNController extends Controller
         } catch (\Exception $e) {
             return response()->json(['error' => "An error occurred: " . $e->getMessage()], 500);
         }
+        
         
     }
 }
