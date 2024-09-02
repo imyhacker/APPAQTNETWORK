@@ -26,4 +26,7 @@ Route::group(['prefix' => '/home/datavpn'], function() {
    Route::get('/', [VPNController::class, 'index'])->name('datavpn');
    Route::post('/uploadvpn', [VPNController::class, 'uploadvpn'])->name('uploadvpn');
     // Rute lainnya yang memiliki prefix 'admin'
+
+    Route::delete('/{id}', [VPNController::class, 'hapusvpn'])->name('hapusvpn');
+
 });

@@ -18,6 +18,9 @@
   <!-- Template CSS -->
   <link rel="stylesheet" href="https://demo.getstisla.com/assets/css/style.css">
   <link rel="stylesheet" href="https://demo.getstisla.com/assets/css/components.css">
+  <link rel="stylesheet" href="https://cdn.datatables.net/2.1.5/css/dataTables.dataTables.css" />
+  
+ 
 </head>
 
 <body>

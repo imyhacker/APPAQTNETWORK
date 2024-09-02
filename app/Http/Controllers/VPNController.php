@@ -7,6 +7,7 @@ use RouterOS\Query;
 use RouterOS\Client;
 use Illuminate\Http\Request;
 use GuzzleHttp\Exception\ClientException;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class VPNController extends Controller
 {
@@ -20,64 +21,63 @@ class VPNController extends Controller
         //dd($data);
         return view('Dashboard.VPN.index', compact('data'));
     }
-    public function uploadvpn(Request $req){
+    public function uploadvpn(Request $req)
+    {
         try {
             // Konfigurasi koneksi ke MikroTik
             $client = new Client([
-                'host' => 'id-1.aqtnetwork.my.id',  // Alamat IP MikroTik
-                'user' => 'admin',          // Username MikroTik
-                'pass' => 'bakpao1922',       // Password MikroTik
+                'host' => 'id-1.aqtnetwork.my.id',
+                'user' => 'admin',
+                'pass' => 'bakpao1922',
             ]);
-        
+    
             // Data dari request
             $namaakun = $req->input('namaakun');
             $username = $req->input('username');
             $password = $req->input('password');
             $akuncomment = "AQT_" . $namaakun;
-        
+    
             // Mengambil semua PPP secrets untuk memeriksa nama pengguna yang sudah ada
             $queryAllSecrets = new Query('/ppp/secret/print');
             $response = $client->query($queryAllSecrets)->read();
-        
-            // Debugging: Tampilkan respon dari query
-            \Log::info('Response from /ppp/secret/print:', $response);
-        
+    
             // Cek apakah nama pengguna sudah ada
             $existingUsernames = array_column($response, 'name');
-        
+    
             if (in_array($username, $existingUsernames)) {
-                // Jika username sudah ada, kembalikan respons error dan hentikan proses
-                return response()->json(['error' => "Username '$username' already exists. Please choose a different username."], 400);
+                session()->flash('error', 'Username sudah ada, silakan gunakan username lain.');
+                return redirect()->back();
             }
-        
+    
+            // Proses penambahan PPP secret dan aturan NAT jika username belum ada
             // Oktet yang tetap
             $firstOctet = '172';
             $secondOctet = 160;
-        
-            // Ambil daftar thirdOctet yang sudah digunakan
+    
+            // Ambil daftar thirdOctets yang sudah digunakan
             $usedThirdOctets = array_map(function ($secret) {
                 return explode('.', $secret['local-address'])[2];
             }, $response);
-        
+    
             // Tentukan thirdOctet yang baru
             $thirdOctetBase = 11;
             $thirdOctet = $thirdOctetBase;
             while (in_array($thirdOctet, $usedThirdOctets)) {
                 $thirdOctet++;
                 if ($thirdOctet > 254) {
-                    throw new \Exception("No available third octet for IP addresses.");
+                    throw new \Exception("Tidak ada third octet yang tersedia untuk IP addresses.");
                 }
             }
-        
+    
             // Tentukan fourthOctet untuk lokal dan remote
             $existingCount = count($response);
             $fourthOctetLocal = 1 + ($existingCount % 255);
-            $fourthOctetRemote = 10 + ($existingCount % 255); // Ubah sesuai kebutuhan
-        
+            $fourthOctetRemote = 10 + ($existingCount % 255);
+    
             // Generate IP addresses
             $localIp = "$firstOctet.$secondOctet.$thirdOctet.$fourthOctetLocal";
             $remoteIp = "$firstOctet.$secondOctet.$thirdOctet.$fourthOctetRemote";
-        
+    
             // Membuat query untuk menambahkan PPP secret
             $query = new Query('/ppp/secret/add');
             $query->equal('name', $username)
@@ -86,32 +86,19 @@ class VPNController extends Controller
                   ->equal('profile', 'IP-Tunnel-VPN')
                   ->equal('local-address', $localIp)
                   ->equal('remote-address', $remoteIp);
-        
+    
             // Eksekusi query
             $response = $client->query($query)->read();
-        
+    
             // Cek respon dari MikroTik
             if (isset($response['!trap'])) {
-                // Terjadi kesalahan
-                return response()->json(['error' => $response['!trap'][0]['message']], 400);
+                session()->flash('error', $response['!trap'][0]['message']);
+                return redirect()->back();
             } else {
-                // Berhasil menambahkan PPP secret
-                $unique = auth()->user();
-                VPN::create([
-                    'unique_id' => $unique->unique_id,
-                    'namaakun' => $namaakun,
-                    'username' => $username,
-                    'password' => $password,
-                    'ipaddress' => $localIp, // Storing local IP address
-                ]);
-        
-                // Fetch existing NAT rules
+                // Buat aturan NAT
                 $queryAllNAT = new Query('/ip/firewall/nat/print');
                 $natResponse = $client->query($queryAllNAT)->read();
-                
-                // Debugging: Tampilkan respon dari NAT query
-                \Log::info('Response from /ip/firewall/nat/print:', $natResponse);
-        
+    
                 // Cek jika response NAT tidak kosong dan ambil port yang digunakan
                 $usedPorts = [];
                 foreach ($natResponse as $natRule) {
@@ -119,15 +106,10 @@ class VPNController extends Controller
                         $usedPorts[] = $natRule['dst-port'];
                     }
                 }
-        
-                // Fetch API service port from MikroTik
+    
                 $queryAPIService = new Query('/ip/service/print');
                 $apiResponse = $client->query($queryAPIService)->read();
-                
-                // Debugging: Tampilkan respon dari API service query
-                \Log::info('Response from /ip/service/print:', $apiResponse);
-        
-                // Find the API port
+    
                 $apiPort = null;
                 foreach ($apiResponse as $service) {
                     if (isset($service['name']) && $service['name'] == 'api') {
@@ -135,22 +117,20 @@ class VPNController extends Controller
                         break;
                     }
                 }
-        
+    
                 if ($apiPort === null) {
-                    throw new \Exception("API service port not found.");
+                    throw new \Exception("API service port tidak ditemukan.");
                 }
-        
-                // Generate destination port starting from 1000
+    
                 $dstPort = 1000;
                 while (in_array($dstPort, $usedPorts)) {
                     $dstPort++;
-                    // Ensure the port does not exceed a reasonable range
                     if ($dstPort > 65535) {
-                        throw new \Exception("No available destination port.");
+                        throw new \Exception("Tidak ada port tujuan yang tersedia.");
                     }
                 }
-        
-                // Create first NAT rule
+    
+                // Buat aturan NAT pertama
                 $natQuery1 = new Query('/ip/firewall/nat/add');
                 $natQuery1->equal('chain', 'dstnat')
                           ->equal('protocol', 'tcp')
@@ -158,20 +138,20 @@ class VPNController extends Controller
                           ->equal('dst-address-list', 'ip-public')
                           ->equal('action', 'dst-nat')
                           ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', $apiPort) // Set to-ports to the fetched API port
+                          ->equal('to-ports', $apiPort)
                           ->equal('comment', $akuncomment . '_API');
-        
+    
                 $natResponse1 = $client->query($natQuery1)->read();
-        
-                // Check response from MikroTik
+    
                 if (isset($natResponse1['!trap'])) {
-                    return response()->json(['error' => $natResponse1['!trap'][0]['message']], 400);
+                    session()->flash('error', $natResponse1['!trap'][0]['message']);
+                    return redirect()->back();
                 }
-        
+    
                 // Increment the destination port by 10 for the second NAT rule
                 $dstPort2 = $dstPort + 10;
-        
-                // Create second NAT rule with incremented port
+    
+                // Buat aturan NAT kedua
                 $natQuery2 = new Query('/ip/firewall/nat/add');
                 $natQuery2->equal('chain', 'dstnat')
                           ->equal('protocol', 'tcp')
@@ -179,27 +159,110 @@ class VPNController extends Controller
                           ->equal('dst-address-list', 'ip-public')
                           ->equal('action', 'dst-nat')
                           ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', $dstPort2) // Set to-ports to the incremented port
+                          ->equal('to-ports', $dstPort2)
                           ->equal('comment', $akuncomment . '_WEB');
-        
+    
                 $natResponse2 = $client->query($natQuery2)->read();
-        
-                // Check response from MikroTik
+    
                 if (isset($natResponse2['!trap'])) {
-                    return response()->json(['error' => $natResponse2['!trap'][0]['message']], 400);
+                    session()->flash('error', $natResponse2['!trap'][0]['message']);
+                    return redirect()->back();
                 } else {
-                    return response()->json([
-                        'message' => "PPP Secret for '$username' has been added successfully with local IP $localIp and remote IP $remoteIp. NAT rules created with destination ports $dstPort and $dstPort2."
+                    // Menyimpan data ke database
+                    $unique = auth()->user();
+                    VPN::create([
+                        'unique_id' => $unique->unique_id,
+                        'namaakun' => $namaakun,
+                        'username' => $username,
+                        'password' => $password,
+                        'ipaddress' => $localIp,
                     ]);
+    
+                    session()->flash('success', "PPP Secret untuk '$username' berhasil ditambahkan dengan IP lokal $localIp dan IP remote $remoteIp. Aturan NAT dibuat dengan port tujuan $dstPort dan $dstPort2.");
+                    return redirect()->back();
                 }
             }
-        
+    
         } catch (ClientException $e) {
-            return response()->json(['error' => "Failed to connect to MikroTik: " . $e->getMessage()], 500);
+            session()->flash('error', "Gagal terhubung ke MikroTik: " . $e->getMessage());
+            return redirect()->back();
         } catch (\Exception $e) {
-            return response()->json(['error' => "An error occurred: " . $e->getMessage()], 500);
+            session()->flash('error', "Terjadi kesalahan: " . $e->getMessage());
+            return redirect()->back();
         }
-        
-        
     }
+    
+    public function hapusvpn(Request $request, $id)
+    {
+        $username = $request->input('username');
+    
+        if (!$username) {
+            return response()->json(['error' => 'Username is required.'], 400);
+        }
+    
+        $client = new Client([
+            'host' => 'id-1.aqtnetwork.my.id',
+            'user' => 'admin',
+            'pass' => 'bakpao1922',
+        ]);
+    
+        $vpn = VPN::findOrFail($id);
+    
+        if ($vpn->username !== $username) {
+            return response()->json(['error' => 'Username does not match.'], 400);
+        }
+    
+        try {
+            // Search for PPP Secret by name
+            $query = new Query('/ppp/secret/print');
+            $response = $client->query($query)->read();
+    
+            $matchedSecret = null;
+            foreach ($response as $secret) {
+                if (isset($secret['name']) && $secret['name'] === $username) {
+                    $matchedSecret = $secret;
+                    break;
+                }
+            }
+    
+            if ($matchedSecret) {
+                $secretId = $matchedSecret['.id'];
+    
+                $removeQuery = new Query('/ppp/secret/remove');
+                $removeQuery->equal('.id', $secretId);
+                $client->query($removeQuery)->read();
+            } else {
+                return response()->json(['error' => 'PPP Secret not found.'], 404);
+            }
+    
+            // Search for and remove Firewall NAT rules by name
+            $natComments = [$username . '_API', $username . '_WEB'];
+            foreach ($natComments as $comment) {
+                $query = new Query('/ip/firewall/nat/print');
+                $response = $client->query($query)->read();
+    
+                foreach ($response as $rule) {
+                    if (isset($rule['comment']) && $rule['comment'] === $comment) {
+                        $ruleId = $rule['.id'];
+    
+                        $removeQuery = new Query('/ip/firewall/nat/remove');
+                        $removeQuery->equal('.id', $ruleId);
+                        $client->query($removeQuery)->read();
+                    }
+                }
+            }
+    
+            // Delete the VPN record from the database
+            $vpn->delete();
+    
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Failed to delete PPP Secret or Firewall NAT rules: ' . $e->getMessage()], 500);
+        }
+    
+        return response()->json(['success' => 'Data berhasil dihapus']);
+    }
+    
+    
+
+
 }

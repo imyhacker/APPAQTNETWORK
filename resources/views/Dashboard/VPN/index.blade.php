@@ -1,107 +1,311 @@
 <x-dcore.head />
-  <div id="app">
+<div id="app">
     <div class="main-wrapper main-wrapper-1">
-      <div class="navbar-bg"></div>
-      <x-dcore.nav />
-      <x-dcore.sidebar />
-      <div class="main-content">
-        <section class="section">
+        <div class="navbar-bg"></div>
+        <x-dcore.nav />
+        <x-dcore.sidebar />
+        <x-dcore.modal />
 
-        <!-- MAIN OF CENTER CONTENT -->
-          <div class="row">
-            <div class="col-lg-12">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Pemberitahuan</h4>
-                  </div>
-                  <div class="card-body">
-                    
-                  </div>
+        <div class="main-content">
+            <section class="section">
+              
+                <!-- MAIN CONTENT -->
+                <div class="row">
+                    <!-- Pemberitahuan Section -->
+                    <div class="col-lg-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4 style="font-size: 20px;"> <i class="fas fa-info-circle"></i> Pemberitahuan</h4>
+                            </div>
+                            <div class="card-body">
+                              <p style="font-size: 20px;">VPN digunakan untuk menghubungkan Router MikroTik anda dengan Router kami melalui jaringan internet/public. 
+                                Radius server kami tidak dapat meneruskan paket request dari router anda jika router anda tidak mempunyai IP Public atau tidak dalam satu jaringan. Setelah router MikroTik anda terhubung 
+                                dengan router kami, otomatis radius server akan merespond paket request anda melalui IP Private dari VPN.
+                            </p>
+                            <hr>
+                            <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account vpn pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- Form to Add VPN -->
+                    <div class="col-lg-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Tambah VPN</h4>
+                            </div>
+                            <div class="card-body">
+                                <form id="yourFormId" action="{{ route('uploadvpn') }}" method="post">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="namaAkun">Nama Akun</label>
+                                        <input type="text" class="form-control" placeholder="Nama Akun" name="namaakun" id="namaAkunInput">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="username">User</label>
+                                        <input type="text" class="form-control" placeholder="Username" name="username">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label for="password">Password</label>
+                                        <input type="password" class="form-control" placeholder="Password" name="password">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input type="submit" class="btn btn-success" value="Buat VPN">
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Data VPN Section -->
+                    <div class="col-lg-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h4>Data VPN</h4>
+                            </div>
+                            <div class="card-body">
+                                @if($data->isEmpty())
+                                    <p>No data found for your unique ID.</p>
+                                @else
+                                    <div class="table-responsive">
+                                        <table id="vpnTable" class="table table-striped table-bordered display nowrap">
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Username</th>
+                                                    <th>Password</th>
+                                                    <th>IP Address</th>
+                                                    <th>Skrip Mikrotik</th>
+                                                    <th>Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($data as $item)
+                                                    <tr>
+                                                        <td>{{ $item->namaakun }}</td>
+                                                        <td>{{ $item->username }}</td>
+                                                        <td>{{ $item->password }}</td>
+                                                        <td>{{ $item->ipaddress }}</td>
+                                                        <td>
+                                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vpnInfoModal">
+                                                                <i class="fas fa-info"></i> Info
+                                                            </button>
+                                                        </td>
+                                                        <td>
+                                                          <button type="button" class="btn btn-danger btn-delete" data-id="{{ $item->id }}" data-username="{{ $item->username }}">
+                                                            <i class="fas fa-trash"></i> Hapus
+                                                        </button>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
                 </div>
-              </div>
-              <div class="col-lg-4">
-                <div class="card">
-                  <div class="card-header">
-                    <h4>Tambah VPN</h4>
-                  </div>
-                  <div class="card-body">
-                    <form action="{{route('uploadvpn')}}" method="post">
-                        @csrf
-                    <div class="form-group">
-                        <label for="exampleFormControlInput1">Nama Akun</label>
-                        <input type="text" class="form-control" placeholder="Nama Akun" name="namaakun">
-                      </div>
+                <!-- END MAIN CONTENT -->
+            </section>
+        </div>
 
-                      <div class="form-group">
-                        <label for="exampleFormControlInput1">User</label>
-                        <input type="text" class="form-control" placeholder="Username" name="username">
-                      </div>
-
-                      <div class="form-group">
-                        <label for="exampleFormControlInput1">Password</label>
-                        <input type="password" class="form-control" placeholder="Password" name="password">
-                      </div>
-
-                      <div class="form-group">
-                        <input type="submit" class="btn btn-success" value="Buat VPN">
-                      </div>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            <div class="col-lg-8">
-              <div class="card">
-                <div class="card-header">
-                  <h4>Data VPN</h4>
-                </div>
-                <div class="card-body">
-                    @if($data->isEmpty())
-                    <p>No data found for your unique ID.</p>
-                @else
-                    <table id="vpnTable" class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Username</th>
-                                <th>Password</th>
-                                <th>IP Address</th>
-                                <th>Skrip Mikrotik</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($data as $item)
-                                <tr>
-                                    <td>{{ $item->namaakun }}</td>
-                                    <td>{{ $item->username }}</td>
-                                    <td>{{ $item->password }}</td>
-                                    <td>{{ $item->ipaddress }}</td>
-                                    <td>
-                                       
-                                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
-                                                <i class="fas fa-info"></i> Info
-                                              </button>
-                                         
-                                    </td>
-                                    <td>
-                                        <a href="" class="btn btn-danger"><i class="fas fa-trash"></i> Hapus</a>
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody>
-                    </table>
-                @endif
-                </div>
-              </div>
-            </div>
-            
-          </div>
-        <!-- END OF CENTER CONTENT -->
-
-
-        </section>
-      </div>
-      <x-dcore.footer />
+        <x-dcore.footer />
     </div>
-  </div>
+</div>
 <x-dcore.script />
+
+<!-- Modal for VPN Info -->
+<div class="modal fade" id="vpnInfoModal" tabindex="-1" role="dialog" aria-labelledby="vpnInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vpnInfoModalLabel">VPN Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- VPN Usage Tips -->
+                <ol class="list-unstyled mb-4">
+                    <li>
+                        <h5><i class="fa fa-info-circle"></i> Tips - Cara penggunaan</h5>
+                        <ol>
+                            <li>Pilih salah satu mode yang akan digunakan.</li>
+                            <li>Salin / Copy seluruh isi script pada kolom mode yang dipilih.</li>
+                            <li>Login mikrotik melalui Winbox, buka menu <strong>New Terminal</strong> kemudian Tempel / Paste script yang sudah di salin / copy sebelumnya, lanjut tekan tombol Enter di keyboard.</li>
+                            <li>Buka menu <strong>PPP > Interface</strong> jika langkah di atas sudah berhasil, maka akan tampil interface VPN baru sesuai mode yang dipilih.</li>
+                            <li>Lihat status interface VPN, jika belum terhubung / Connected silahkan coba menggunakan mode yang lain. Jika sudah terhubung / connected (cirinya ada icon huruf <b>R</b> di samping interface VPN).</li>
+                            <li>Gagal terhubung / Connected biasanya karna mode yang anda pilih di blok oleh ISP anda.</li>
+                        </ol>
+                    </li>
+                </ol>
+
+                <!-- VPN Script Section -->
+                <div class="form-group">
+                    <label for="scriptL2tp">Mode L2TP</label>
+                    <div class="copy-script p-1" data-id="scriptL2tp">
+                        <button type="button" class="btn btn-sm btn-secondary">Copy</button>
+                    </div>
+                    <textarea class="form-control pt-3" rows="5" readonly id="scriptL2tp"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="scriptPptp">Mode PPTP</label>
+                    <div class="copy-script p-1" data-id="scriptPptp">
+                        <button type="button" class="btn btn-sm btn-secondary">Copy</button>
+                    </div>
+                    <textarea class="form-control pt-3" rows="5" readonly id="scriptPptp"></textarea>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Initialize DataTable with options
+        $('#vpnTable').DataTable({
+            paging: true,
+            searching: true,
+            ordering: true,
+            info: true,
+            lengthChange: true,
+            responsive: true,
+            scrollX: true // Enables horizontal scrolling
+        });
+
+        // Handle the Info button click
+        $('#vpnTable').on('click', '.btn-primary', function() {
+            // Get the data from the row
+            var row = $(this).closest('tr');
+            var namaAkun = row.find('td:eq(0)').text();
+            var username = row.find('td:eq(1)').text();
+            var password = row.find('td:eq(2)').text();
+            var ipAddress = row.find('td:eq(3)').text();
+
+            // Generate the MikroTik L2TP script dynamically
+            var skripL2tp = `/ip service set winbox port=8291
+                
+/interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
+
+            // Generate the MikroTik PPTP script dynamically
+            var skripPptp = `/ip service set winbox port=8291
+                
+/interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
+
+            // Set the data in the textareas
+            $('#scriptL2tp').val(skripL2tp);
+            $('#scriptPptp').val(skripPptp);
+
+            // Show the modal
+            $('#vpnInfoModal').modal('show');
+        });
+
+        // Handle the Copy button click for L2TP
+        $('.copy-script[data-id="scriptL2tp"] button').click(function() {
+            var skripMikrotik = $('#scriptL2tp').val();
+            navigator.clipboard.writeText(skripMikrotik).then(function() {
+                alert('Script L2TP copied to clipboard!');
+            }, function(err) {
+                console.error('Failed to copy script: ', err);
+            });
+        });
+
+        // Handle the Copy button click for PPTP
+        $('.copy-script[data-id="scriptPptp"] button').click(function() {
+            var skripMikrotik = $('#scriptPptp').val();
+            navigator.clipboard.writeText(skripMikrotik).then(function() {
+                alert('Script PPTP copied to clipboard!');
+            }, function(err) {
+                console.error('Failed to copy script: ', err);
+            });
+        });
+    });
+</script>
+
+<script>
+ $(document).ready(function() {
+    // Handle delete button click
+    $('#vpnTable').on('click', '.btn-delete', function() {
+        var id = $(this).data('id');
+        var username = $(this).data('username');
+
+        // Replace the confirm dialog with SweetAlert
+        Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data ini tidak dapat dikembalikan!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Ya, hapus!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // AJAX request to delete the data
+                $.ajax({
+                    url: 'datavpn/' + id,
+                    type: 'DELETE',
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        "username": username // Include the username in the data
+                    },
+                    success: function(response) {
+                        // Replace the alert with SweetAlert success message
+                        Swal.fire(
+                            'Terhapus!',
+                            'Data berhasil dihapus.',
+                            'success'
+                        ).then(() => {
+                            location.reload(); // Reload the page to update the table
+                        });
+                    },
+                    error: function(xhr) {
+                        // Replace the alert with SweetAlert error message
+                        Swal.fire(
+                            'Gagal!',
+                            'Gagal menghapus data: ' + xhr.responseText,
+                            'error'
+                        );
+                    }
+                });
+            }
+        });
+    });
+});
+
+
+</script>
+
+<script>
+  document.getElementById('namaAkunInput').addEventListener('keydown', function(event) {
+      if (event.key === ' ') {
+          event.preventDefault(); // Prevent space from being entered
+      }
+  });
+</script>
+@if (session('success'))
+              <script>
+                  Swal.fire({
+                      icon: 'success',
+                      title: '{{ session('success') }}',
+                      showConfirmButton: true
+                  });
+              </script>
+          @elseif (session('error'))
+              <script>
+                  Swal.fire({
+                      icon: 'error',
+                      title: '{{ session('error') }}',
+                      showConfirmButton: true
+                  });
+              </script>
+          @endif

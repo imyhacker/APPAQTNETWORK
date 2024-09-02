@@ -21,18 +21,10 @@
   <!-- Template JS File -->
   <script src="https://demo.getstisla.com/assets/js/scripts.js"></script>
   <script src="https://demo.getstisla.com/assets/js/custom.js"></script>
+  <script src="https://cdn.datatables.net/2.1.5/js/dataTables.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-  <script>
-    $(document).ready(function() {
-        $('#vpnTable').DataTable({
-            "paging": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "lengthChange": true
-        });
-    });
-</script>
+
 
 </body>
 </html>
