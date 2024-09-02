@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\MKController;
 use App\Http\Controllers\VPNController;
 use Illuminate\Support\Facades\Route;
 
@@ -22,11 +23,18 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
-Route::group(['prefix' => '/home/datavpn'], function() {
-   Route::get('/', [VPNController::class, 'index'])->name('datavpn');
-   Route::post('/uploadvpn', [VPNController::class, 'uploadvpn'])->name('uploadvpn');
-    // Rute lainnya yang memiliki prefix 'admin'
 
+// VPN
+Route::group(['prefix' => '/home/datavpn'], function() {
+    Route::get('/', [VPNController::class, 'index'])->name('datavpn');
+    Route::post('/uploadvpn', [VPNController::class, 'uploadvpn'])->name('uploadvpn');
     Route::delete('/{id}', [VPNController::class, 'hapusvpn'])->name('hapusvpn');
+});
+
+
+// MIKROTIK
+Route::group(['prefix' => '/home/datamikrotik'], function(){
+    Route::get('/', [MKController::class, 'index'])->name('datamikrotik');
+    Route::post('/tambahmikrotik', [MKController::class, 'tambahmikrotik'])->name('tambahmikrotik');
 
 });
