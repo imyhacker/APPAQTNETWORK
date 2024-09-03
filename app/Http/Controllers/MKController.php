@@ -154,12 +154,13 @@ public function addFirewallRule(Request $request)
         $port = $request->input('port');
         $ipMikrotik = $request->input('ipmikrotik');
 
+        $user = Mikrotik::where('unique_id', auth()->user()->unique_id)->first();
         try {
             // MikroTik API client configuration
             $config = [
                 'host' => $ipMikrotik,
-                'user' => 'admin', // Replace with your MikroTik username
-                'pass' => 'ADMINSERVER', // Replace with your MikroTik password
+                'user' => $user->username, // Replace with your MikroTik username
+                'pass' => $user->password, // Replace with your MikroTik password
                 'port' => 8728
             ];
 
@@ -200,5 +201,64 @@ public function addFirewallRule(Request $request)
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
+    public function restartmodem(Request $request)
+    {
+        // Validate request data
+        $request->validate([
+            'ipaddr' => 'required|ip',
+            'port' => 'required|numeric',
+            'ipmikrotik' => 'required|ip',
+        ]);
+    
+        $ipAddress = $request->input('ipaddr');
+        $port = $request->input('port');
+        $ipMikrotik = $request->input('ipmikrotik');
+    
+        // Retrieve the user for MikroTik API credentials
+        $user = Mikrotik::where('unique_id', auth()->user()->unique_id)->first();
+        if (!$user) {
+            return response()->json(['success' => false, 'error' => 'User not found.']);
+        }
+    
+        try {
+            // MikroTik API client configuration
+            $config = [
+                'host' => $ipMikrotik,
+                'user' => $user->username,
+                'pass' => $user->password,
+                'port' => 8728
+            ];
+    
+            $client = new Client($config);
+    
+            // Get the list of active PPPoE connections
+            $query = new Query('/ppp/active/print');
+            $query->where('address', $ipAddress);
+    
+            $pppActiveConnections = $client->query($query)->read();
+    
+            if (count($pppActiveConnections) > 0) {
+                $pppId = $pppActiveConnections[0]['.id'];
+    
+                // Remove the PPP active connection
+                $removeQuery = new Query('/ppp/active/remove');
+                $removeQuery->equal('.id', $pppId);
+    
+                $result = $client->query($removeQuery)->read();
+    
+                if (!isset($result['!trap'])) {
+                    return response()->json(['success' => true, 'message' => 'PPPoE connection removed successfully.']);
+                } else {
+                    return response()->json(['success' => false, 'message' => 'Failed to remove PPPoE connection: ' . $result['!trap'][0]['message']]);
+                }
+            } else {
+                return response()->json(['success' => false, 'message' => "PPPoE connection with IP address '$ipAddress' not found."]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
+        }
+    }
+    
 
+    
 }

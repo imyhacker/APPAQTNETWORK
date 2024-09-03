@@ -39,7 +39,7 @@
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $d['.id'] }}">
                                 <a class="dropdown-item remote-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}">Remote Modem</a>
-                                <a class="dropdown-item restart-btn" href="">Restart Koneksi</a>
+                                <a class="dropdown-item restart-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}">Restart Koneksi</a>
                                 <a class="dropdown-item copy-btn" href="#">Copy IP Address</a>
                               </div>
                             </div>
@@ -102,90 +102,176 @@
 <x-dcore.script />
 <script>
   $(document).ready(function() {
-      // Initialize DataTable with responsive design
-      $('#myTable').DataTable({
-          responsive: true
-      });
+    // Initialize DataTable with responsive design
+    $('#myTable').DataTable({
+      responsive: true
+    });
+
+    // Function to get query parameter from URL
+    function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Get the ipMikrotik parameter from the URL
+    let ipMikrotik = getQueryParam('ipmikrotik');
+
+    // Handle click event on the "remote-modem" buttons
+    $('.remote-modem').on('click', function(event) {
+      event.preventDefault(); // Prevent default link behavior
+
+      var ipAddress = $(this).data('ip'); // Get IP address from the data attribute
+      var dataPort = $(this).data('port'); // Get data-port value from the data attribute
+
+      // Set the IP address and port in the modal
+      $('#remote-ip-address').val(ipAddress);
+      $('#toport').val(dataPort);
+      $('#RemoteModem').modal('show'); // Show the modal
+    });
+
+    // Handle click event on the "restart-modem" buttons
   
-      // Function to get query parameter from URL
-      function getQueryParam(param) {
-          let urlParams = new URLSearchParams(window.location.search);
-          return urlParams.get(param);
-      }
-  
-      // Get the ipMikrotik parameter from the URL
-      let ipMikrotik = getQueryParam('ipmikrotik');
-  
-      // Handle click event on the "remote-modem" buttons
-      $('.remote-modem').on('click', function(event) {
-          event.preventDefault(); // Prevent default link behavior
-  
-          var ipAddress = $(this).data('ip'); // Get IP address from the data attribute
-          var dataPort = $(this).data('port'); // Get data-port value from the data attribute
-  
-          // Set the IP address and port in the modal
-          $('#remote-ip-address').val(ipAddress);
-          $('#toport').val(dataPort);
-          $('#RemoteModem').modal('show'); // Show the modal
-      });
-  
-      // Handle form submission for adding/updating firewall rule
-      $('#remoteModemForm').on('submit', function(event) {
-          event.preventDefault(); // Prevent default form submission
-  
-          var ipAddress = $('#remote-ip-address').val();
-          var toPort = $('#toport').val();
-          var dataPort = $('.remote-modem').data('port'); // Get data-port from the clicked button
-  
-          if (toPort) {
-              $.ajax({
-                  url: '{{ route("addFirewallRule") }}', // Laravel route to handle the request
-                  type: 'POST',
-                  data: {
-                      ipaddr: ipAddress,
-                      port: toPort,
-                      ipmikrotik: ipMikrotik,
-                      _token: '{{ csrf_token() }}' // Include CSRF token
-                  },
-                  success: function(response) {
-                      if (response.success) {
-                          Swal.fire({
-                              icon: 'success',
-                              title: 'Success',
-                              text: 'Firewall rule added or updated successfully!',
-                          }).then((result) => {
-                              if (result.isConfirmed) {
-                                  // Open a new tab with the constructed URL using data-port
-                                  var newTabUrl = `http://id-1.aqtnetwork.my.id:${dataPort}`;
-                                  window.open(newTabUrl, '_blank');
-                              }
-                          });
-                      } else {
-                          Swal.fire({
-                              icon: 'error',
-                              title: 'Error',
-                              text: 'Failed to add firewall rule: ' + response.error,
-                          });
-                      }
-                      $('#RemoteModem').modal('hide'); // Hide the modal
-                  },
-                  error: function(xhr) {
-                      Swal.fire({
-                          icon: 'error',
-                          title: 'Error',
-                          text: 'An error occurred while adding the firewall rule.',
-                      });
-                      console.log('Error Details:', xhr.responseText);
-                  }
-              });
-          } else {
+
+    // Handle form submission for adding/updating firewall rule
+    $('#remoteModemForm').on('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      var ipAddress = $('#remote-ip-address').val();
+      var toPort = $('#toport').val();
+      var dataPort = $('.remote-modem').data('port'); // Get data-port from the clicked button
+
+      if (toPort) {
+        $.ajax({
+          url: '{{ route("addFirewallRule") }}', // Laravel route to handle the request
+          type: 'POST',
+          data: {
+            ipaddr: ipAddress,
+            port: toPort,
+            ipmikrotik: ipMikrotik,
+            _token: '{{ csrf_token() }}' // Include CSRF token
+          },
+          success: function(response) {
+            if (response.success) {
               Swal.fire({
-                  icon: 'warning',
-                  title: 'Warning',
-                  text: 'Please select a port.',
+                icon: 'success',
+                title: 'Success',
+                text: 'Firewall rule added or updated successfully!',
+              }).then((result) => {
+                if (result.isConfirmed) {
+                  // Open a new tab with the constructed URL using data-port
+                  var newTabUrl = `http://id-1.aqtnetwork.my.id:${dataPort}`;
+                  window.open(newTabUrl, '_blank');
+                }
               });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to add firewall rule: ' + response.error,
+              });
+            }
+            $('#RemoteModem').modal('hide'); // Hide the modal
+          },
+          error: function(xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred while adding the firewall rule.',
+            });
+            console.log('Error Details:', xhr.responseText);
           }
-      });
+        });
+      } else {
+        Swal.fire({
+          icon: 'warning',
+          title: 'Warning',
+          text: 'Please select a port.',
+        });
+      }
+    });
+
+    $('.restart-modem').on('click', function(event) {
+    event.preventDefault(); // Prevent default link behavior
+
+    var ipAddress = $(this).data('ip'); // Get IP address from the data attribute
+    var dataPort = $(this).data('port'); // Get data-port value from the data attribute
+
+    // Function to get query parameter from URL
+    function getQueryParam(param) {
+      let urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Get the ipMikrotik parameter from the URL
+    var ipMikrotik = getQueryParam('ipmikrotik');
+
+    // Show confirmation dialog
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to restart the modem connection?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, restart it!',
+      cancelButtonText: 'No, cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Perform the restart action
+        $.ajax({
+          url: '{{ route("restartmodem") }}', // Laravel route to handle the restart
+          type: 'POST',
+          data: {
+            ipaddr: ipAddress,
+            port: dataPort,
+            ipmikrotik: ipMikrotik,
+            _token: '{{ csrf_token() }}' // Include CSRF token
+          },
+          success: function(response) {
+            if (response.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Modem restarted successfully!',
+              });
+            } else {
+              Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to restart modem: ' + response.error,
+              });
+            }
+          },
+          error: function(xhr) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Error',
+              text: 'An error occurred while restarting the modem.',
+            });
+            console.log('Error Details:', xhr.responseText);
+          }
+        });
+      }
+    });
   });
-  </script>
-  
+
+    // Copy IP address to clipboard
+    $('.copy-btn').on('click', function() {
+      var textToCopy = $(this).closest('tr').find('#text-to-copy').text();
+      navigator.clipboard.writeText(textToCopy).then(function() {
+        Swal.fire({
+          icon: 'success',
+          title: 'Copied!',
+          text: 'IP Address copied to clipboard.',
+        });
+      }, function(err) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to copy IP Address.',
+        });
+      });
+    });
+  });
+
+</script>

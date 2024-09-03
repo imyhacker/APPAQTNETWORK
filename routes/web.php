@@ -40,6 +40,7 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
 
     Route::get('/masukmikrotik', [MKController::class, 'masukmikrotik'])->name('masukmikrotik');
     Route::post('/add-firewall-rule', [MKController::class, 'addFirewallRule'])->name('addFirewallRule');
+    Route::post('/restartmodem', [MKController::class, 'restartmodem'])->name('restartmodem');
 
 // Rute untuk mengedit data MikroTik
 Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
