@@ -90,6 +90,7 @@
                                                         <td>{{ $item->username }}</td>
                                                         <td>{{ $item->password }}</td>
                                                         <td>{{ $item->ipaddress }}</td>
+                                                        
                                                         <td>
                                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vpnInfoModal">
                                                                 <i class="fas fa-info"></i> Info
@@ -191,14 +192,16 @@
             var username = row.find('td:eq(1)').text();
             var password = row.find('td:eq(2)').text();
             var ipAddress = row.find('td:eq(3)').text();
+       
 
             // Generate the MikroTik L2TP script dynamically
-            var skripL2tp = `/ip service set winbox port=8291
+            var skripL2tp = `/ip service set api port=8728
                 
 /interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
 
+//
             // Generate the MikroTik PPTP script dynamically
-            var skripPptp = `/ip service set winbox port=8291
+            var skripPptp = `/ip service set api port=8728
                 
 /interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
 

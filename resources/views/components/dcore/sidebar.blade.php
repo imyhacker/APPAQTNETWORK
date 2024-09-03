@@ -15,7 +15,7 @@
               <a href="#" class="nav-link has-dropdown"><i class="fas fa-server"></i> <span>Server</span></a>
               <ul class="dropdown-menu">
                 <li><a class="nav-link" href="{{route('datavpn')}}">Data VPN</a></li>
-                <li><a class="nav-link" href="">Data Mikrotik</a></li>
+                <li><a class="nav-link" href="{{route('datamikrotik')}}">Data Mikrotik</a></li>
                 <li><a class="nav-link" href="">Data OLT</a></li>
 
               </ul>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Mikrotik;
+use App\Models\VPN;
 use RouterOS\Query;
 use RouterOS\Client;
 use Illuminate\Http\Request;
@@ -103,4 +104,101 @@ public function edit($id)
         }
         return response()->json(['status' => 'error']);
     }
+
+    public function masukmikrotik(Request $request)
+{
+
+    // Retrieve MikroTik data from the database based on the 'ipmikrotik' parameter
+    $ipmikrotik = $request->input('ipmikrotik');
+    $portweb = $request->input('portweb');
+    $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+    $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->first();
+    if (!$data) {
+        return redirect()->back()->with('error', 'MikroTik data not found.');
+    }
+    if(!$data){
+        return redirect()->back()->with('error', 'Portweb data not found.');
+
+    }
+    $username = $data->username; // Retrieve username from the database
+    $password = $data->password; // Retrieve password from the database
+    $portweb   = $datavpn->portweb;
+    
+    $config = [
+        'host' => $ipmikrotik,
+        'user' => $username,
+        'pass' => $password,
+        'port' => 8728
+    ];
+
+    try {
+        $client = new Client($config);
+        $query = (new Query('/ppp/active/print'));
+        $response = $client->query($query)->read();
+
+        // Pass response to the view
+        return view('Dashboard.MIKROTIK.masukmikrotik', compact('response', 'portweb'));
+    } catch (\Exception $e) {
+        return redirect()->back()->with('error', 'Error connecting to MikroTik: ' . $e->getMessage());
+    }
+}
+public function addFirewallRule(Request $request)
+    {
+        $request->validate([
+            'ipaddr' => 'required|ip',
+            'port' => 'required|numeric',
+            'ipmikrotik' => 'required|ip',
+        ]);
+
+        $ipAddress = $request->input('ipaddr');
+        $port = $request->input('port');
+        $ipMikrotik = $request->input('ipmikrotik');
+
+        try {
+            // MikroTik API client configuration
+            $config = [
+                'host' => $ipMikrotik,
+                'user' => 'admin', // Replace with your MikroTik username
+                'pass' => 'ADMINSERVER', // Replace with your MikroTik password
+                'port' => 8728
+            ];
+
+            $client = new Client($config);
+
+            // Check for existing firewall NAT rules with the comment "Remote-web"
+            $query = (new Query('/ip/firewall/nat/print'))
+                ->where('comment', 'Remote-web');
+            $existingRules = $client->query($query)->read();
+
+            if (!empty($existingRules)) {
+                // Update the existing NAT rule
+                $id = $existingRules[0]['.id'];
+                $updateQuery = (new Query('/ip/firewall/nat/set'))
+                    ->equal('.id', $id)
+                    ->equal('to-addresses', $ipAddress)
+                    ->equal('to-ports', $port);
+
+                $client->query($updateQuery)->read();
+
+            } else {
+                // Add a new NAT rule
+                $addQuery = (new Query('/ip/firewall/nat/add'))
+                    ->equal('chain', 'dstnat')
+                    ->equal('protocol', 'tcp')
+                    ->equal('dst-port', $port)
+                    ->equal('action', 'dst-nat')
+                    ->equal('to-addresses', $ipAddress)
+                    ->equal('to-ports', '80')
+                    ->equal('comment', 'Remote-web');
+
+                $client->query($addQuery)->read();
+            }
+
+            return response()->json(['success' => true]);
+
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'error' => $e->getMessage()]);
+        }
+    }
+
 }

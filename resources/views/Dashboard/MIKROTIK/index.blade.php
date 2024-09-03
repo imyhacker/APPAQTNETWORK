@@ -94,6 +94,10 @@
                                                                 'username' => $item->username,
                                                                 'password' => $item->password
                                                             ]) }}"><i class="fas fa-bolt"></i> Cek Akses</a>
+                                                           <a class="dropdown-item" href="{{ route('masukmikrotik', [
+                                                            'ipmikrotik' => $item->ipmikrotik,
+                                                            'portweb' => $item->portweb
+                                                        ]) }}"><i class="fas fa-sign-in-alt"></i> Masuk</a>
                                                             <a class="dropdown-item editMikrotik" href="javascript:void(0)" data-id="{{ $item->id }}"><i class="fas fa-edit"></i> Edit</a>
                                                             <a class="dropdown-item deleteMikrotik" href="javascript:void(0)" data-id="{{ $item->id }}"><i class="fas fa-trash"></i> Hapus</a>
                                                         </div>
