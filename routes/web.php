@@ -36,5 +36,11 @@ Route::group(['prefix' => '/home/datavpn'], function() {
 Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::get('/', [MKController::class, 'index'])->name('datamikrotik');
     Route::post('/tambahmikrotik', [MKController::class, 'tambahmikrotik'])->name('tambahmikrotik');
+    Route::get('/aksesmikrotik', [MKController::class, 'aksesMikrotik'])->name('aksesmikrotik');
+// Rute untuk mengedit data MikroTik
+Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
+Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
 
+// Rute untuk menghapus data MikroTik
+Route::delete('/delete/{id}', [MKController::class, 'destroy'])->name('mikrotik.delete');
 });
