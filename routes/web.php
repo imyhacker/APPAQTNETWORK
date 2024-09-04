@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\MKController;
+use App\Http\Controllers\OLTController;
 use App\Http\Controllers\VPNController;
 use Illuminate\Support\Facades\Route;
 
@@ -42,10 +43,18 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::post('/add-firewall-rule', [MKController::class, 'addFirewallRule'])->name('addFirewallRule');
     Route::post('/restartmodem', [MKController::class, 'restartmodem'])->name('restartmodem');
 
-// Rute untuk mengedit data MikroTik
-Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
-Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
+    Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
+    Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
 
-// Rute untuk menghapus data MikroTik
-Route::delete('/delete/{id}', [MKController::class, 'destroy'])->name('mikrotik.delete');
+    Route::delete('/delete/{id}', [MKController::class, 'destroy'])->name('mikrotik.delete');
+});
+
+
+
+//
+Route::group(['prefix' => '/home/dataolt'], function(){
+    Route::get('/', [OLTController::class, 'index'])->name('dataolt');
+    Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
+    Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
+
 });

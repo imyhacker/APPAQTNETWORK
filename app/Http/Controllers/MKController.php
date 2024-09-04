@@ -12,7 +12,7 @@ class MKController extends Controller
 {
     public function index(){
 
-        $mikrotik = Mikrotik::all();
+        $mikrotik = Mikrotik::where('unique_id', auth()->user()->unique_id)->get();
         return view('Dashboard.MIKROTIK.index', compact('mikrotik'));
     }
     public function tambahmikrotik(Request $req){
