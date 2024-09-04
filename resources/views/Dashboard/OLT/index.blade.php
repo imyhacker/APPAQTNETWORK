@@ -84,7 +84,7 @@
                                                                 <a class="dropdown-item" href="{{ route('aksesolt', ['ipolt' => $olt->ipolt]) }}">
                                                                     <i class="fas fa-bolt"></i> Akses
                                                                 </a>
-                                                                <a class="dropdown-item" href="#"><i class="fas fa-edit"></i> Edit</a>
+                                                               
                                                                 <a class="dropdown-item" href="#"><i class="fas fa-trash"></i> Hapus</a>
                                                             </div>
                                                           </div>
@@ -105,6 +105,9 @@
         <x-dcore.footer />
     </div>
 </div>
+
+
+
 <x-dcore.script />
 
 @if (session('success'))
@@ -124,9 +127,3 @@
         });
     </script>
 @endif
-
-<script>
-    $(document).ready(function() {
-        $('#oltTable').DataTable();
-    });
-</script>
