@@ -56,5 +56,5 @@ Route::group(['prefix' => '/home/dataolt'], function(){
     Route::get('/', [OLTController::class, 'index'])->name('dataolt');
     Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
     Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
-    
+    Route::get('/{id}/hapusolt', [OLTController::class, 'hapusolt'])->name('hapusolt');
 });

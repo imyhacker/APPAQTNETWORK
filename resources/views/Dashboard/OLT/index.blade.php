@@ -35,8 +35,8 @@
                                 <form id="yourFormId" action="{{ route('tambaholt') }}" method="post">
                                     @csrf
                                     <div class="form-group">
-                                        <label for="ipmikrotik">IP OLT</label>
-                                        <input type="text" class="form-control" placeholder="172.160.x.x" name="ipolt" id="namaAkunInput">
+                                        <label for="ipolt">IP OLT</label>
+                                        <input type="text" class="form-control" placeholder="172.160.x.x" name="ipolt" id="ipolt">
                                     </div>
                                     <div class="form-group">
                                         <label for="site">Site / Nama OLT</label>
@@ -75,19 +75,20 @@
                                                     <td>{{ $olt->ipolt }}</td>
                                                     <td>{{ $olt->site }}</td>
                                                     <td>
-                                                        <!-- Direct link to access OLT -->
+                                                        <!-- Dropdown Button for Actions -->
                                                         <div class="dropdown">
-                                                            <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown" aria-expanded="false">
-                                                              Action
+                                                            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ $olt->id }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                                Action
                                                             </button>
-                                                            <div class="dropdown-menu">
+                                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $olt->id }}">
                                                                 <a class="dropdown-item" href="{{ route('aksesolt', ['ipolt' => $olt->ipolt]) }}">
                                                                     <i class="fas fa-bolt"></i> Akses
                                                                 </a>
-                                                               
-                                                                <a class="dropdown-item" href="#"><i class="fas fa-trash"></i> Hapus</a>
+                                                                <a class="dropdown-item" href="{{ route('hapusolt', ['id' => $olt->id]) }}">
+                                                                    <i class="fas fa-trash"></i> Hapus
+                                                                </a>
                                                             </div>
-                                                          </div>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -101,20 +102,25 @@
                 <!-- END MAIN CONTENT -->
             </section>
         </div>
-       
+
         <x-dcore.footer />
     </div>
 </div>
 
 
-
 <x-dcore.script />
+<!-- DataTables Script -->
+<script>
+     $(document).ready(function() {
+    $('#oltTable').DataTable();
+     });
+</script>
 
 @if (session('success'))
     <script>
         Swal.fire({
             icon: 'success',
-            title: '{{ session('success') }}',
+            title: '{{ session("success") }}',
             showConfirmButton: true
         });
     </script>
@@ -122,7 +128,7 @@
     <script>
         Swal.fire({
             icon: 'error',
-            title: '{{ session('error') }}',
+            title: '{{ session("error") }}',
             showConfirmButton: true
         });
     </script>
