@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DepanController;
 use App\Http\Controllers\IPController;
 use App\Http\Controllers\MKController;
 use App\Http\Controllers\OLTController;
@@ -17,9 +18,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
+
+Route::get('/', [DepanController::class, 'index'])->name('indexdepan');
+
+
 
 Auth::routes();
 
