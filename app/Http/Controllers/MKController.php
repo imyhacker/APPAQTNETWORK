@@ -43,20 +43,24 @@ class MKController extends Controller
     }
     public function aksesMikrotik(Request $request)
 {
+   
     $ipmikrotik = $request->query('ipmikrotik');
     $username = $request->query('username');
     $password = $request->query('password');
 
+    $dataport = VPN::where('ipaddress', $ipmikrotik)->first();
+   // dd($dataport->portapi);
+    //dd($password);
     try {
         // Example of accessing the MikroTik router using an API or SSH
         $connection = new Client([
-            'host' => $ipmikrotik,
+            'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
             'user' => $username,
             'pass' => $password,
+           
         ]);
-
-        
-        // If connection is successful, you can perform additional actions here
+    
+       // If connection is successful, you can perform additional actions here
 
         session()->flash('success', 'Mikrotik Terhubung');
         return redirect()->back();
@@ -123,12 +127,13 @@ public function edit($id)
     $username = $data->username; // Retrieve username from the database
     $password = $data->password; // Retrieve password from the database
     $portweb   = $datavpn->portweb;
-    
+    $dataport = VPN::where('ipaddress', $ipmikrotik)->first();
+
     $config = [
-        'host' => $ipmikrotik,
+        'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
         'user' => $username,
         'pass' => $password,
-        'port' => 8728
+        'port' => $portweb
     ];
 
     try {
@@ -145,9 +150,9 @@ public function edit($id)
 public function addFirewallRule(Request $request)
     {
         $request->validate([
-            'ipaddr' => 'required|ip',
-            'port' => 'required|numeric',
-            'ipmikrotik' => 'required|ip',
+            'ipaddr' => 'required',
+            'port' => 'required',
+            'ipmikrotik' => 'required',
         ]);
 
         $ipAddress = $request->input('ipaddr');
@@ -155,10 +160,13 @@ public function addFirewallRule(Request $request)
         $ipMikrotik = $request->input('ipmikrotik');
 
         $user = Mikrotik::where('unique_id', auth()->user()->unique_id)->first();
+        $dataport = VPN::where('ipaddress', $ipMikrotik)->first();
+
+       // $dstport = Mikrotik::where('unique_id', auth()->user()->unique_id)->orWhere('ipmikrotik', $ipMikrotik)->first();
         try {
             // MikroTik API client configuration
             $config = [
-                'host' => $ipMikrotik,
+                 'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
                 'user' => $user->username, // Replace with your MikroTik username
                 'pass' => $user->password, // Replace with your MikroTik password
                 'port' => 8728
@@ -176,6 +184,8 @@ public function addFirewallRule(Request $request)
                 $id = $existingRules[0]['.id'];
                 $updateQuery = (new Query('/ip/firewall/nat/set'))
                     ->equal('.id', $id)
+                    ->equal('dst-port', $dataport->portweb)
+
                     ->equal('to-addresses', $ipAddress)
                     ->equal('to-ports', $port);
 
@@ -186,10 +196,10 @@ public function addFirewallRule(Request $request)
                 $addQuery = (new Query('/ip/firewall/nat/add'))
                     ->equal('chain', 'dstnat')
                     ->equal('protocol', 'tcp')
-                    ->equal('dst-port', $port)
+                    ->equal('dst-port', $dataport->portweb)
                     ->equal('action', 'dst-nat')
                     ->equal('to-addresses', $ipAddress)
-                    ->equal('to-ports', '80')
+                    ->equal('to-ports', $port)
                     ->equal('comment', 'Remote-web');
 
                 $client->query($addQuery)->read();
@@ -226,7 +236,7 @@ public function addFirewallRule(Request $request)
                 'host' => $ipMikrotik,
                 'user' => $user->username,
                 'pass' => $user->password,
-                'port' => 8728
+                'port' => 8714
             ];
     
             $client = new Client($config);

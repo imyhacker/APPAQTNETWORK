@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\IPController;
 use App\Http\Controllers\MKController;
 use App\Http\Controllers\OLTController;
 use App\Http\Controllers\VPNController;
@@ -51,10 +52,16 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
 
 
 
-//
+// OLT
 Route::group(['prefix' => '/home/dataolt'], function(){
     Route::get('/', [OLTController::class, 'index'])->name('dataolt');
     Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
     Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
     Route::get('/{id}/hapusolt', [OLTController::class, 'hapusolt'])->name('hapusolt');
+});
+
+Route::group(['prefix' => '/home/dataip'], function(){
+    Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
+    Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
+
 });

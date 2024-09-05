@@ -109,7 +109,7 @@ class VPNController extends Controller
     
                 $queryAPIService = new Query('/ip/service/print');
                 $apiResponse = $client->query($queryAPIService)->read();
-    
+                
                 $apiPort = null;
                 foreach ($apiResponse as $service) {
                     if (isset($service['name']) && $service['name'] == 'api') {
@@ -122,7 +122,7 @@ class VPNController extends Controller
                     throw new \Exception("API service port tidak ditemukan.");
                 }
     
-                $dstPort = 1000;
+                $dstPort = 10000;
                 while (in_array($dstPort, $usedPorts)) {
                     $dstPort++;
                     if ($dstPort > 65535) {
@@ -176,6 +176,7 @@ class VPNController extends Controller
                         'username' => $username,
                         'password' => $password,
                         'ipaddress' => $remoteIp,
+                        'portapi' => $dstPort,
                         'portweb' => $dstPort2,
                     ]);
     
