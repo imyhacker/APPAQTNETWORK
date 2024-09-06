@@ -180,7 +180,7 @@ class VPNController extends Controller
                         'portweb' => $dstPort2,
                     ]);
     
-                    session()->flash('success', "PPP Secret untuk '$username' berhasil ditambahkan dengan IP lokal $localIp dan IP remote $remoteIp. Aturan NAT dibuat dengan port tujuan $dstPort dan $dstPort2.");
+                    session()->flash('success', "PPP Secret Berhasil Di Buat !");
                     return redirect()->back();
                 }
             }
