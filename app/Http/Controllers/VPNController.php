@@ -23,6 +23,14 @@ class VPNController extends Controller
     }
     public function uploadvpn(Request $req)
     {
+        $namaakun = $req->input('namaakun');
+        $username = $req->input('username');
+        $password = $req->input('password');
+        $akuncomment = "AQT_" . $namaakun;
+        if($namaakun == null || $username == null|| $password == null){
+            session()->flash('error', 'Harap Iisikan Data !');
+
+        }
         try {
             // Konfigurasi koneksi ke MikroTik
             $client = new Client([
@@ -32,14 +40,7 @@ class VPNController extends Controller
             ]);
     
             // Data dari request
-            $namaakun = $req->input('namaakun');
-            $username = $req->input('username');
-            $password = $req->input('password');
-            $akuncomment = "AQT_" . $namaakun;
-            if($namaakun == null || $username == null|| $password == null){
-                session()->flash('error', 'Harap Iisikan Data !');
-
-            }
+           
             // Mengambil semua PPP secrets untuk memeriksa nama pengguna yang sudah ada
             $queryAllSecrets = new Query('/ppp/secret/print');
             $response = $client->query($queryAllSecrets)->read();
