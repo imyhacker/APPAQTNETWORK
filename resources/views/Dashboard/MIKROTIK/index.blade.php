@@ -77,9 +77,10 @@
                                             </tr>
                                         </thead>
                                         <tbody>
+                                            @php $id = 1; @endphp
                                             @foreach($mikrotik as $item)
                                             <tr>
-                                                <td>{{ $item->id }}</td>
+                                                <td>{{ $no++ }}</td>
                                                 <td>{{ $item->ipmikrotik }}</td>
                                                 <td>{{ $item->site }}</td>
                                                 <td>{{ $item->username }}</td>
