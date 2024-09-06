@@ -36,7 +36,10 @@ class VPNController extends Controller
             $username = $req->input('username');
             $password = $req->input('password');
             $akuncomment = "AQT_" . $namaakun;
-    
+            if($namaakun == null || $username == null|| $password == null){
+                session()->flash('error', 'Harap Iisikan Data !');
+
+            }
             // Mengambil semua PPP secrets untuk memeriksa nama pengguna yang sudah ada
             $queryAllSecrets = new Query('/ppp/secret/print');
             $response = $client->query($queryAllSecrets)->read();
