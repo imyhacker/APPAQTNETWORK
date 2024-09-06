@@ -77,7 +77,7 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @php $id = 1; @endphp
+                                            @php $no = 1; @endphp
                                             @foreach($mikrotik as $item)
                                             <tr>
                                                 <td>{{ $no++ }}</td>
