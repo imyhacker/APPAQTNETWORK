@@ -71,7 +71,7 @@ class VPNController extends Controller
     
             // Tentukan fourthOctet untuk lokal dan remote
             $existingCount = count($response);
-            $fourthOctetLocal = 1 + ($existingCount % 255);
+            $fourthOctetLocal = 1;
             $fourthOctetRemote = 10 + ($existingCount % 255);
     
             // Generate IP addresses
