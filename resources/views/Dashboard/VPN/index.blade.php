@@ -312,3 +312,14 @@
                   });
               </script>
           @endif
+
+          @if ($errors->any())
+    <script>
+        Swal.fire({
+            icon: 'error',
+            title: 'Input Error',
+            text: '{{ implode(", ", $errors->all()) }}',
+            confirmButtonText: 'OK'
+        });
+    </script>
+@endif
