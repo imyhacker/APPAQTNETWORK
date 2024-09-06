@@ -50,47 +50,9 @@
  
 
         </section>
-         <!-- Bootstrap Modal -->
-  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="modalTitle" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalTitle">Welcome Back!</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p>You have successfully logged in. Enjoy your session!</p>
-                <p>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network !</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+    
       </div>
       <x-dcore.footer />
     </div>
   </div>
 <x-dcore.script />
-
-<script>
-  // Fungsi untuk menampilkan modal
-  function showModal() {
-      var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-      loginModal.show();
-  }
-
-  // Cek jika sessionStorage untuk modal belum diset
-  if (!sessionStorage.getItem('modalShown')) {
-      // Jika modal belum ditampilkan, tampilkan modal
-      showModal();
-      // Set item di sessionStorage agar tidak muncul lagi pada sesi yang sama
-      sessionStorage.setItem('modalShown', 'true');
-  }
-
-  // Hapus item di sessionStorage saat logout (contoh simulasi)
-  document.getElementById('logout-form')?.addEventListener('click', function() {
-      sessionStorage.removeItem('modalShown');
-  });
-</script>
