@@ -26,7 +26,7 @@ Route::get('/', [DepanController::class, 'index'])->name('indexdepan');
 
 
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
@@ -36,7 +36,7 @@ Route::group(['prefix' => '/home/datavpn'], function() {
     Route::get('/', [VPNController::class, 'index'])->name('datavpn');
     Route::post('/uploadvpn', [VPNController::class, 'uploadvpn'])->name('uploadvpn');
     Route::delete('/{id}', [VPNController::class, 'hapusvpn'])->name('hapusvpn');
-});
+})->middleware(['auth', 'verified']);
 
 
 // MIKROTIK
@@ -53,7 +53,7 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
 
     Route::delete('/delete/{id}', [MKController::class, 'destroy'])->name('mikrotik.delete');
-});
+})->middleware(['auth', 'verified']);;
 
 
 
@@ -63,10 +63,10 @@ Route::group(['prefix' => '/home/dataolt'], function(){
     Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
     Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
     Route::get('/{id}/hapusolt', [OLTController::class, 'hapusolt'])->name('hapusolt');
-});
+})->middleware(['auth', 'verified']);;
 
 Route::group(['prefix' => '/home/dataip'], function(){
     Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
     Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
 
-});
+})->middleware(['auth', 'verified']);;

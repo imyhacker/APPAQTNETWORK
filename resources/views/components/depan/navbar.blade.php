@@ -16,7 +16,7 @@
           <li><a href="#services">Pelayanan</a></li>
           <li><a href="#faq">FAQ</a></li>
           <li><a href="#contact">Kontak</a></li>
-          <li><a href="" class="bi bi-lightning">My Account</a></li>
+          <li><a href="{{ route('login') }}" class="bi bi-lightning">My Account</a></li>
 
         </ul>
         <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
