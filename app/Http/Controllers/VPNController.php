@@ -23,14 +23,22 @@ class VPNController extends Controller
     }
     public function uploadvpn(Request $req)
     {
-        $namaakun = $req->input('namaakun');
-        $username = $req->input('username');
-        $password = $req->input('password');
-        $akuncomment = "AQT_" . $namaakun;
-        if($namaakun == null || $username == null|| $password == null){
-            session()->flash('error', 'Harap Iisikan Data !');
+       // Validasi input
+    $validated = $req->validate([
+        'namaakun' => 'required|string',
+        'username' => 'required|string',
+        'password' => 'required|string',
+    ], [
+        'namaakun.required' => 'Nama akun harus diisi.',
+        'username.required' => 'Username harus diisi.',
+        'password.required' => 'Password harus diisi.',
+    ]);
 
-        }
+    $namaakun = $req->input('namaakun');
+    $username = $req->input('username');
+    $password = $req->input('password');
+    $akuncomment = "AQT_" . $namaakun;
+
         try {
             // Konfigurasi koneksi ke MikroTik
             $client = new Client([
