@@ -15,7 +15,7 @@
                 
                 <div class="card-body text-center">
                   
-                  <h3>Selamat Datang Di AMMIK AQT Network V.0.1 !</h3>
+                  <h3>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network V.0.1 !</h3>
                 </div>
               </div>
               
