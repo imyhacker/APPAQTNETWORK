@@ -1,3 +1,3 @@
 <div class="login-brand">
-              <img src="https://demo.getstisla.com/assets/img/stisla-fill.svg" alt="logo" width="100" class="shadow-light rounded-circle">
+              <img src="{{asset('assets/logo.png')}}" alt="logo" width="50%" class="shadow-none">
             </div>
