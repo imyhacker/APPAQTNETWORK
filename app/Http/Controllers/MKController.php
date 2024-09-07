@@ -41,6 +41,8 @@ class MKController extends Controller
             ]);
         }
     }
+
+    //  DATA DASAR MIKROTIK
     public function aksesMikrotik(Request $request)
 {
    
@@ -49,25 +51,62 @@ class MKController extends Controller
     $password = $request->query('password');
 
     $dataport = VPN::where('ipaddress', $ipmikrotik)->first();
-   // dd($dataport->portapi);
-    //dd($password);
-    try {
-        // Example of accessing the MikroTik router using an API or SSH
-        $connection = new Client([
-            'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
-            'user' => $username,
-            'pass' => $password,
-           
-        ]);
-    
-       // If connection is successful, you can perform additional actions here
 
-        session()->flash('success', 'Mikrotik Terhubung');
-        return redirect()->back();
-    } catch (\Exception $e) {
-        session()->flash('error', 'Failed to connect to MikroTik router: ' . $e->getMessage());
-        return redirect()->back();
+    if(is_null($dataport)) {
+        // Handle case when there is no data for the IP address in the database
+        try {
+            // Attempt to connect using default MikroTik IP without port information
+            $connection = new Client([
+                'host' => $ipmikrotik,
+                'user' => $username,
+                'pass' => $password,
+            ]);
+            
+            // If connection is successful
+            session()->flash('success', 'Mikrotik Terhubung');
+            return redirect()->back();
+        } catch (\Exception $e) {
+            session()->flash('error', 'Failed to connect to MikroTik router : ' . $e->getMessage());
+            return redirect()->back();
+        }
+    } else {
+        // Case where database entry exists for the IP
+        if(is_null($dataport->portapi) == false){
+            try {
+                // Connect with port information from the database
+                $connection = new Client([
+                    'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
+                    'user' => $username,
+                    'pass' => $password,
+                ]);
+    
+                // If connection is successful
+                session()->flash('success', 'Mikrotik Terhubung');
+                return redirect()->back();
+            } catch (\Exception $e) {
+                session()->flash('error', 'Failed to connect to MikroTik router :  ' . $e->getMessage());
+                return redirect()->back();
+            }
+        } else {
+            try {
+                // Connect using the IP without port information
+                $connection = new Client([
+                    'host' => $ipmikrotik,
+                    'user' => $username,
+                    'pass' => $password,
+                ]);
+    
+                // If connection is successful
+                session()->flash('success', 'Mikrotik Terhubung tanpa port dari database');
+                return redirect()->back();
+            } catch (\Exception $e) {
+                session()->flash('error', 'Failed to connect to MikroTik router: ' . $e->getMessage());
+                return redirect()->back();
+            }
+        }
     }
+    
+    
 }
 public function edit($id)
     {
@@ -108,109 +147,267 @@ public function edit($id)
         }
         return response()->json(['status' => 'error']);
     }
-
     public function masukmikrotik(Request $request)
-{
-
-    // Retrieve MikroTik data from the database based on the 'ipmikrotik' parameter
+    {
+    // Ambil data MikroTik dari database berdasarkan parameter 'ipmikrotik'
     $ipmikrotik = $request->input('ipmikrotik');
-    $portweb = $request->input('portweb');
     $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
-    $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->first();
+    
+    // Cek apakah data MikroTik ditemukan
     if (!$data) {
         return redirect()->back()->with('error', 'MikroTik data not found.');
     }
-    if(!$data){
-        return redirect()->back()->with('error', 'Portweb data not found.');
+    
+    $username = $data->username; // Ambil username dari database
+    $password = $data->password; // Ambil password dari database
+    $site = $data->site;
 
+    // Cek data VPN berdasarkan IP address yang diberikan
+    $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->first();
+    
+    // Set 'portweb' dari input request atau data VPN (jika ada)
+    $portweb = $request->input('portweb') ?? ($datavpn->portweb ?? null);
+    // Set 'portapi' dari data VPN jika tersedia
+    $portapi = $datavpn->portapi ?? null;
+
+    // Membangun konfigurasi koneksi berdasarkan data yang ada
+    if (is_null($portapi)) {
+        // Jika 'portapi' tidak ditemukan, gunakan IP publik dan port default
+        return redirect()->back()->with('error', 'Untuk Masuk Ke Mikrotik Harus Menggunakan Jaringan VPN Yang Kami Sediakan');
+
+    } else {
+        // Jika data VPN ditemukan, gunakan 'portapi' dari VPN
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
+            'user' => $username,
+            'pass' => $password,
+        ];
+
+        // Sertakan 'portweb' jika ada
+        if ($portweb) {
+            $config['port'] = $portweb;
+        }
     }
-    $username = $data->username; // Retrieve username from the database
-    $password = $data->password; // Retrieve password from the database
-    $portweb   = $datavpn->portweb;
-    $dataport = VPN::where('ipaddress', $ipmikrotik)->first();
-
-    $config = [
-        'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
-        'user' => $username,
-        'pass' => $password,
-        'port' => $portweb
-    ];
 
     try {
+        // Koneksi ke MikroTik menggunakan konfigurasi yang telah dibuat
         $client = new Client($config);
         $query = (new Query('/ppp/active/print'));
         $response = $client->query($query)->read();
+        
+        // Set variabel session untuk menandai bahwa koneksi berhasil
+        session([
+            'mikrotik_connected' => true, 
+            'ipmikrotik' => $ipmikrotik, 
+            'portapi' => $portapi
+        ]);
 
-        // Pass response to the view
-        return view('Dashboard.MIKROTIK.masukmikrotik', compact('response', 'portweb'));
+        // Hapus session 'session_disconnected' jika ada
+        session()->forget('session_disconnected');
+
+        // Arahkan ke halaman dashboardmikrotik setelah berhasil terkoneksi
+        return redirect()->route('dashboardmikrotik', ['ipmikrotik' => $ipmikrotik]);
     } catch (\Exception $e) {
+        // Jika terjadi error saat koneksi, hapus session dan tampilkan pesan error
+        session()->forget('mikrotik_connected');
+        session(['session_disconnected' => true]);
+
         return redirect()->back()->with('error', 'Error connecting to MikroTik: ' . $e->getMessage());
     }
-}
-public function addFirewallRule(Request $request)
+    }
+
+    
+    public function keluarmikrotik(Request $request)
+    {
+        // Clear MikroTik session variables
+        $request->session()->forget(['mikrotik_connected', 'session_disconnected']);
+    
+        // Redirect to login or another page
+        return redirect()->route('datamikrotik')->with('success', 'Berhasil Logout');
+    }
+
+    
+    /////////////////////////////
+    public function dashboardmikrotik(Request $request)
+    {
+        $ipmikrotik = $request->input('ipmikrotik');
+        
+        // Ambil data MikroTik berdasarkan IP
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+    
+        // Cek apakah data MikroTik ditemukan
+        if (!$data) {
+            return redirect()->back()->with('error', 'MikroTik data not found.');
+        }
+    
+        // Ambil informasi lain yang dibutuhkan untuk ditampilkan di dashboard
+        $site = $data->site;
+        $username = $data->username;
+        
+        // Tampilkan dashboard dengan data yang relevan
+        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username'));
+    }
+    
+
+    public function getActiveConnection(Request $request)
+    {
+
+        $data = Mikrotik::where('ipmikrotik', $request->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+    
+        // Cek apakah data MikroTik ditemukan
+        if (!$data) {
+            return redirect()->back()->with('error', 'MikroTik data not found.');
+        }
+       // dd($data);
+        $username = $data->username; // Ambil username dari database
+        $password = $data->password; // Ambil password dari database
+        $site = $data->site;
+    
+        // Cek data VPN berdasarkan IP address yang diberikan
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+        
+        // Set 'portweb' dari input request atau data VPN (jika ada)
+        $portweb = $request->input('portweb') ?? ($datavpn->portweb ?? null);
+        // Set 'portapi' dari data VPN jika tersedia
+        $portapi = $datavpn->portapi ?? null;
+        //dd($portapi);
+        //dd($portapi);
+        // Membangun konfigurasi koneksi berdasarkan data yang ada
+       
+            // Jika data VPN ditemukan, gunakan 'portapi' dari VPN
+            $config = [
+                'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
+                'user' => $username,
+                'pass' => $password,
+            ];
+    
+        try {
+            // Koneksi ke MikroTik menggunakan konfigurasi yang telah dibuat
+            $client = new Client($config);
+            $query = (new Query('/ppp/active/print'));
+            $response = $client->query($query)->read();
+            
+            //dd($response);
+          
+            //dd($query);
+            return view('Dashboard.MIKROTIK.active-connection', ['ipmikrotik' => $data->pmikrotik, 'response' => $response, 'portweb' => $portweb, 'portapi' => $portapi]);
+            // Arahkan ke halaman dashboardmikrotik setelah berhasil terkoneksi
+           // return redirect()->route('dashboardmikrotik', ['ipmikrotik' => $ipmikrotik]);
+        } catch (\Exception $e) {
+            // Jika terjadi error saat koneksi, hapus session dan tampilkan pesan error
+           
+            //dd($e->getMessage());
+           return redirect()->back()->with('error', 'Error connecting to MikroTik: ' . $e->getMessage());
+        }
+
+
+
+
+
+
+
+
+        
+
+
+
+        // ///// GENERATE
+        // // Ambil parameter 'ipmikrotik' dari query string
+        // $ipmikrotik = $request->query('ipmikrotik');
+
+        // // Pastikan parameter 'ipmikrotik' ada
+        // if (!$ipmikrotik) {
+        //     return redirect()->back()->with('error', 'IP MikroTik tidak ditemukan.');
+        // }
+
+        // // Lanjutkan logika Anda, misalnya mengambil active connection dari MikroTik
+        // // Sesuaikan dengan kebutuhan Anda
+        // // Contoh: Mengambil data dari MikroTik API atau memproses logika lain
+
+        // return view('Dashboard.MIKROTIK.active-connection', compact('ipmikrotik'));
+    }
+    public function addFirewallRule(Request $request)
     {
         $request->validate([
             'ipaddr' => 'required',
             'port' => 'required',
             'ipmikrotik' => 'required',
         ]);
-
+    
         $ipAddress = $request->input('ipaddr');
         $port = $request->input('port');
         $ipMikrotik = $request->input('ipmikrotik');
-
-        $user = Mikrotik::where('unique_id', auth()->user()->unique_id)->first();
-        $dataport = VPN::where('ipaddress', $ipMikrotik)->first();
-
-       // $dstport = Mikrotik::where('unique_id', auth()->user()->unique_id)->orWhere('ipmikrotik', $ipMikrotik)->first();
+    
+        // Ambil data MikroTik berdasarkan IP
+        $data = Mikrotik::where('ipmikrotik', $request->ipmikrotik)->first();
+        
+        // Cek apakah data MikroTik ditemukan
+        if (!$data) {
+            return redirect()->back()->with('error', 'MikroTik data not found.');
+        }
+    
+        $username = $data->username;
+        $password = $data->password;
+        $site = $data->site;
+    
+        // Ambil data VPN terkait berdasarkan IP MikroTik
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->first();
+    
+        // Cek apakah data VPN ditemukan
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'VPN data not found.');
+        }
+    
+        // Set 'portapi' dan 'portweb' dari data VPN
+        $portapi = $datavpn->portapi ?? '8728'; // Default '8728' jika 'portapi' tidak ditemukan
+        $portweb = $datavpn->portweb ?? '80'; // Default '80' jika 'portweb' tidak ditemukan
+    
         try {
-            // MikroTik API client configuration
+            // Konfigurasi client MikroTik API
             $config = [
-                 'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
-                'user' => $user->username, // Replace with your MikroTik username
-                'pass' => $user->password, // Replace with your MikroTik password
-                'port' => 8728
+                'host' => 'id-1.aqtnetwork.my.id:'.$portapi,
+                'user' => $username,
+                'pass' => $password,
             ];
-
+    
             $client = new Client($config);
-
-            // Check for existing firewall NAT rules with the comment "Remote-web"
+    
+            // Periksa apakah ada aturan firewall NAT dengan port tertentu
             $query = (new Query('/ip/firewall/nat/print'))
-                ->where('comment', 'Remote-web');
+                ->where('dst-port', $portweb);
             $existingRules = $client->query($query)->read();
-
+    
             if (!empty($existingRules)) {
-                // Update the existing NAT rule
+                // Update aturan NAT yang sudah ada
                 $id = $existingRules[0]['.id'];
                 $updateQuery = (new Query('/ip/firewall/nat/set'))
                     ->equal('.id', $id)
-                    ->equal('dst-port', $dataport->portweb)
-
+                    ->equal('dst-port', $portweb)
                     ->equal('to-addresses', $ipAddress)
                     ->equal('to-ports', $port);
-
+    
                 $client->query($updateQuery)->read();
-
+    
             } else {
-                // Add a new NAT rule
+                // Tambahkan aturan NAT baru
                 $addQuery = (new Query('/ip/firewall/nat/add'))
                     ->equal('chain', 'dstnat')
                     ->equal('protocol', 'tcp')
-                    ->equal('dst-port', $dataport->portweb)
+                    ->equal('dst-port', $portweb)
                     ->equal('action', 'dst-nat')
                     ->equal('to-addresses', $ipAddress)
-                    ->equal('to-ports', $port)
-                    ->equal('comment', 'Remote-web');
-
+                    ->equal('to-ports', $port);
+    
                 $client->query($addQuery)->read();
             }
-
+    
             return response()->json(['success' => true]);
-
+    
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'error' => $e->getMessage()]);
         }
     }
+    
     public function restartmodem(Request $request)
     {
         // Validate request data
@@ -223,20 +420,36 @@ public function addFirewallRule(Request $request)
         $ipAddress = $request->input('ipaddr');
         $port = $request->input('port');
         $ipMikrotik = $request->input('ipmikrotik');
-    
-        // Retrieve the user for MikroTik API credentials
-        $user = Mikrotik::where('unique_id', auth()->user()->unique_id)->first();
-        if (!$user) {
-            return response()->json(['success' => false, 'error' => 'User not found.']);
-        }
-    
+     // Ambil data MikroTik berdasarkan IP
+     $data = Mikrotik::where('ipmikrotik', $request->ipmikrotik)->first();
+        
+     // Cek apakah data MikroTik ditemukan
+     if (!$data) {
+         return redirect()->back()->with('error', 'MikroTik data not found.');
+     }
+ 
+     $username = $data->username;
+     $password = $data->password;
+     $site = $data->site;
+ 
+     // Ambil data VPN terkait berdasarkan IP MikroTik
+     $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->first();
+ 
+     // Cek apakah data VPN ditemukan
+     if (!$datavpn) {
+         return redirect()->back()->with('error', 'VPN data not found.');
+     }
+ 
+     // Set 'portapi' dan 'portweb' dari data VPN
+     $portapi = $datavpn->portapi ?? '8728'; // Default '8728' jika 'portapi' tidak ditemukan
+     $portweb = $datavpn->portweb ?? '80'; // Default '80' jika 'portw
         try {
             // MikroTik API client configuration
             $config = [
-                'host' => $ipMikrotik,
-                'user' => $user->username,
-                'pass' => $user->password,
-                'port' => 8714
+                'host' => 'id-1.aqtnetwork.my.id:'.$portapi,
+                'user' => $username,
+                'pass' => $password,
+                'port' => 8728
             ];
     
             $client = new Client($config);
@@ -267,8 +480,5 @@ public function addFirewallRule(Request $request)
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
         }
-    }
-    
-
-    
+    }   
 }

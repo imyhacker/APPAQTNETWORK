@@ -43,11 +43,21 @@ Route::group(['prefix' => '/home/datavpn'], function() {
 Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::get('/', [MKController::class, 'index'])->name('datamikrotik');
     Route::post('/tambahmikrotik', [MKController::class, 'tambahmikrotik'])->name('tambahmikrotik');
+
+
     Route::get('/aksesmikrotik', [MKController::class, 'aksesMikrotik'])->name('aksesmikrotik');
 
     Route::get('/masukmikrotik', [MKController::class, 'masukmikrotik'])->name('masukmikrotik');
+    Route::get('/dashboardmikrotik', [MKController::class, 'dashboardmikrotik'])->name('dashboardmikrotik');
+
+    Route::post('/keluarmikrotik', [MKController::class, 'keluarmikrotik'])->name('keluarmikrotik');
+
+    Route::get('/active-connection', [MKController::class, 'getActiveConnection'])->name('active-connection');
+
+
+
     Route::post('/add-firewall-rule', [MKController::class, 'addFirewallRule'])->name('addFirewallRule');
-    Route::post('/restartmodem', [MKController::class, 'restartmodem'])->name('restartmodem');
+   Route::post('/restartmodem', [MKController::class, 'restartmodem'])->name('restartmodem');
 
     Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
     Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
@@ -69,4 +79,5 @@ Route::group(['prefix' => '/home/dataip'], function(){
     Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
     Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
 
-})->middleware(['auth', 'verified']);;
+})->middleware(['auth', 'verified']);
+
