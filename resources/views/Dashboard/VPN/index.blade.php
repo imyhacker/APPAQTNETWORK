@@ -1,5 +1,20 @@
 <x-dcore.head />
-<div id="app">
+<style>
+    .card {
+    padding: 20px; /* Memberikan padding pada keseluruhan card */
+  }
+
+  .card p {
+    margin-bottom: 15px; /* Memberikan jarak antara paragraf dan elemen lainnya */
+    padding: 10px; /* Memberikan ruang di dalam elemen p */
+  }
+
+  .card hr {
+    margin-top: 20px; /* Memberikan jarak antara garis horizontal dan teks */
+    margin-bottom: 20px;
+  }
+</style>
+<div id="app"> 
     <div class="main-wrapper main-wrapper-1">
         <div class="navbar-bg"></div>
         <x-dcore.nav />
