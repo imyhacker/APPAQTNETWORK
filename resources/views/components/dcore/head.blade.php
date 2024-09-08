@@ -337,8 +337,6 @@ h1, h2, h3, h4, h5, h6 {
                 padding: 0.25rem; /* Padding lebih kecil untuk layar kecil */
             }
         }
-
-        
 /* Media Queries untuk ukuran lebih kecil */
 @media (max-width: 768px) {
     .sidebar {
