@@ -1,3 +1,53 @@
+<style>
+    .wide-card {
+        width: 100%;
+        margin: 0;
+        border-radius: 5px; /* Rounded corners */
+        overflow: hidden; /* Ensures the content stays within the rounded edges */
+    }
+
+    .card-body, .card-header {
+        padding: 1rem; /* Optional: Adjust padding */
+    }
+
+    /* Adjust padding for smaller screens */
+    @media (max-width: 768px) {
+        .wide-card .card-body {
+            padding: 1rem;
+        }
+
+        .wide-card h3 {
+            font-size: 1.5rem;
+        }
+
+        .wide-card h6 {
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .wide-card .card-body {
+            padding: 0.5rem;
+        }
+
+        .wide-card h3 {
+            font-size: 1.2rem;
+        }
+    }
+
+    /* Remove space between columns */
+    .no-gutters {
+        margin-right: 0;
+        margin-left: 0;
+    }
+
+    .no-gutters > .col, .no-gutters > [class*="col-"] {
+        padding-right: 0;
+        padding-left: 0;
+    }
+</style>
+
+
 <x-dcore.head />
 <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -10,10 +60,10 @@
             <section class="section">
               
                 <!-- MAIN CONTENT -->
-                <div class="row">
+                <div class="row no-gutters">
                     <!-- Pemberitahuan Section -->
-                    <div class="col-lg-12">
-                        <div class="card">
+                    <div class="col-12">
+                        <div class="card wide-card">
                             <div class="card-header">
                                 <h4 style="font-size: 20px;"> <i class="fas fa-info-circle"></i> Pemberitahuan</h4>
                             </div>
@@ -29,8 +79,8 @@
                     </div>
 
                     <!-- Data VPN Section -->
-                    <div class="col-lg-12">
-                        <div class="card">
+                    <div class="col-12">
+                        <div class="card wide-card">
                             <div class="card-header">
                                 <h4>Data VPN</h4>
                                 <!-- Button to Trigger Add VPN Modal -->

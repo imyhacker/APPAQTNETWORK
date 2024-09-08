@@ -1,57 +1,9 @@
-<x-dcore.head />
-<div id="app">
-    <div class="main-wrapper main-wrapper-1">
-        <div class="navbar-bg"></div>
-        <x-dcore.nav />
-        <x-dcore.sidebar />
-        <div class="main-content">
-            <section class="section">
-                <!-- MAIN OF CENTER CONTENT -->
-                <div class="row no-gutters"> <!-- Remove gutter space between columns -->
-                    <!-- Welcome Card -->
-                    <div class="col-12"> <!-- Full width column -->
-                        <div class="card wide-card">
-                            <div class="card-body text-center">
-                                <h3>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network V.0.1 !</h3>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Access Buttons Card -->
-                    <div class="col-12"> <!-- Full width column -->
-                        <div class="card wide-card">
-                            <div class="card-header">
-                                <h6>Tombol Akses Cepat</h6>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="row no-gutters"> <!-- Remove gutter space between buttons -->
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('datavpn') }}" class="btn btn-primary btn-block">Data VPN</a>
-                                    </div>
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('datamikrotik') }}" class="btn btn-primary btn-block">Data Mikrotik</a>
-                                    </div>
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('dataolt') }}" class="btn btn-primary btn-block">Data OLT</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- END OF CENTER CONTENT -->
-            </section>
-        </div>
-        <x-dcore.footer />
-    </div>
-</div>
-<x-dcore.script />
-
 <style>
     .wide-card {
         width: 100%;
         margin: 0;
-        border-radius: 0; /* Ensure no border radius for full width */
+        border-radius: 5px; /* Rounded corners */
+        overflow: hidden; /* Ensures the content stays within the rounded edges */
     }
 
     .card-body, .card-header {
@@ -94,3 +46,52 @@
         padding-left: 0;
     }
 </style>
+
+<x-dcore.head />
+<div id="app">
+    <div class="main-wrapper main-wrapper-1">
+        <div class="navbar-bg"></div>
+        <x-dcore.nav />
+        <x-dcore.sidebar />
+        <div class="main-content">
+            <section class="section">
+                <!-- MAIN OF CENTER CONTENT -->
+                <div class="row no-gutters"> <!-- Remove gutter space between columns -->
+                    <!-- Welcome Card -->
+                    <div class="col-12"> <!-- Full width column -->
+                        <div class="card wide-card">
+                            <div class="card-body text-center">
+                                <h3>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network V.0.1 !</h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Quick Access Buttons Card -->
+                    <div class="col-12"> <!-- Full width column -->
+                        <div class="card wide-card">
+                            <div class="card-header">
+                                <h6>Tombol Akses Cepat</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="row"> <!-- Remove gutter space between buttons -->
+                                    <div class="col-md-4 col-12 mt-2">
+                                        <a href="{{ route('datavpn') }}" class="btn btn-primary btn-block">Data VPN</a>
+                                    </div>
+                                    <div class="col-md-4 col-12 mt-2">
+                                        <a href="{{ route('datamikrotik') }}" class="btn btn-primary btn-block">Data Mikrotik</a>
+                                    </div>
+                                    <div class="col-md-4 col-12 mt-2">
+                                        <a href="{{ route('dataolt') }}" class="btn btn-primary btn-block">Data OLT</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END OF CENTER CONTENT -->
+            </section>
+        </div>
+        <x-dcore.footer />
+    </div>
+</div>
+<x-dcore.script />
