@@ -48,7 +48,6 @@
                                                 <tr>
                                                     <th>Name</th>
                                                     <th>Username</th>
-                                                    <th>Password</th>
                                                     <th>IP Address</th>
                                                     <th>Skrip Mikrotik</th>
                                                     <th>Action</th>
@@ -59,7 +58,6 @@
                                                     <tr>
                                                         <td>{{ $item->namaakun }}</td>
                                                         <td>{{ $item->username }}</td>
-                                                        <td>{{ $item->password }}</td>
                                                         <td>{{ $item->ipaddress }}</td>
                                                         
                                                         <td>
