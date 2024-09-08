@@ -25,47 +25,18 @@
                             <hr>
                             <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account vpn pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
                             </div>
-                            
-                        </div>
-                    </div>
-
-                    <!-- Form to Add VPN -->
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Tambah VPN</h4>
-                            </div>
-                            <div class="card-body">
-                                <form id="yourFormId" action="{{ route('uploadvpn') }}" method="post">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="namaAkun">Nama Akun</label>
-                                        <input type="text" class="form-control" placeholder="Nama Akun" name="namaakun" id="namaAkunInput">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="username">User</label>
-                                        <input type="text" class="form-control" placeholder="Username" name="username">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label for="password">Password</label>
-                                        <input type="password" class="form-control" placeholder="Password" name="password">
-                                    </div>
-
-                                    <div class="form-group">
-                                        <input type="submit" class="btn btn-success" value="Buat VPN">
-                                    </div>
-                                </form>
-                            </div>
                         </div>
                     </div>
 
                     <!-- Data VPN Section -->
-                    <div class="col-lg-8">
+                    <div class="col-lg-12">
                         <div class="card">
                             <div class="card-header">
                                 <h4>Data VPN</h4>
+                                <!-- Button to Trigger Add VPN Modal -->
+                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVpnModal">
+                                    <i class="fas fa-plus"></i> Tambah VPN
+                                </button>
                             </div>
                             <div class="card-body">
                                 @if($data->isEmpty())
@@ -118,7 +89,48 @@
         <x-dcore.footer />
     </div>
 </div>
+
 <x-dcore.script />
+
+<!-- Modal for Add VPN -->
+<div class="modal fade" id="addVpnModal" tabindex="-1" role="dialog" aria-labelledby="addVpnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addVpnModalLabel">Tambah VPN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="vpnForm" action="{{ route('uploadvpn') }}" method="post">
+                    @csrf
+                    <div class="form-group">
+                        <label for="namaAkun">Nama Akun</label>
+                        <input type="text" class="form-control" placeholder="Nama Akun" name="namaakun" id="namaAkunInput">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="username">User</label>
+                        <input type="text" class="form-control" placeholder="Username" name="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" class="form-control" placeholder="Password" name="password">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="submit" class="btn btn-success" value="Buat VPN">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Modal for VPN Info -->
 <div class="modal fade" id="vpnInfoModal" tabindex="-1" role="dialog" aria-labelledby="vpnInfoModalLabel" aria-hidden="true">
@@ -193,13 +205,11 @@
             var password = row.find('td:eq(2)').text();
             var ipAddress = row.find('td:eq(3)').text();
        
-
             // Generate the MikroTik L2TP script dynamically
             var skripL2tp = `/ip service set api port=8728
                 
 /interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
 
-//
             // Generate the MikroTik PPTP script dynamically
             var skripPptp = `/ip service set api port=8728
                 
@@ -232,94 +242,82 @@
                 console.error('Failed to copy script: ', err);
             });
         });
-    });
-</script>
 
-<script>
- $(document).ready(function() {
-    // Handle delete button click
-    $('#vpnTable').on('click', '.btn-delete', function() {
-        var id = $(this).data('id');
-        var username = $(this).data('username');
+        // Handle delete button click
+        $('#vpnTable').on('click', '.btn-delete', function() {
+            var id = $(this).data('id');
+            var username = $(this).data('username');
 
-        // Replace the confirm dialog with SweetAlert
-        Swal.fire({
-            title: 'Apakah Anda yakin?',
-            text: "Data ini tidak dapat dikembalikan!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Ya, hapus!'
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // AJAX request to delete the data
-                $.ajax({
-                    url: 'datavpn/' + id,
-                    type: 'DELETE',
-                    data: {
-                        "_token": "{{ csrf_token() }}",
-                        "username": username // Include the username in the data
-                    },
-                    success: function(response) {
-                        // Replace the alert with SweetAlert success message
-                        Swal.fire(
-                            'Terhapus!',
-                            'Data berhasil dihapus.',
-                            'success'
-                        ).then(() => {
-                            location.reload(); // Reload the page to update the table
-                        });
-                    },
-                    error: function(xhr) {
-                        // Replace the alert with SweetAlert error message
-                        Swal.fire(
-                            'Gagal!',
-                            'Gagal menghapus data: ' + xhr.responseText,
-                            'error'
-                        );
-                    }
-                });
+            // Replace the confirm dialog with SweetAlert
+            Swal.fire({
+                title: 'Apakah Anda yakin?',
+                text: "Data ini tidak dapat dikembalikan!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // AJAX request to delete the data
+                    $.ajax({
+                        url: 'datavpn/' + id,
+                        type: 'DELETE',
+                        data: {
+                            "_token": "{{ csrf_token() }}",
+                            "username": username // Include the username in the data
+                        },
+                        success: function(response) {
+                            // Replace the alert with SweetAlert success message
+                            Swal.fire(
+                                'Terhapus!',
+                                'Data berhasil dihapus.',
+                                'success'
+                            ).then(() => {
+                                location.reload(); // Reload the page to update the table
+                            });
+                        },
+                        error: function(xhr) {
+                            // Replace the alert with SweetAlert error message
+                            Swal.fire(
+                                'Gagal!',
+                                'Gagal menghapus data: ' + xhr.responseText,
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
+        });
+
+        // Prevent spaces from being entered in the Nama Akun field
+        document.getElementById('namaAkunInput').addEventListener('keydown', function(event) {
+            if (event.key === ' ') {
+                event.preventDefault(); // Prevent space from being entered
             }
         });
     });
-});
 
+    @if (session('success'))
+        Swal.fire({
+            icon: 'success',
+            title: '{{ session('success') }}',
+            showConfirmButton: true
+        });
+    @elseif (session('error'))
+        Swal.fire({
+            icon: 'error',
+            title: '{{ session('error') }}',
+            showConfirmButton: true
+        });
+    @endif
 
-</script>
-
-<script>
-  document.getElementById('namaAkunInput').addEventListener('keydown', function(event) {
-      if (event.key === ' ') {
-          event.preventDefault(); // Prevent space from being entered
-      }
-  });
-</script>
-@if (session('success'))
-              <script>
-                  Swal.fire({
-                      icon: 'success',
-                      title: '{{ session('success') }}',
-                      showConfirmButton: true
-                  });
-              </script>
-          @elseif (session('error'))
-              <script>
-                  Swal.fire({
-                      icon: 'error',
-                      title: '{{ session('error') }}',
-                      showConfirmButton: true
-                  });
-              </script>
-          @endif
-
-          @if ($errors->any())
-    <script>
+    @if ($errors->any())
         Swal.fire({
             icon: 'error',
             title: 'Input Error',
             text: '{{ implode(", ", $errors->all()) }}',
             confirmButtonText: 'OK'
         });
-    </script>
-@endif
+    @endif
+</script>
