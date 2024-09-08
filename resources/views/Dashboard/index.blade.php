@@ -9,7 +9,7 @@
                 <!-- MAIN OF CENTER CONTENT -->
                 <div class="row">
                     <!-- Welcome Card -->
-                    <div class="col-lg-12">
+                    <div class="col-12 px-0"> <!-- Use col-12 and remove padding (px-0) -->
                         <div class="card wide-card">
                             <div class="card-body text-center">
                                 <h3>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network V.0.1 !</h3>
@@ -18,7 +18,7 @@
                     </div>
 
                     <!-- Quick Access Buttons Card -->
-                    <div class="col-lg-12">
+                    <div class="col-12 px-0"> <!-- Use col-12 and remove padding (px-0) -->
                         <div class="card wide-card">
                             <div class="card-header">
                                 <h6>Tombol Akses Cepat</h6>
@@ -50,34 +50,36 @@
 <style>
     .wide-card {
         width: 100%;
+        margin: 0; /* Ensure no margins on the sides */
+        border-radius: 0; /* Remove rounded corners */
     }
-
+    
     .wide-card .card-body {
         padding: 2rem;
     }
 
-    /* Adjust the card padding for smaller screens */
+    /* Adjust the padding for smaller screens */
     @media (max-width: 768px) {
         .wide-card .card-body {
             padding: 1.5rem;
         }
 
         .wide-card h3 {
-            font-size: 1.5rem; /* Smaller font size for the title */
+            font-size: 1.5rem;
         }
 
         .wide-card h6 {
-            font-size: 1.2rem; /* Adjust the font size for headers */
+            font-size: 1.2rem;
         }
     }
 
     @media (max-width: 576px) {
         .wide-card .card-body {
-            padding: 1rem; /* Even less padding on smaller screens */
+            padding: 1rem;
         }
 
         .wide-card h3 {
-            font-size: 1.2rem; /* Smaller font size for the title */
+            font-size: 1.2rem;
         }
     }
 </style>
