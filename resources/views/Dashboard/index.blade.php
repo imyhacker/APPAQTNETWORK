@@ -16,7 +16,7 @@
                         <div class="card wide-card">
                             <div class="card-body text-center">
                                 <h3>Selamat Datang Di Aplikasi Management Mikrotik ( AMMIK ) AQT Network V.0.1 !</h3>
-                                <div class="row"> <!-- Remove gutter space between buttons -->
+                                <div class="row mt-3"> <!-- Remove gutter space between buttons -->
                                     <div class="col-md-4 col-12 mt-2">
                                         <a href="{{ route('datavpn') }}" class="btn btn-primary btn-gradient btn-block">Data VPN</a>
                                     </div>
@@ -31,27 +31,6 @@
                         </div>
                     </div>
 
-                    <!-- Quick Access Buttons Card -->
-                    <div class="col-md-12"> <!-- Full width column -->
-                        <div class="card">
-                            <div class="card-header">
-                                <h6>Tombol Akses Cepat</h6>
-                            </div>
-                            <div class="card-body text-center">
-                                <div class="row"> <!-- Remove gutter space between buttons -->
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('datavpn') }}" class="btn btn-primary btn-gradient btn-block">Data VPN</a>
-                                    </div>
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('datamikrotik') }}" class="btn btn-primary btn-gradient btn-block">Data Mikrotik</a>
-                                    </div>
-                                    <div class="col-md-4 col-12 mt-2">
-                                        <a href="{{ route('dataolt') }}" class="btn btn-primary btn-gradient btn-block">Data OLT</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <!-- END OF CENTER CONTENT -->
             </section>

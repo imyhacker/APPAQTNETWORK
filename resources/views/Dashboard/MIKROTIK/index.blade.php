@@ -8,61 +8,25 @@
 
         <div class="main-content">
             <section class="section">
-              
-                <!-- MAIN CONTENT -->
                 <div class="row">
-                    <!-- Pemberitahuan Section -->
+                   
+                    <!-- Data VPN Section -->
                     <div class="col-lg-12">
                         <div class="card">
-                            <div class="card-header">
-                                <h4 style="font-size: 20px;"> <i class="fas fa-info-circle"></i> Pemberitahuan</h4>
-                            </div>
-                            <div class="card-body">
-                                <p style="font-size: 20px;">Pada halam ini berfungsi sebagai halaman penambahan mikrotik, ntah itu dari Mikrotik yang sudah terhubung dengan vpn yang telah di buat di halaman <a href="{{ route('datavpn') }}">Data VPN</a> ataupun data mikrotik anda yang sudah memiliki IP Public sendiri</p>
-                                <hr>
-                                <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account <a href="{{ route('datavpn') }}">vpn</a> pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form to Add VPN -->
-                    <div class="col-lg-4">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4>Tambah Mikrotik</h4>
-                            </div>
-                            <div class="card-body">
-                                <form id="yourFormId" action="{{ route('tambahmikrotik') }}" method="post">
-                                    @csrf
-                                    <div class="form-group">
-                                        <label for="ipmikrotik">IP VPN / IP Public</label>
-                                        <input type="text" class="form-control" placeholder="172.160.x.x" name="ipmikrotik" id="namaAkunInput">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="site">Site / Nama Mikrotik</label>
-                                        <input type="text" class="form-control" placeholder="Site Indramayu" name="site" id="site">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="username">Username</label>
-                                        <input type="text" class="form-control" placeholder="Username" name="username">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="password">Password</label>
-                                        <input type="password" class="form-control" placeholder="Password" name="password">
-                                    </div>
-                                    <div class="form-group">
-                                        <input type="submit" class="btn btn-success" value="Tambah Mikrotik">
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Data VPN Section -->
-                    <div class="col-lg-8">
-                        <div class="card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between">
                                 <h4>Data Mikrotik</h4>
+                                <div>
+                                      <!-- Button to Trigger Info Modal -->
+                                      <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addMikrotikModal">
+                                        <i class="fas fa-plus"></i> Tambah Mikrotik 
+                                    </button>
+                                    <!-- Buttons aligned to the right -->
+                                    <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#notificationModal">
+                                        <i class="fas fa-info"></i> Informasi Syarat dan Ketentuan
+                                    </button>
+                        
+                                  
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
@@ -95,10 +59,10 @@
                                                                 'username' => $item->username,
                                                                 'password' => $item->password
                                                             ]) }}"><i class="fas fa-bolt"></i> Cek Akses</a>
-                                                           <a class="dropdown-item" href="{{ route('masukmikrotik', [
-                                                            'ipmikrotik' => $item->ipmikrotik,
-                                                            'portweb' => $item->portweb
-                                                        ]) }}"><i class="fas fa-sign-in-alt"></i> Masuk</a>
+                                                            <a class="dropdown-item" href="{{ route('masukmikrotik', [
+                                                                'ipmikrotik' => $item->ipmikrotik,
+                                                                'portweb' => $item->portweb
+                                                            ]) }}"><i class="fas fa-sign-in-alt"></i> Masuk</a>
                                                             <a class="dropdown-item editMikrotik" href="javascript:void(0)" data-id="{{ $item->id }}"><i class="fas fa-edit"></i> Edit</a>
                                                             <a class="dropdown-item deleteMikrotik" href="javascript:void(0)" data-id="{{ $item->id }}"><i class="fas fa-trash"></i> Hapus</a>
                                                         </div>
@@ -112,53 +76,104 @@
                             </div>
                         </div>
                     </div>
-                    
                 </div>
 
-                <!-- Edit MikroTik Modal -->
-              
-                <!-- END MAIN CONTENT -->
             </section>
         </div>
-        <div class="modal fade" id="editMikrotikModal" tabindex="-1" role="dialog" aria-labelledby="editMikrotikModalLabel" aria-hidden="true">
-            <div class="modal-dialog" role="document">
+
+                <!-- Edit MikroTik Modal -->
+                <div class="modal fade" id="editMikrotikModal" tabindex="-1" role="dialog" aria-labelledby="editMikrotikModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-lg" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="editMikrotikModalLabel">Edit MikroTik</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="editMikrotikForm" method="POST">
+                                    @csrf
+                                    <div class="form-group">
+                                        <label for="edit_ipmikrotik">IP VPN / IP Public</label>
+                                        <input type="text" class="form-control" id="edit_ipmikrotik" name="ipmikrotik" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="edit_site">Site / Nama Mikrotik</label>
+                                        <input type="text" class="form-control" id="edit_site" name="site" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="edit_username">Username</label>
+                                        <input type="text" class="form-control" id="edit_username" name="username" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="edit_password">Password</label>
+                                        <input type="password" class="form-control" id="edit_password" name="password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">Update Mikrotik</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        <!-- Modal Tambah Mikrotik -->
+        <div class="modal fade" id="addMikrotikModal" tabindex="-1" role="dialog" aria-labelledby="addMikrotikModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editMikrotikModalLabel">Edit MikroTik</h5>
+                        <h5 class="modal-title" id="addMikrotikModalLabel">Tambah Mikrotik</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <form id="editMikrotikForm" method="POST">
+                        <form id="addMikrotikForm" action="{{ route('tambahmikrotik') }}" method="post">
                             @csrf
                             <div class="form-group">
-                                <label for="edit_ipmikrotik">IP VPN / IP Public</label>
-                                <input type="text" class="form-control" id="edit_ipmikrotik" name="ipmikrotik" required>
+                                <label for="ipmikrotik">IP VPN / IP Public</label>
+                                <input type="text" class="form-control" placeholder="172.160.x.x" name="ipmikrotik" id="ipmikrotik" required>
                             </div>
                             <div class="form-group">
-                                <label for="edit_site">Site / Nama Mikrotik</label>
-                                <input type="text" class="form-control" id="edit_site" name="site" required>
+                                <label for="site">Site / Nama Mikrotik</label>
+                                <input type="text" class="form-control" placeholder="Site Indramayu" name="site" id="site" required>
                             </div>
                             <div class="form-group">
-                                <label for="edit_username">Username</label>
-                                <input type="text" class="form-control" id="edit_username" name="username" required>
+                                <label for="username">Username</label>
+                                <input type="text" class="form-control" placeholder="Username" name="username" required>
                             </div>
                             <div class="form-group">
-                                <label for="edit_password">Password</label>
-                                <input type="password" class="form-control" id="edit_password" name="password" required>
+                                <label for="password">Password</label>
+                                <input type="password" class="form-control" placeholder="Password" name="password" required>
                             </div>
-                            <button type="submit" class="btn btn-primary">Update Mikrotik</button>
+                            <button type="submit" class="btn btn-success">Tambah Mikrotik</button>
                         </form>
                     </div>
                 </div>
             </div>
         </div>
-        <x-dcore.footer />
+
+        <!-- Modal Pemberitahuan -->
+        <div class="modal fade" id="notificationModal" tabindex="-1" role="dialog" aria-labelledby="notificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="notificationModalLabel">Pemberitahuan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p style="font-size: 20px;">Pada halaman ini berfungsi sebagai halaman penambahan mikrotik, entah itu dari Mikrotik yang sudah terhubung dengan VPN yang telah dibuat di halaman <a href="{{ route('datavpn') }}">Data VPN</a> atau data mikrotik Anda yang sudah memiliki IP Public sendiri.</p>
+                        <hr>
+                        <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik Anda tidak mempunyai IP Public, silakan buat akun <a href="{{ route('datavpn') }}">VPN</a> pada form yang sudah disiapkan. Gratis tanpa biaya tambahan dan boleh lebih dari satu.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+<x-dcore.footer />
 <x-dcore.script />
-
 <script>
   $(document).ready(function() {
     $('#mikrotikTable').DataTable();

@@ -45,6 +45,10 @@
                                         <i class="fas fa-info"></i> Informasi Syarat dan Ketentuan
                                     </button>
                                 </div>
+                                
+                                
+
+
                             </div>
                             <div class="card-body">
                                 @if($data->isEmpty())
