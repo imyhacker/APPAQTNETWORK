@@ -13,6 +13,7 @@
     margin-top: 20px; /* Memberikan jarak antara garis horizontal dan teks */
     margin-bottom: 20px;
   }
+  
 </style>
 <div id="app"> 
     <div class="main-wrapper main-wrapper-1">
@@ -27,31 +28,23 @@
                 <!-- MAIN CONTENT -->
                 <div class="row no-gutters">
                     <!-- Pemberitahuan Section -->
-                    <div class="col-12">
-                        <div class="card wide-card">
-                            <div class="card-header">
-                                <h4 style="font-size: 20px;"> <i class="fas fa-info-circle"></i> Pemberitahuan</h4>
-                            </div>
-                            <div class="card-body">
-                              <p style="font-size: 20px;">VPN digunakan untuk menghubungkan Router MikroTik anda dengan Router kami melalui jaringan internet/public. 
-                                Radius server kami tidak dapat meneruskan paket request dari router anda jika router anda tidak mempunyai IP Public atau tidak dalam satu jaringan. Setelah router MikroTik anda terhubung 
-                                dengan router kami, otomatis radius server akan merespond paket request anda melalui IP Private dari VPN.
-                            </p>
-                            <hr>
-                            <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account vpn pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
-                            </div>
-                        </div>
-                    </div>
-
+                   
                     <!-- Data VPN Section -->
                     <div class="col-12">
                         <div class="card wide-card">
-                            <div class="card-header">
+                            <div class="card-header d-flex justify-content-between align-items-center">
                                 <h4>Data VPN</h4>
-                                <!-- Button to Trigger Add VPN Modal -->
-                                <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addVpnModal">
-                                    <i class="fas fa-plus"></i> Tambah VPN
-                                </button>
+                                <div>
+                                    <!-- Button to Trigger Add VPN Modal -->
+                                    <button type="button" class="btn btn-primary mr-2" data-toggle="modal" data-target="#addVpnModal">
+                                        <i class="fas fa-plus"></i> Tambah VPN
+                                    </button>
+                            
+                                    <!-- Button to Trigger Info Modal -->
+                                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#info">
+                                        <i class="fas fa-info"></i> Informasi Syarat dan Ketentuan
+                                    </button>
+                                </div>
                             </div>
                             <div class="card-body">
                                 @if($data->isEmpty())
@@ -146,6 +139,32 @@
 </div>
 
 <!-- Modal for VPN Info -->
+<div class="modal fade" id="info" tabindex="-1" role="dialog" aria-labelledby="vpnInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="vpnInfoModalLabel">VPN Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+         
+                              <p style="font-size: 20px;">VPN digunakan untuk menghubungkan Router MikroTik anda dengan Router kami melalui jaringan internet/public. 
+                                Radius server kami tidak dapat meneruskan paket request dari router anda jika router anda tidak mempunyai IP Public atau tidak dalam satu jaringan. Setelah router MikroTik anda terhubung 
+                                dengan router kami, otomatis radius server akan merespond paket request anda melalui IP Private dari VPN.
+                            </p>
+                            <hr>
+                            <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account vpn pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
+                      
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div class="modal fade" id="vpnInfoModal" tabindex="-1" role="dialog" aria-labelledby="vpnInfoModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg" role="document">
         <div class="modal-content">
@@ -195,7 +214,6 @@
         </div>
     </div>
 </div>
-
 <script>
     $(document).ready(function() {
         // Initialize DataTable with options
