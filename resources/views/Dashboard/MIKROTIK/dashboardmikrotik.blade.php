@@ -177,7 +177,7 @@
           url: '/mikrotik/current-time/{{ $ipmikrotik }}',
           method: 'GET',
           success: function(response) {
-              $('#currentTime').text(response.date + ' ' + response.time);
+              $('#currentTime').text(response.time);
           },
           error: function() {
               $('#currentTime').text('Error');
