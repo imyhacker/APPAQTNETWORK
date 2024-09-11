@@ -76,7 +76,7 @@
             <div class="col-lg-12">
               <div class="card">
                 
-                <div class="card-body text-center">
+                <div class="card-body d-flex justify-content-center">
                   <div class="row">
                     <div class="col-md-12">
                       <h3>Selamat Datang Di MikroTik {{$site ?? '-'}}</h3>
@@ -85,7 +85,7 @@
 
                       <form action="{{ route('keluarmikrotik') }}" method="POST">
                         @csrf
-                        <button type="submit" class="btn btn-danger">Logout MikroTik</button>
+                        <button type="submit" class="btn btn-danger btn-block">Logout MikroTik</button>
                     </form>
     
                     </div>
