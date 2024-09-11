@@ -70,6 +70,55 @@
               </div>
             </div>
           </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>CPU</h4>
+                </div>
+                <div class="card-body">
+                  {{ $cpuLoad }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>DATE</h4>
+                </div>
+                <div class="card-body">
+                  {{ $date }}
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>Time</h4>
+                </div>
+                <div class="card-body">
+                  {{ $time }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+
         </div>
         <!-- MAIN OF CENTER CONTENT -->
           <div class="row">

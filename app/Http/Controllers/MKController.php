@@ -264,18 +264,42 @@ public function edit($id)
         $response2 = $client->query($query2)->read();
         
         $totalactive = count($response2);
-        // Cek apakah data MikroTik ditemukan
-        if (!$data) {
-            return redirect()->back()->with('error', 'MikroTik data not found.');
-        }
-        
-        
+
+
+// Query untuk mengambil date dan time dari MikroTik
+$queryDateTime = (new Query('/system/clock/print'));
+$responseDateTime = $client->query($queryDateTime)->read();
+
+// Query untuk mengambil CPU dari MikroTik
+$queryCPU = (new Query('/system/resource/print'));
+$responseCPU = $client->query($queryCPU)->read();
+
+
+if (!empty($responseDateTime) && !empty($responseCPU)) {
+    // Ambil date dan time
+    $date = isset($responseDateTime[0]['date']) ? $responseDateTime[0]['date'] : 'N/A';
+    $time = isset($responseDateTime[0]['time']) ? $responseDateTime[0]['time'] : 'N/A';
+    
+    // Ambil CPU load
+    $cpuLoad = isset($responseCPU[0]['cpu-load']) ? $responseCPU[0]['cpu-load'] . '%' : 'N/A';
+
+    if (!$data) {
+        return redirect()->back()->with('error', 'MikroTik data not found.');
+    }
+    
+            
         // Ambil informasi lain yang dibutuhkan untuk ditampilkan di dashboard
         $site = $data->site;
         $username = $data->username;
         
         // Tampilkan dashboard dengan data yang relevan
-        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive'));
+        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'time', 'cpuLoad'));
+
+    } else {
+        return back()->with('error', 'Data tidak ditemukan.');
+    }
+
+
     }
     
 
