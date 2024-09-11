@@ -17,7 +17,7 @@
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>Total VPN Terbuat</h4>
+                  <h4>Total VPN</h4>
                 </div>
                 <div class="card-body">
                   {{ $totalvpn }}
@@ -32,7 +32,7 @@
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>Total MikroTik Terdaftar</h4>
+                  <h4>Total MikroTik</h4>
                 </div>
                 <div class="card-body">
                   {{ $totalmikrotik }}
@@ -62,7 +62,7 @@
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>Total User Active</h4>
+                  <h4>User Active</h4>
                 </div>
                 <div class="card-body">
                   {{ $totalactive }}
