@@ -80,9 +80,9 @@
                 <div class="card-header">
                   <h4>CPU</h4>
                 </div>
-                <div class="card-body">
-                  {{ $cpuLoad }}
-                </div>
+                <div class="card-body" id="cpuLoad">
+                  Loading...
+              </div>
               </div>
             </div>
           </div>
@@ -158,3 +158,21 @@
     </div>
   </div>
 <x-dcore.script />
+<script>
+  function fetchCpuLoad() {
+      $.ajax({
+          url: '/mikrotik/cpu-load/{{ $ipmikrotik }}', // Gunakan parameter IP dari Blade template
+          method: 'GET',
+          success: function(response) {
+              $('#cpuLoad').text(response.cpuLoad);
+          },
+          error: function() {
+              $('#cpuLoad').text('Error');
+          }
+      });
+  }
+
+  // Fetch CPU load immediately and then every 5 seconds
+  fetchCpuLoad();
+  setInterval(fetchCpuLoad, 5000); // Refresh every 5 seconds
+</script>

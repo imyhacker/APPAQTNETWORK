@@ -82,3 +82,7 @@ Route::group(['prefix' => '/home/dataip'], function(){
 
 })->middleware(['auth', 'verified']);
 
+
+
+
+route::get('/mikrotik/cpu-load/{ipmikrotik}', [MKController::class, 'getCpuLoad']);
