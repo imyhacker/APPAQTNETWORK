@@ -10,7 +10,7 @@
         {{-- <x-dcore.card /> --}}
         <div class="row">
            
-          <div class="col-lg-4 col-md-4 col-sm-12">
+          <div class="col-lg-3 col-md-3 col-sm-12">
             <div class="card card-statistic-2">
               <div class="card-icon shadow-primary bg-primary">
                 <i class="fas fa-server"></i>
@@ -25,7 +25,7 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-4 col-md-4 col-sm-12">
+          <div class="col-lg-3 col-md-3 col-sm-12">
             <div class="card card-statistic-2">
               <div class="card-icon shadow-primary bg-primary">
                 <i class="fas fa-server"></i>
@@ -40,7 +40,7 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-4 col-md-4 col-sm-12">
+          <div class="col-lg-3 col-md-3 col-sm-12">
             <div class="card card-statistic-2">
               <div class="card-icon shadow-primary bg-primary">
                 <i class="fas fa-users"></i>
@@ -55,14 +55,14 @@
               </div>
             </div>
           </div>
-          <div class="col-lg-12 col-md-12 col-sm-12">
+          <div class="col-lg-3 col-md-3 col-sm-12">
             <div class="card card-statistic-2">
               <div class="card-icon shadow-primary bg-primary">
                 <i class="fas fa-bolt"></i>
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>Total Active</h4>
+                  <h4>Total User Active</h4>
                 </div>
                 <div class="card-body">
                   {{ $totalactive }}
