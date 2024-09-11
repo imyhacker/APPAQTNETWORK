@@ -270,11 +270,11 @@ public function edit($id)
 
         $query = (new Query('/system/resource/print'));
 
-// Jalankan query dan baca respons
-$response = $client->query($query)->read();
+        // Jalankan query dan baca respons
+        $response = $client->query($query)->read();
 
-$version = $response[0]['version'] ?? 'Unknown version';
-$model = $response[0]['board-name'] ?? 'Unknown model';
+        $version = $response[0]['version'] ?? 'Unknown version';
+        $model = $response[0]['board-name'] ?? 'Unknown model';
 
         $queryDateTime = (new Query('/system/clock/print'));
         $responseDateTime = $client->query($queryDateTime)->read();
@@ -284,16 +284,59 @@ $model = $response[0]['board-name'] ?? 'Unknown model';
         $responseInterfaces = $client->query($queryInterfaces)->read();
 
         $interfaces = [];
-$physicalInterfaces = ['ether', 'sfp', 'wifi', 'bonding']; // Common physical interface types
+        $physicalInterfaces = ['ether', 'sfp', 'wifi', 'bonding']; // Common physical interface types
 
-foreach ($responseInterfaces as $interface) {
-    if (isset($interface['name']) && isset($interface['type'])) {
+        foreach ($responseInterfaces as $interface) {
+            if (isset($interface['name']) && isset($interface['type'])) {
         // Check if the interface type indicates a physical interface
-        if (in_array($interface['type'], $physicalInterfaces)) {
-            $interfaces[] = $interface['name'];
+                if (in_array($interface['type'], $physicalInterfaces)) {
+                     $interfaces[] = $interface['name'];
+                 }
+            }
         }
+
+        $queryHotspotUsers = (new Query('/ip/hotspot/user/print'));
+$responseHotspotUsers = $client->query($queryHotspotUsers)->read();
+
+// Initialize an array to store the hotspot users
+$hotspotUsers = [];
+
+// Iterate over the response to extract the user data
+foreach ($responseHotspotUsers as $user) {
+    if (isset($user['name'])) {
+        $hotspotUsers[] = $user;
     }
 }
+
+
+$ttuser = count($hotspotUsers);
+
+
+
+
+$queryActiveHotspotUsers = (new Query('/ip/hotspot/active/print'));
+
+// Execute the query
+$responseActiveHotspotUsers = $client->query($queryActiveHotspotUsers)->read();
+
+// Initialize an array to store active hotspot users
+$activeHotspotUsers = [];
+
+// Iterate over the response to extract user data
+foreach ($responseActiveHotspotUsers as $user) {
+    if (isset($user['name'])) {
+        $activeHotspotUsers[] = $user;
+    }
+}
+
+// Count the number of active users
+$activeUserCount = count($activeHotspotUsers);
+
+
+Log::info($activeUserCount);
+
+
+
         if (!empty($responseDateTime)) {
             // Ambil date
             $date = isset($responseDateTime[0]['date']) ? $responseDateTime[0]['date'] : 'N/A';
@@ -309,7 +352,7 @@ foreach ($responseInterfaces as $interface) {
          $username = $data->username;
    
    // Tampilkan dashboard dengan data yang relevan
-         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces', 'version' ,'model'));
+         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces', 'version' ,'model', 'ttuser', 'activeUserCount'));
         } else {
             return back()->with('error', 'Data tidak ditemukan.');
         }

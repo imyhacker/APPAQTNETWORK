@@ -121,10 +121,15 @@
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>Time</h4>
+                  <h4>Hotspot</h4>
                 </div>
-                <div class="card-body" id="currentTime">
-                 Loading...
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-12" style="font-size: 12px;">Jml. VCR : {{$ttuser}}</div>
+                    <div class="col-md-12 mb-3" style="font-size: 12px;">
+                    <b>Active : {{ $activeUserCount }}</b>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
