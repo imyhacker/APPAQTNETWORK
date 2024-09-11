@@ -234,7 +234,7 @@ public function edit($id)
         
         // Ambil data MikroTik berdasarkan IP
         $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
-        $totalvpn = VPN::where('uniquie_id', auth()->user()->unique_id)->count();
+        $totalvpn = VPN::where('unique_id', auth()->user()->unique_id)->count();
         $totalmikrotik = Mikrotik::where('unique_id', auth()->user()->unique_id)->count();
         $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
         $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
