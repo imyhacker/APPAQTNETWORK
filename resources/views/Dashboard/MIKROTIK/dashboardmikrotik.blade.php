@@ -77,8 +77,21 @@
               <div class="card">
                 
                 <div class="card-body text-center">
-                  
-                  <h3>Selamat Datang Di Mikrotik Site {{$site ?? '-'}}</h3>
+                  <div class="row">
+                    <div class="col-md-12">
+                      <h3>Selamat Datang Di MikroTik {{$site ?? '-'}}</h3>
+                    </div>
+                    <div class="col-md-12">
+
+                      <form action="{{ route('keluarmikrotik') }}" method="POST">
+                        @csrf
+                        <button type="submit" class="btn btn-danger">Logout MikroTik</button>
+                    </form>
+    
+                    </div>
+                  </div>
+                 
+
                 </div>
               </div>
               
@@ -86,10 +99,7 @@
         
           </div>
         <!-- END OF CENTER CONTENT -->
-        <form action="{{ route('keluarmikrotik') }}" method="POST">
-    @csrf
-    <button type="submit" class="btn btn-danger">Logout</button>
-</form>
+       
 
 
         </section>
