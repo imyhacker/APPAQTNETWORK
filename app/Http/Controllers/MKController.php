@@ -268,19 +268,28 @@ public function edit($id)
         
         $totalactive = count($response2);
 
+        $query = (new Query('/system/resource/print'));
+
+// Jalankan query dan baca respons
+$response = $client->query($query)->read();
+
+// Ambil versi dari respons
+$version = $response[0]['version'] ?? 'Unknown version';
+
 
         $queryDateTime = (new Query('/system/clock/print'));
         $responseDateTime = $client->query($queryDateTime)->read();
-// Query untuk mengambil daftar interface Ethernet dari MikroTik
-$queryInterfaces = (new Query('/interface/print'));
-$responseInterfaces = $client->query($queryInterfaces)->read();
 
-$interfaces = [];
-foreach ($responseInterfaces as $interface) {
-    if (isset($interface['name'])) {
-        $interfaces[] = $interface['name'];
-    }
-}
+        // Query untuk mengambil daftar interface Ethernet dari MikroTik
+        $queryInterfaces = (new Query('/interface/print'));
+        $responseInterfaces = $client->query($queryInterfaces)->read();
+
+        $interfaces = [];
+        foreach ($responseInterfaces as $interface) {
+            if (isset($interface['name'])) {
+                $interfaces[] = $interface['name'];
+             }
+        }
 
         if (!empty($responseDateTime)) {
             // Ambil date
@@ -297,7 +306,7 @@ foreach ($responseInterfaces as $interface) {
          $username = $data->username;
    
    // Tampilkan dashboard dengan data yang relevan
-         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces'));
+         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces', 'version'));
         } else {
             return back()->with('error', 'Data tidak ditemukan.');
         }

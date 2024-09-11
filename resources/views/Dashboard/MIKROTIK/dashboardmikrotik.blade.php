@@ -77,12 +77,15 @@
                 <i class="fas fa-bolt"></i>
               </div>
               <div class="card-wrap">
-                <div class="card-header">
-                  <h4>CPU</h4>
-                </div>
-                <div class="card-body" id="cpuLoad">
-                  Loading...
-              </div>
+               
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-12" id="cpuLoad"></div>
+                    <div class="col-md-12 mb-3">
+                      {{$version}}
+                    </div>
+                  </div>
+               </div>
               </div>
             </div>
           </div>
