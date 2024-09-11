@@ -364,16 +364,15 @@ public function edit($id)
     
             // Memeriksa dan mengambil data dari response
             if (!empty($responseDateTime)) {
-                $date = isset($responseDateTime[0]['date']) ? $responseDateTime[0]['date'] : 'N/A';
                 $time = isset($responseDateTime[0]['time']) ? $responseDateTime[0]['time'] : 'N/A';
     
                 // Mengirim data sebagai JSON
-                return response()->json(['date' => $date, 'time' => $time]);
+                return response()->json(['time' => $time]);
             }
     
-            return response()->json(['date' => 'N/A', 'time' => 'N/A']);
+            return response()->json(['time' => 'N/A']);
         } catch (\Exception $e) {
-            return response()->json(['date' => 'Error', 'time' => 'Error']);
+            return response()->json(['time' => 'Error']);
         }
     }
     
