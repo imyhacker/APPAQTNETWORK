@@ -236,10 +236,11 @@ public function edit($id)
         $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
     
         // Cek apakah data MikroTik ditemukan
-        if (!$data) {
+        if (!$data || !session('mikrotik_connectd')) {
             return redirect()->back()->with('error', 'MikroTik data not found.');
         }
-    
+        
+
         // Ambil informasi lain yang dibutuhkan untuk ditampilkan di dashboard
         $site = $data->site;
         $username = $data->username;
