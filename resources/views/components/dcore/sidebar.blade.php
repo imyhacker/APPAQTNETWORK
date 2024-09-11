@@ -13,7 +13,7 @@
                 <ul class="dropdown-menu">
                     <li><a class="nav-link" href="{{ route('datavpn') }}">Data VPN</a></li>
                     @if(session('mikrotik_connected'))
-                    <li><a class="nav-link" href="{{ route('dashboardmikrotik') }}">Dashboard Mikrotik</a></li>
+                    <li><a class="nav-link" href="#">Dashboard Mikrotik</a></li>
                     @else
                     <li><a class="nav-link" href="{{ route('datamikrotik') }}">Data Mikrotik</a></li>
 

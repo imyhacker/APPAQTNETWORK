@@ -173,7 +173,7 @@ public function edit($id)
     // Membangun konfigurasi koneksi berdasarkan data yang ada
     if (is_null($portapi)) {
         // Jika 'portapi' tidak ditemukan, gunakan IP publik dan port default
-        return redirect()->back()->with('error', 'Untuk Masuk Ke Mikrotik Harus Menggunakan Jaringan VPN Yang Kami Sediakan');
+        return redirect()->back()->with('error', 'Untuk Masuk Ke Mikrotik Harus Melalui Jaringan VPN Yang Kami Sediakan');
 
     } else {
         // Jika data VPN ditemukan, gunakan 'portapi' dari VPN
