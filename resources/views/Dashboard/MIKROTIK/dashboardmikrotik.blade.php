@@ -77,12 +77,14 @@
                 <i class="fas fa-bolt"></i>
               </div>
               <div class="card-wrap">
-               
+                <div class="card-header">
+                  <h4>Status</h4>
+                </div>
                 <div class="card-body">
                   <div class="row">
-                    <div class="col-md-12" id="cpuLoad"></div>
-                    <div class="col-md-12 mb-3">
-                      {{$version}}
+                    <div class="col-md-12" id="cpuLoad" style="font-size: 12px;"></div>
+                    <div class="col-md-12 mb-3" style="font-size: 12px;">
+                    <b> Model : {{$model}} <br>Version : {{$version}}</b>
                     </div>
                   </div>
                </div>
@@ -97,10 +99,17 @@
               </div>
               <div class="card-wrap">
                 <div class="card-header">
-                  <h4>DATE</h4>
+                  <h4>Kinerja</h4>
                 </div>
                 <div class="card-body">
-                  {{ $date }}
+
+                  <div class="row">
+                    <div class="col-md-12" style="font-size: 12px;" id="uptime">Loading...</div>
+                    <div class="col-md-12 mb-3" style="font-size: 12px;">
+                    <b>Tanggal : {{ $date }}</b>
+                    </div>
+                  </div>
+                 
                 </div>
               </div>
             </div>
@@ -237,6 +246,31 @@
   setInterval(fetchCpuLoad, 1000); // Refresh CPU load every 5 seconds
   setInterval(fetchCurrentTime, 1000); // Refresh current time every 5 seconds
 </script>
+<script>
+  function fetchUptime() {
+    $.ajax({
+        url: '/mikrotik/uptime/{{ $ipmikrotik }}',
+        method: 'GET',
+        success: function(response) {
+            if (response.error) {
+                $('#uptime').text('Uptime: Error');
+            } else {
+                $('#uptime').text('Uptime: ' + response.uptime);
+            }
+        },
+        error: function() {
+            $('#uptime').text('Uptime: Error');
+        }
+    });
+  }
+
+  // Fetch uptime immediately and then every 5 minutes
+  fetchUptime();
+  setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
+</script>
+
+
+
 <script>
   $(document).ready(function() {
     let chart = null;

@@ -273,9 +273,8 @@ public function edit($id)
 // Jalankan query dan baca respons
 $response = $client->query($query)->read();
 
-// Ambil versi dari respons
 $version = $response[0]['version'] ?? 'Unknown version';
-
+$model = $response[0]['board-name'] ?? 'Unknown model';
 
         $queryDateTime = (new Query('/system/clock/print'));
         $responseDateTime = $client->query($queryDateTime)->read();
@@ -306,7 +305,7 @@ $version = $response[0]['version'] ?? 'Unknown version';
          $username = $data->username;
    
    // Tampilkan dashboard dengan data yang relevan
-         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces', 'version'));
+         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces', 'version' ,'model'));
         } else {
             return back()->with('error', 'Data tidak ditemukan.');
         }
@@ -315,7 +314,35 @@ $version = $response[0]['version'] ?? 'Unknown version';
 
     }
     
+    public function getUptime($ipmikrotik)
+    {
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+        if (!$data) {
+            return response()->json(['error' => 'Data MikroTik tidak ditemukan.']);
+        }
+    
+        try {
+            $client = new Client([
+                'host' => 'id-1.aqtnetwork.my.id:' . $datavpn->portapi, // Menggunakan domain VPN dan port API dari data VPN
 
+                'user' => $data->username,
+                'pass' => $data->password,
+            ]);
+            
+            $query = new Query('/system/resource/print');
+            $response = $client->query($query)->read();
+            
+            if (isset($response[0]['uptime'])) {
+                return response()->json(['uptime' => $response[0]['uptime']]);
+            } else {
+                return response()->json(['error' => 'Uptime tidak ditemukan.']);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal terhubung ke MikroTik: ' . $e->getMessage()]);
+        }
+    }
+    
 
     public function getCpuLoad($ipmikrotik, Request $request)
     {
