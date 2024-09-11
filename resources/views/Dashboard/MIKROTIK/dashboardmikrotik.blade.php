@@ -174,5 +174,5 @@
 
   // Fetch CPU load immediately and then every 5 seconds
   fetchCpuLoad();
-  setInterval(fetchCpuLoad, 5000); // Refresh every 5 seconds
+  setInterval(fetchCpuLoad, 1000); // Refresh every 5 seconds
 </script>
