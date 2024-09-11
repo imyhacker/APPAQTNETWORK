@@ -230,20 +230,23 @@ public function edit($id)
     /////////////////////////////
     public function dashboardmikrotik(Request $request)
     {
-        // Ambil data dari session
-        $ipmikrotik = session('ipmikrotik');
-        $site = session('site');
-        $username = session('username');
+        $ipmikrotik = $request->input('ipmikrotik');
+        
+        // Ambil data MikroTik berdasarkan IP
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
     
-        // Jika data session tidak ada, redirect ke halaman lain
-        if (!$ipmikrotik || !$site || !$username) {
-            return redirect()->route('masukmikrotik')->with('error', 'Session expired. Please login again.');
+        // Cek apakah data MikroTik ditemukan
+        if (!$data) {
+            return redirect()->back()->with('error', 'MikroTik data not found.');
         }
     
-        // Tampilkan dashboard dengan data dari session
+        // Ambil informasi lain yang dibutuhkan untuk ditampilkan di dashboard
+        $site = $data->site;
+        $username = $data->username;
+        
+        // Tampilkan dashboard dengan data yang relevan
         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username'));
     }
-    
     
 
     public function getActiveConnection(Request $request)
