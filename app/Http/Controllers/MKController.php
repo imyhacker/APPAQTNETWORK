@@ -265,6 +265,15 @@ public function edit($id)
         
         $totalactive = count($response2);
 
+
+        $queryDateTime = (new Query('/system/clock/print'));
+        $responseDateTime = $client->query($queryDateTime)->read();
+
+        if (!empty($responseDateTime)) {
+            // Ambil date
+            $date = isset($responseDateTime[0]['date']) ? $responseDateTime[0]['date'] : 'N/A';
+
+          
         if (!$data) {
             return redirect()->back()->with('error', 'MikroTik data not found.');
        }
@@ -275,7 +284,13 @@ public function edit($id)
          $username = $data->username;
    
    // Tampilkan dashboard dengan data yang relevan
-         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive'));
+         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date'));
+        } else {
+            return back()->with('error', 'Data tidak ditemukan.');
+        }
+
+
+
     }
     
 
@@ -293,6 +308,8 @@ public function edit($id)
         // Set 'portapi' dari data VPN jika tersedia
         $portapi = $datavpn->portapi ?? null;
     
+
+
         try {
             // Membuat koneksi ke MikroTik API menggunakan IP dari parameter URL
             $client = new Client([
@@ -304,6 +321,8 @@ public function edit($id)
             // Query untuk mengambil CPU dari MikroTik
             $queryCPU = (new Query('/system/resource/print'));
             $responseCPU = $client->query($queryCPU)->read();
+
+            
     
             // Memeriksa dan mengambil data dari response
             if (!empty($responseCPU)) {
