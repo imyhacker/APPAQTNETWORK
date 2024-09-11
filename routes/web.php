@@ -1,11 +1,12 @@
 <?php
 
-use App\Http\Controllers\DepanController;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\IPController;
 use App\Http\Controllers\MKController;
 use App\Http\Controllers\OLTController;
 use App\Http\Controllers\VPNController;
-use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DepanController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,7 +27,7 @@ Route::get('/', [DepanController::class, 'index'])->name('indexdepan');
 
 
 
-Auth::routes(['verify' => true]);
+Auth::routes(['verify' => true, 'reset' => true]);
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
