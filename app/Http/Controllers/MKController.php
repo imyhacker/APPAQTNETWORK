@@ -259,6 +259,11 @@ public function edit($id)
         $response = $client->query($query)->read();
         
         $totaluser = count($response);
+
+        $query2 = (new Query('/ppp/active/print'));
+        $response2 = $client->query($query2)->read();
+        
+        $totalactive = count($response2);
         // Cek apakah data MikroTik ditemukan
         if (!$data) {
             return redirect()->back()->with('error', 'MikroTik data not found.');
@@ -270,7 +275,7 @@ public function edit($id)
         $username = $data->username;
         
         // Tampilkan dashboard dengan data yang relevan
-        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser'));
+        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive'));
     }
     
 

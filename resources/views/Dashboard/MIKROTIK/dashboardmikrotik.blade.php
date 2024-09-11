@@ -55,6 +55,21 @@
               </div>
             </div>
           </div>
+          <div class="col-lg-12 col-md-12 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-bolt"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>Total Active</h4>
+                </div>
+                <div class="card-body">
+                  {{ $totalactive }}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- MAIN OF CENTER CONTENT -->
           <div class="row">
