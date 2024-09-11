@@ -234,7 +234,30 @@ public function edit($id)
         
         // Ambil data MikroTik berdasarkan IP
         $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
-    
+        $totalvpn = VPN::where('uniquie_id', auth()->user()->unique_id)->count();
+        $totalmikrotik = Mikrotik::where('uniquie_id', auth()->user()->unique_id)->count();
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+        
+        // Set 'portweb' dari input request atau data VPN (jika ada)
+        $portweb = $request->input('portweb') ?? ($datavpn->portweb ?? null);
+        // Set 'portapi' dari data VPN jika tersedia
+        $portapi = $datavpn->portapi ?? null;
+
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
+            'user' => $data->username,
+            'pass' => $data->password,
+        ];
+
+
+
+        $client = new Client($config);
+
+        // Query untuk mendapatkan data secret di PPP
+        $query = (new Query('/ppp/secret/print'));
+        $response = $client->query($query)->read();
+        dd($response);
         // Cek apakah data MikroTik ditemukan
         if (!$data) {
             return redirect()->back()->with('error', 'MikroTik data not found.');
