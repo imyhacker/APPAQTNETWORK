@@ -60,6 +60,7 @@
                                                 <tr>
                                                     <th>Name</th>
                                                     <th>Username</th>
+                                                    <th>Password</th>
                                                     <th>IP Address</th>
                                                     <th>Skrip Mikrotik</th>
                                                     <th>Action</th>
