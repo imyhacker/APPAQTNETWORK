@@ -76,16 +76,20 @@
             <div class="col-lg-12">
               <div class="card">
                 
-                <div class="card-body d-flex justify-content-center">
-                  
+                <div class="card-body">
+                  <div class="row d-flex justify-content-center">
+                    <div class="col-md-12">
                       <h3>Selamat Datang Di MikroTik {{$site ?? '-'}}</h3>
-                   
+                    </div>
+                    <div class="col-md-12">
 
                       <form action="{{ route('keluarmikrotik') }}" method="POST">
                         @csrf
                         <button type="submit" class="btn btn-danger btn-block">Logout MikroTik</button>
                     </form>
     
+                    </div>
+                  </div>
                  
 
                 </div>
