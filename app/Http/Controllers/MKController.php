@@ -257,7 +257,8 @@ public function edit($id)
         // Query untuk mendapatkan data secret di PPP
         $query = (new Query('/ppp/secret/print'));
         $response = $client->query($query)->read();
-        dd($response);
+        
+        $totaluser = count($response);
         // Cek apakah data MikroTik ditemukan
         if (!$data) {
             return redirect()->back()->with('error', 'MikroTik data not found.');
@@ -269,7 +270,7 @@ public function edit($id)
         $username = $data->username;
         
         // Tampilkan dashboard dengan data yang relevan
-        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username'));
+        return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser'));
     }
     
 

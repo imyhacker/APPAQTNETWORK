@@ -20,7 +20,7 @@
                   <h4>Total VPN Terbuat</h4>
                 </div>
                 <div class="card-body">
-                  jumlah
+                  {{ $totalvpn }}
                 </div>
               </div>
             </div>
@@ -35,7 +35,7 @@
                   <h4>Total MikroTik Terdaftar</h4>
                 </div>
                 <div class="card-body">
-                  jumlah
+                  {{ $totalmikrotik }}
                 </div>
               </div>
             </div>
@@ -50,7 +50,7 @@
                   <h4>Total Client</h4>
                 </div>
                 <div class="card-body">
-                  jumlah
+                  {{ $totaluser }}
                 </div>
               </div>
             </div>
