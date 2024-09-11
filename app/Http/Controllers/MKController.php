@@ -396,7 +396,8 @@ public function edit($id)
                     ->equal('dst-port', $portweb)
                     ->equal('action', 'dst-nat')
                     ->equal('to-addresses', $ipAddress)
-                    ->equal('to-ports', $port);
+                    ->equal('to-ports', $port)
+                    ->equal('comments', 'Remote-web');
     
                 $client->query($addQuery)->read();
             }
