@@ -7,6 +7,9 @@ use App\Models\VPN;
 use RouterOS\Query;
 use RouterOS\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+
+
 
 class MKController extends Controller
 {
@@ -268,6 +271,16 @@ public function edit($id)
 
         $queryDateTime = (new Query('/system/clock/print'));
         $responseDateTime = $client->query($queryDateTime)->read();
+// Query untuk mengambil daftar interface Ethernet dari MikroTik
+$queryInterfaces = (new Query('/interface/print'));
+$responseInterfaces = $client->query($queryInterfaces)->read();
+
+$interfaces = [];
+foreach ($responseInterfaces as $interface) {
+    if (isset($interface['name'])) {
+        $interfaces[] = $interface['name'];
+    }
+}
 
         if (!empty($responseDateTime)) {
             // Ambil date
@@ -284,7 +297,7 @@ public function edit($id)
          $username = $data->username;
    
    // Tampilkan dashboard dengan data yang relevan
-         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date'));
+         return view('Dashboard.MIKROTIK.dashboardmikrotik', compact('ipmikrotik', 'site', 'username', 'totalvpn', 'totalmikrotik', 'totaluser', 'totalactive', 'date', 'interfaces'));
         } else {
             return back()->with('error', 'Data tidak ditemukan.');
         }
@@ -354,7 +367,7 @@ public function edit($id)
         try {
             // Membuat koneksi ke MikroTik API menggunakan IP dari parameter URL
             $client = new Client([
-                'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
+            'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
             'user' => $data->username,
             'pass' => $data->password,
             ]);
@@ -376,9 +389,71 @@ public function edit($id)
         }
     }
     
+    public function getTraffic(Request $request)
+{
+
+    $interfaceName = $request->input('interface');
+    $ipmikrotikreq = $request->input('ipmikrotik'); // Ambil ipmikrotik dari request
+     $data = Mikrotik::where('ipmikrotik', $ipmikrotikreq)->first();
+      
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+    // Log input yang diterima
+    Log::info('Interface name: ' . $interfaceName);
+  
+
+    // Debug apakah data MikroTik ditemukan
+    if (!$data) {
+        Log::error('MikroTik data not found for IP: ' . $data->ipmikrotik);
+        return response()->json(['error' => 'Data MikroTik tidak ditemukan.'], 404);
+    }
 
 
+    // Debug apakah data VPN ditemukan
+    if (!$datavpn) {
+        Log::error('VPN data not found for IP: ' . $data->ipmikrotik);
+        return response()->json(['error' => 'Data VPN tidak ditemukan.'], 404);
+    }
 
+    $portapi = $datavpn->portapi ?? null;
+    Log::info('Port API: ' . $portapi);
+
+    try {
+        // Membuat koneksi ke MikroTik API
+        Log::info('Attempting connection to MikroTik API...');
+
+        $client = new Client([
+            'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Pastikan menggunakan IP dan port yang benar
+            'user' => $data->username,
+            'pass' => $data->password,
+        ]);
+
+        // Query untuk mengambil traffic dari interface yang dipilih
+        $queryTraffic = (new Query('/interface/monitor-traffic'))
+            ->equal('interface', $interfaceName)
+            ->equal('once', true);  // Hanya sekali ambil data
+
+        Log::info('Executing query to MikroTik API...');
+        $responseTraffic = $client->query($queryTraffic)->read();
+        Log::info('MikroTik API Response: ', $responseTraffic);
+
+        if (empty($responseTraffic)) {
+            return response()->json(['error' => 'Tidak ada data traffic yang tersedia'], 400);
+        }
+
+        // Cek apakah ada data rx-bytes dan tx-bytes
+        $traffic = [
+            'rx' => isset($responseTraffic[0]['rx-bits-per-second']) ? $responseTraffic[0]['rx-bits-per-second'] : 0,
+            'tx' => isset($responseTraffic[0]['tx-bits-per-second']) ? $responseTraffic[0]['tx-bits-per-second'] : 0,
+        ];
+
+        return response()->json($traffic);
+    } catch (\Exception $e) {
+        Log::error('Failed to connect to MikroTik: ' . $e->getMessage());
+        return response()->json(['error' => 'Gagal terhubung ke MikroTik: ' . $e->getMessage()], 500);
+    }
+}
+
+    
 
 
 
