@@ -111,8 +111,8 @@
                 <div class="card-header">
                   <h4>Time</h4>
                 </div>
-                <div class="card-body">
-                  {{ $time }}
+                <div class="card-body" id="currentTime">
+                 Loading...
                 </div>
               </div>
             </div>
@@ -161,7 +161,7 @@
 <script>
   function fetchCpuLoad() {
       $.ajax({
-          url: '/mikrotik/cpu-load/{{ $ipmikrotik }}', // Gunakan parameter IP dari Blade template
+          url: '/mikrotik/cpu-load/{{ $ipmikrotik }}',
           method: 'GET',
           success: function(response) {
               $('#cpuLoad').text(response.cpuLoad);
@@ -172,7 +172,22 @@
       });
   }
 
-  // Fetch CPU load immediately and then every 5 seconds
+  function fetchCurrentTime() {
+      $.ajax({
+          url: '/mikrotik/current-time/{{ $ipmikrotik }}',
+          method: 'GET',
+          success: function(response) {
+              $('#currentTime').text(response.date + ' ' + response.time);
+          },
+          error: function() {
+              $('#currentTime').text('Error');
+          }
+      });
+  }
+
+  // Fetch CPU load and current time immediately and then every 5 seconds
   fetchCpuLoad();
-  setInterval(fetchCpuLoad, 1000); // Refresh every 5 seconds
+  fetchCurrentTime();
+  setInterval(fetchCpuLoad, 1000); // Refresh CPU load every 5 seconds
+  setInterval(fetchCurrentTime, 1000); // Refresh current time every 5 seconds
 </script>
