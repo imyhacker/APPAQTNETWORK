@@ -284,12 +284,16 @@ $model = $response[0]['board-name'] ?? 'Unknown model';
         $responseInterfaces = $client->query($queryInterfaces)->read();
 
         $interfaces = [];
-        foreach ($responseInterfaces as $interface) {
-            if (isset($interface['name'])) {
-                $interfaces[] = $interface['name'];
-             }
-        }
+$physicalInterfaces = ['ether', 'sfp', 'wifi', 'bonding']; // Common physical interface types
 
+foreach ($responseInterfaces as $interface) {
+    if (isset($interface['name']) && isset($interface['type'])) {
+        // Check if the interface type indicates a physical interface
+        if (in_array($interface['type'], $physicalInterfaces)) {
+            $interfaces[] = $interface['name'];
+        }
+    }
+}
         if (!empty($responseDateTime)) {
             // Ambil date
             $date = isset($responseDateTime[0]['date']) ? $responseDateTime[0]['date'] : 'N/A';
