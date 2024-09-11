@@ -66,10 +66,13 @@
                                                 </tr>
                                             </thead>
                                             <tbody>
+                                                @php $no = 1; @endphp
                                                 @foreach($data as $item)
                                                     <tr>
+                                                        <td>{{$no++}}</td>
                                                         <td>{{ $item->namaakun }}</td>
                                                         <td>{{ $item->username }}</td>
+                                                        <td>{{ $item->password }}</td>
                                                         <td>{{ $item->ipaddress }}</td>
                                                         
                                                         <td>
