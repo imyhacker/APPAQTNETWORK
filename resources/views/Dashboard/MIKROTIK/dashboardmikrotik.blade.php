@@ -78,7 +78,7 @@
                 
                 <div class="card-body">
                   <div class="row d-flex justify-content-center">
-                    <div class="col-md-12">
+                    <div class="col-md-12 d-flex justify-content-center">
                       <h3>Selamat Datang Di MikroTik {{$site ?? '-'}}</h3>
                     </div>
                     <div class="col-md-12">
