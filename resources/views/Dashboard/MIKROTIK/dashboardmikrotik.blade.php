@@ -10,37 +10,51 @@
         {{-- <x-dcore.card /> --}}
         <div class="row">
            
-          <div class="col-lg-6 col-md-6 col-sm-12">
+          <div class="col-lg-4 col-md-4 col-sm-12">
             <div class="card card-statistic-2">
               <div class="card-icon shadow-primary bg-primary">
-                <i class="fas fa-user"></i>
-              </div>
-              <div class="card-wrap">
-                <div class="card-header">
-                  <h4>Total Pengguna Terdaftar</h4>
-                </div>
-                <div class="card-body">
-                  $187,13
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-lg-6 col-md-6 col-sm-12">
-            <div class="card card-statistic-2">
-              <div class="card-icon shadow-primary bg-primary">
-                <i class="fas fa-user"></i>
+                <i class="fas fa-server"></i>
               </div>
               <div class="card-wrap">
                 <div class="card-header">
                   <h4>Total VPN Terbuat</h4>
                 </div>
                 <div class="card-body">
-                  $187,13
+                  jumlah
                 </div>
               </div>
             </div>
           </div>
-         
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-server"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>Total MikroTik Terdaftar</h4>
+                </div>
+                <div class="card-body">
+                  jumlah
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-lg-4 col-md-4 col-sm-12">
+            <div class="card card-statistic-2">
+              <div class="card-icon shadow-primary bg-primary">
+                <i class="fas fa-server"></i>
+              </div>
+              <div class="card-wrap">
+                <div class="card-header">
+                  <h4>Total Client</h4>
+                </div>
+                <div class="card-body">
+                  jumlah
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
         <!-- MAIN OF CENTER CONTENT -->
           <div class="row">
