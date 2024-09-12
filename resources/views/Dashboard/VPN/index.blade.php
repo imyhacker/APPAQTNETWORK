@@ -254,12 +254,10 @@
        
             // Generate the MikroTik L2TP script dynamically
             var skripL2tp = `/ip service set api port=8728           
-/ip service set winbox port=8291     
 /interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_L2TP" disabled=no`;
 
             // Generate the MikroTik PPTP script dynamically
             var skripPptp = `/ip service set api port=8728
-/ip service set winbox port=8291
 /interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_PPTP" disabled=no`;
 
             // Set the data in the textareas
