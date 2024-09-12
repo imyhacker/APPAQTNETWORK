@@ -42,7 +42,7 @@
                             
                                     <!-- Button to Trigger Info Modal -->
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#info">
-                                        <i class="fas fa-info"></i> Informasi Syarat dan Ketentuan
+                                        <i class="fas fa-info"></i> Informasi dan Cara Penggunaan
                                     </button>
                                 </div>
                                 
@@ -63,6 +63,7 @@
                                                     <th>Username</th>
                                                     <th>Password</th>
                                                     <th>IP Address</th>
+                                                    <th>VPN MikroTik</th>
                                                     <th>Skrip Mikrotik</th>
                                                     <th>Action</th>
                                                 </tr>
@@ -76,7 +77,13 @@
                                                         <td>{{ $item->username }}</td>
                                                         <td>{{ $item->password }}</td>
                                                         <td>{{ $item->ipaddress }}</td>
-                                                        
+                                                        <!-- <td>{{ "id-1.aqtnetwork.my.id:". $item->portmikrotik }}</td> -->
+                                                        <td>
+                                <!-- Address MikroTik -->
+                                <span id="mikrotikAddress{{ $item->id }}">id-1.aqtnetwork.my.id:{{ $item->portmikrotik }}</span>
+                                <!-- Tombol Copy -->
+                                <button class="btn btn-primary btn-sm ml-2" onclick="copyToClipboard('mikrotikAddress{{ $item->id }}')">Copy</button>
+                            </td>
                                                         <td>
                                                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#vpnInfoModal">
                                                                 <i class="fas fa-info"></i> Info
@@ -246,14 +253,14 @@
             var ipAddress = row.find('td:eq(3)').text();
        
             // Generate the MikroTik L2TP script dynamically
-            var skripL2tp = `/ip service set api port=8728
-                
-/interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
+            var skripL2tp = `/ip service set api port=8728           
+/ip service set winbox port=8291     
+/interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_L2TP" disabled=no`;
 
             // Generate the MikroTik PPTP script dynamically
             var skripPptp = `/ip service set api port=8728
-                
-/interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_${namaAkun}_VPN" disabled=no`;
+/ip service set winbox port=8291
+/interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_PPTP" disabled=no`;
 
             // Set the data in the textareas
             $('#scriptL2tp').val(skripL2tp);
@@ -338,16 +345,16 @@
         });
     });
 
-    @if (session('success'))
+    @if (session("success"))
         Swal.fire({
             icon: 'success',
-            title: '{{ session('success') }}',
+            title: '{{ session("success") }}',
             showConfirmButton: true
         });
-    @elseif (session('error'))
+    @elseif (session("error"))
         Swal.fire({
             icon: 'error',
-            title: '{{ session('error') }}',
+            title: '{{ session("error") }}',
             showConfirmButton: true
         });
     @endif
@@ -360,4 +367,26 @@
             confirmButtonText: 'OK'
         });
     @endif
+</script>
+<!-- Tambahkan script untuk copy ke clipboard -->
+<script>
+    function copyToClipboard(elementId) {
+        // Ambil teks dari elemen span berdasarkan ID
+        var copyText = document.getElementById(elementId).innerText;
+
+        // Buat elemen textarea sementara untuk menyalin teks
+        var tempInput = document.createElement("textarea");
+        tempInput.value = copyText;
+        document.body.appendChild(tempInput);
+
+        // Salin teks dari textarea sementara
+        tempInput.select();
+        document.execCommand("copy");
+
+        // Hapus elemen sementara setelah penyalinan
+        document.body.removeChild(tempInput);
+
+        // Tampilkan notifikasi
+        alert("Copied: " + copyText);
+    }
 </script>

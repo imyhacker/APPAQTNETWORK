@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('ipaddress')->nullable();
             $table->integer('portapi')->nullable();
             $table->integer('portweb')->nullable();
+            $table->integer('portmikrotik')->nullable();
             $table->timestamps();
         });
     }

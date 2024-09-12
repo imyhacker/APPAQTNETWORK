@@ -179,7 +179,29 @@ class VPNController extends Controller
                 if (isset($natResponse2['!trap'])) {
                     session()->flash('error', $natResponse2['!trap'][0]['message']);
                     return redirect()->back();
-                } else {
+                }
+                
+                $tambahsatu = $dstPort+1;
+                // Buat aturan NAT ketiga
+                $natQuery3 = new Query('/ip/firewall/nat/add');
+                $natQuery3->equal('chain', 'dstnat')
+                          ->equal('protocol', 'tcp')
+                          ->equal('dst-port', $tambahsatu)
+                          ->equal('dst-address-list', 'ip-public')
+                          ->equal('action', 'dst-nat')
+                          ->equal('to-addresses', $remoteIp)
+                          ->equal('to-ports', 8291)
+                          ->equal('comment', $akuncomment . '_MikroTik');
+    
+                $natResponse3 = $client->query($natQuery3)->read();
+    
+                if (isset($natResponse3['!trap'])) {
+                    session()->flash('error', $natResponse3['!trap'][0]['message']);
+                    return redirect()->back();
+                }
+                
+                
+                else {
                     // Menyimpan data ke database
                     $unique = auth()->user();
                     VPN::create([
@@ -190,6 +212,7 @@ class VPNController extends Controller
                         'ipaddress' => $remoteIp,
                         'portapi' => $dstPort,
                         'portweb' => $dstPort2,
+                        'portmikrotik' => $tambahsatu,
                     ]);
     
                     session()->flash('success', "PPP Secret Berhasil Di Buat !");
@@ -250,13 +273,13 @@ class VPNController extends Controller
             }
     
             // Search for and remove Firewall NAT rules by name
-            $natComments = [$username . '_API', $username . '_WEB'];
+            $natComments = ['AQT_'. $username . '_API', 'AQT_'. $username . '_WEB', 'AQT_' .$username. '_MikroTik'];
             foreach ($natComments as $comment) {
                 $query = new Query('/ip/firewall/nat/print');
                 $response = $client->query($query)->read();
     
                 foreach ($response as $rule) {
-                    if (isset($rule['comment']) && $rule['comment'] === $comment) {
+                    if (isset($rule['comment']) && $rule['comment'] && $rule['comment'] === $comment) {
                         $ruleId = $rule['.id'];
     
                         $removeQuery = new Query('/ip/firewall/nat/remove');
@@ -265,7 +288,7 @@ class VPNController extends Controller
                     }
                 }
             }
-    
+            //Log::info();
             // Delete the VPN record from the database
             $vpn->delete();
     
