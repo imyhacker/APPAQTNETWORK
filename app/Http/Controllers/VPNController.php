@@ -64,7 +64,7 @@ class VPNController extends Controller
             // Proses penambahan PPP secret dan aturan NAT jika username belum ada
             // Oktet yang tetap
             $firstOctet = '172';
-            $secondOctet = 160;
+            $secondOctet = 16;
     
             // Ambil daftar thirdOctets yang sudah digunakan
             $usedThirdOctets = array_map(function ($secret) {
