@@ -222,7 +222,7 @@
     </div>
   </div>
 <x-dcore.script />
-<script>
+<!-- <script>
   function fetchCpuLoad() {
       $.ajax({
           url: '/mikrotik/cpu-load/{{ $ipmikrotik }}',
@@ -254,7 +254,7 @@
   fetchCurrentTime();
   setInterval(fetchCpuLoad, 1000); // Refresh CPU load every 5 seconds
   setInterval(fetchCurrentTime, 1000); // Refresh current time every 5 seconds
-</script>
+</script> -->
 <script>
   function fetchUptime() {
     $.ajax({
