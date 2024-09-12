@@ -169,27 +169,31 @@
                 <div class="card-body">
                   <div class="row">
                     <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body">
-                              <form id="interfaceForm">
-                                <div class="form-group">
-                                    <label for="interface">Select Interface</label>
-                                    <select class="form-control" id="interface" name="interface">
-                                        @foreach ($interfaces as $interface)
-                                            <option value="{{ $interface }}">{{ $interface }}</option>
-                                        @endforeach
-                                    </select>
-                                </div>
-                                <!-- Input hidden untuk ipmikrotik -->
-                                <input type="hidden" id="ipmikrotik" name="ipmikrotik" value="{{ $ipmikrotik }}">
-                                <button type="submit" class="btn btn-primary">Get Traffic</button>
-                            </form>
-                            
-                            </div>
-                        </div>
+                       
+                            <form id="interfaceForm">
+    <div class="form-group">
+        <label for="interface">Select Interface</label>
+        <select class="form-control" id="interface" name="interface">
+            @foreach ($interfaces as $interface)
+                <option value="{{ $interface }}">{{ $interface }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="form-group">
+
+    <!-- Input hidden untuk ipmikrotik -->
+    <input type="hidden" id="ipmikrotik" name="ipmikrotik" value="{{ $ipmikrotik }}">
+    <button type="submit" class="btn btn-primary">Get Traffic</button>
+    </div>
+
+</form>
+
                     </div>
                     <div class="col-lg-12">
                         <canvas id="trafficChart"></canvas>
+                    </div>
+                    <div class="col-lg-12">
+                    <small class="mt-2">*Data Dalam Bentuk Mpbs <br>Jika Berganti Ethernet Tunggu 20 Detik Maka Data Grafik Akan Berganti Ke Ethernet Yang Di Pilih</small>
                     </div>
                 </div>
                 </div>
@@ -273,13 +277,11 @@
   fetchUptime();
   setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
 </script>
-
-
-
 <script>
   $(document).ready(function() {
     let chart = null;
     let pollingInterval = null; // Variable for interval
+    let dataPoints = 20; // Number of points to show on the chart
 
     $('#interfaceForm').on('submit', function(event) {
         event.preventDefault();
@@ -290,6 +292,70 @@
         if (pollingInterval) {
             clearInterval(pollingInterval);
         }
+
+        // Destroy existing chart if it exists
+        if (chart) {
+            chart.destroy();
+            chart = null;
+        }
+
+        // Reset data for the new chart
+        const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1); // Labels from 1 to 20
+        const initialData = Array(dataPoints).fill(0); // Start with 0 values
+
+        // Create a new chart instance
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line', // Use 'line' chart type
+            data: {
+                labels: initialLabels, // Start with static labels 1-20
+                datasets: [ {
+                    label: 'Received Traffic (Mbps)', // Label for RX in Mbps
+                    data: initialData.slice(), // Copy dummy data for RX
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue
+                    borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1
+                },
+                {
+                    label: 'Transmitted Traffic (Mbps)', // Label for TX in Mbps
+                    data: initialData.slice(), // Copy dummy data for TX
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Light red
+                    borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
+                    borderWidth: 2,
+                    fill: false,
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Traffic (Mbps)' // Label for Y-axis
+                        },
+                        ticks: {
+                            stepSize: 0.5, // Set the step size to 0.5 for 1 Mbps, 1.5 Mbps, etc.
+                            callback: function(value) {
+                                return value + ' Mbps'; // Add 'Mbps' to tick labels
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Add 'Mbps' suffix to tooltip data
+                                return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Mbps';
+                            }
+                        }
+                    }
+                }
+            }
+        });
 
         // Function to fetch traffic data and update chart
         function fetchTrafficData() {
@@ -305,13 +371,21 @@
                         return;
                     }
 
+                    // Convert RX and TX data from bytes to Mbps
+                    const rxMbps = (response.rx * 8) / 1000000; // Convert RX to Mbps
+                    const txMbps = (response.tx * 8) / 1000000; // Convert TX to Mbps
+
                     // Update the chart data
                     if (chart) {
-                        chart.data.datasets[0].data.push(response.rx); // Update RX data
-                        chart.data.datasets[1].data.push(response.tx); // Update TX data
+                        const currentTime = new Date().toLocaleTimeString(); // Add time label
+                        chart.data.labels.push(currentTime); // Add new label (time)
 
-                        // Maintain only the last 20 data points (for example)
-                        if (chart.data.datasets[0].data.length > 20) {
+                        chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
+                        chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
+
+                        // Maintain only the last dataPoints data points
+                        if (chart.data.labels.length > dataPoints) {
+                            chart.data.labels.shift(); // Remove old label (time)
                             chart.data.datasets[0].data.shift(); // Remove old RX data
                             chart.data.datasets[1].data.shift(); // Remove old TX data
                         }
@@ -326,42 +400,11 @@
             });
         }
 
-        // Create or update the chart
-        const ctx = document.getElementById('trafficChart').getContext('2d');
-        chart = new Chart(ctx, {
-            type: 'line', // Use 'line' chart type
-            data: {
-                labels: [], // Dynamic labels for x-axis (will update automatically)
-                datasets: [{
-                    label: 'Received Traffic (bytes)', // Label for RX
-                    data: [], // Start with empty data for RX
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', // Light blue
-                    borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1
-                },
-                {
-                    label: 'Transmitted Traffic (bytes)', // Label for TX
-                    data: [], // Start with empty data for TX
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)', // Light red
-                    borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
-                    borderWidth: 2,
-                    fill: false,
-                    tension: 0.1
-                }]
-            },
-            options: {
-                scales: {
-                    y: {
-                        beginAtZero: true
-                    }
-                }
-            }
-        });
-
         // Start polling the traffic data every 2 seconds
         pollingInterval = setInterval(fetchTrafficData, 2000);
+        
+        // Fetch initial data to populate the chart immediately
+        fetchTrafficData();
     });
 });
 </script>

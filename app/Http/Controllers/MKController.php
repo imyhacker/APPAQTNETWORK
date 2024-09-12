@@ -528,7 +528,7 @@ Log::info($activeUserCount);
             'rx' => isset($responseTraffic[0]['rx-bits-per-second']) ? $responseTraffic[0]['rx-bits-per-second'] : 0,
             'tx' => isset($responseTraffic[0]['tx-bits-per-second']) ? $responseTraffic[0]['tx-bits-per-second'] : 0,
         ];
-
+        Log::info($traffic);
         return response()->json($traffic);
     } catch (\Exception $e) {
         Log::error('Failed to connect to MikroTik: ' . $e->getMessage());
