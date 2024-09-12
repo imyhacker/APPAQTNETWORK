@@ -23,22 +23,24 @@ class VPNController extends Controller
     }
     public function uploadvpn(Request $req)
     {
-       // Validasi input
-    $validated = $req->validate([
-        'namaakun' => 'required|string',
-        'username' => 'required|string',
-        'password' => 'required|string',
-    ], [
-        'namaakun.required' => 'Nama akun harus diisi.',
-        'username.required' => 'Username harus diisi.',
-        'password.required' => 'Password harus diisi.',
-    ]);
-
-    $namaakun = $req->input('namaakun');
-    $username = $req->input('username');
-    $password = $req->input('password');
-    $akuncomment = "AQT_" . $namaakun;
-
+        // Validasi input
+        $validated = $req->validate([
+            'namaakun' => 'required|string',
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ], [
+            'namaakun.required' => 'Nama akun harus diisi.',
+            'username.required' => 'Username harus diisi.',
+            'password.required' => 'Password harus diisi.',
+        ]);
+    
+        $namaakun = $req->input('namaakun');
+        $username = $req->input('username');
+        $password = $req->input('password');
+        $portmkt = $req->input('portmk');
+    
+        $akuncomment = "AQT_" . $namaakun;
+    
         try {
             // Konfigurasi koneksi ke MikroTik
             $client = new Client([
@@ -47,13 +49,11 @@ class VPNController extends Controller
                 'pass' => 'bakpao1922',
             ]);
     
-            // Data dari request
-           
-            // Mengambil semua PPP secrets untuk memeriksa nama pengguna yang sudah ada
+            // Mengambil semua PPP secrets untuk memeriksa username yang sudah ada
             $queryAllSecrets = new Query('/ppp/secret/print');
             $response = $client->query($queryAllSecrets)->read();
     
-            // Cek apakah nama pengguna sudah ada
+            // Cek apakah username sudah ada
             $existingUsernames = array_column($response, 'name');
     
             if (in_array($username, $existingUsernames)) {
@@ -61,7 +61,6 @@ class VPNController extends Controller
                 return redirect()->back();
             }
     
-            // Proses penambahan PPP secret dan aturan NAT jika username belum ada
             // Oktet yang tetap
             $firstOctet = '172';
             $secondOctet = 16;
@@ -102,7 +101,6 @@ class VPNController extends Controller
             // Eksekusi query
             $response = $client->query($query)->read();
     
-            // Cek respon dari MikroTik
             if (isset($response['!trap'])) {
                 session()->flash('error', $response['!trap'][0]['message']);
                 return redirect()->back();
@@ -119,21 +117,7 @@ class VPNController extends Controller
                     }
                 }
     
-                $queryAPIService = new Query('/ip/service/print');
-                $apiResponse = $client->query($queryAPIService)->read();
-                
-                $apiPort = null;
-                foreach ($apiResponse as $service) {
-                    if (isset($service['name']) && $service['name'] == 'api') {
-                        $apiPort = $service['port'];
-                        break;
-                    }
-                }
-    
-                if ($apiPort === null) {
-                    throw new \Exception("API service port tidak ditemukan.");
-                }
-    
+                // Atur port tujuan (dstPort) yang akan digunakan
                 $dstPort = 10000;
                 while (in_array($dstPort, $usedPorts)) {
                     $dstPort++;
@@ -142,55 +126,75 @@ class VPNController extends Controller
                     }
                 }
     
-                // Buat aturan NAT pertama
-                $natQuery1 = new Query('/ip/firewall/nat/add');
-                $natQuery1->equal('chain', 'dstnat')
-                          ->equal('protocol', 'tcp')
-                          ->equal('dst-port', $dstPort)
-                          ->equal('dst-address-list', 'ip-public')
-                          ->equal('action', 'dst-nat')
-                          ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', $apiPort)
-                          ->equal('comment', $akuncomment . '_API');
-    
-                $natResponse1 = $client->query($natQuery1)->read();
-    
-                if (isset($natResponse1['!trap'])) {
-                    session()->flash('error', $natResponse1['!trap'][0]['message']);
-                    return redirect()->back();
-                }
-    
-                // Increment the destination port by 10 for the second NAT rule
-                $dstPort2 = $dstPort + 10;
-    
-                // Buat aturan NAT kedua
-                $natQuery2 = new Query('/ip/firewall/nat/add');
-                $natQuery2->equal('chain', 'dstnat')
-                          ->equal('protocol', 'tcp')
-                          ->equal('dst-port', $dstPort2)
-                          ->equal('dst-address-list', 'ip-public')
-                          ->equal('action', 'dst-nat')
-                          ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', $dstPort2)
-                          ->equal('comment', $akuncomment . '_WEB');
-    
-                $natResponse2 = $client->query($natQuery2)->read();
-    
-                if (isset($natResponse2['!trap'])) {
-                    session()->flash('error', $natResponse2['!trap'][0]['message']);
-                    return redirect()->back();
-                }
                 
-                $tambahsatu = $dstPort+1;
-                // Buat aturan NAT ketiga
-                $natQuery3 = new Query('/ip/firewall/nat/add');
+                // Increment dstPort by 1 for the MikroTik NAT rule
+                $tambahsatu = $dstPort + 1;
+    
+                // Tentukan portwbx dan cek apakah ada konflik
+                if ($portmkt == null) {
+                    $portwbx = 8291;
+                } else {
+                    $portwbx = $portmkt;
+                }
+ // Cek apakah kombinasi port sudah ada di dalam database
+ $portExists = VPN::where('portapi', $portmkt)
+ ->orWhere('portweb', $portmkt)
+ ->orWhere('portmikrotik', $portmkt)
+ ->exists();
+
+if ($portExists || $portmkt == 9000) {
+session()->flash('error', 'Port API, Web, atau MikroTik sudah digunakan. Silakan coba lagi dengan port lain.');
+return redirect()->back();
+}else{
+    //////////
+
+    // Buat aturan NAT pertama
+    $natQuery1 = new Query('/ip/firewall/nat/add');
+    $natQuery1->equal('chain', 'dstnat')
+              ->equal('protocol', 'tcp')
+              ->equal('dst-port', $dstPort)
+              ->equal('dst-address-list', 'ip-public')
+              ->equal('action', 'dst-nat')
+              ->equal('to-addresses', $remoteIp)
+              ->equal('to-ports', 9000)
+              ->equal('comment', $akuncomment . '_API');
+
+    $natResponse1 = $client->query($natQuery1)->read();
+
+    if (isset($natResponse1['!trap'])) {
+        session()->flash('error', $natResponse1['!trap'][0]['message']);
+        return redirect()->back();
+    }
+
+    // Increment dstPort for the second NAT rule
+    $dstPort2 = $dstPort + 10;
+
+    // Buat aturan NAT kedua
+    $natQuery2 = new Query('/ip/firewall/nat/add');
+    $natQuery2->equal('chain', 'dstnat')
+              ->equal('protocol', 'tcp')
+              ->equal('dst-port', $dstPort2)
+              ->equal('dst-address-list', 'ip-public')
+              ->equal('action', 'dst-nat')
+              ->equal('to-addresses', $remoteIp)
+              ->equal('to-ports', $dstPort2)
+              ->equal('comment', $akuncomment . '_WEB');
+
+    $natResponse2 = $client->query($natQuery2)->read();
+
+    if (isset($natResponse2['!trap'])) {
+        session()->flash('error', $natResponse2['!trap'][0]['message']);
+        return redirect()->back();
+    }
+///////////
+$natQuery3 = new Query('/ip/firewall/nat/add');
                 $natQuery3->equal('chain', 'dstnat')
                           ->equal('protocol', 'tcp')
                           ->equal('dst-port', $tambahsatu)
                           ->equal('dst-address-list', 'ip-public')
                           ->equal('action', 'dst-nat')
                           ->equal('to-addresses', $remoteIp)
-                          ->equal('to-ports', 8291)
+                          ->equal('to-ports', $portwbx)
                           ->equal('comment', $akuncomment . '_MikroTik');
     
                 $natResponse3 = $client->query($natQuery3)->read();
@@ -199,25 +203,33 @@ class VPNController extends Controller
                     session()->flash('error', $natResponse3['!trap'][0]['message']);
                     return redirect()->back();
                 }
-                
-                
-                else {
-                    // Menyimpan data ke database
-                    $unique = auth()->user();
-                    VPN::create([
-                        'unique_id' => $unique->unique_id,
-                        'namaakun' => $namaakun,
-                        'username' => $username,
-                        'password' => $password,
-                        'ipaddress' => $remoteIp,
-                        'portapi' => $dstPort,
-                        'portweb' => $dstPort2,
-                        'portmikrotik' => $tambahsatu,
-                    ]);
     
-                    session()->flash('success', "PPP Secret Berhasil Di Buat !");
-                    return redirect()->back();
-                }
+                // Menyimpan data ke database
+                $unique = auth()->user();
+                VPN::create([
+                    'unique_id' => $unique->unique_id,
+                    'namaakun' => $namaakun,
+                    'username' => $username,
+                    'password' => $password,
+                    'ipaddress' => $remoteIp,
+                    'portapi' => $dstPort,
+                    'portweb' => $dstPort2,
+                    'portmikrotik' => $tambahsatu,
+                    'portwbx' => $portwbx
+                ]);
+    
+                session()->flash('success', "PPP Secret Berhasil Dibuat!");
+                return redirect()->back();
+
+
+
+
+
+
+}
+
+                // Buat aturan NAT ketiga untuk MikroTik
+                
             }
     
         } catch (ClientException $e) {
@@ -228,6 +240,7 @@ class VPNController extends Controller
             return redirect()->back();
         }
     }
+    
     
     public function hapusvpn(Request $request, $id)
     {

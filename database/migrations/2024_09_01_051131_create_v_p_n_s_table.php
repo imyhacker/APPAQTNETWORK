@@ -23,6 +23,8 @@ return new class extends Migration
             $table->integer('portapi')->nullable();
             $table->integer('portweb')->nullable();
             $table->integer('portmikrotik')->nullable();
+            $table->integer('portwbx')->nullable();
+
             $table->timestamps();
         });
     }

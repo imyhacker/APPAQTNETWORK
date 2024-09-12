@@ -82,6 +82,8 @@ class MKController extends Controller
                     'host' => 'id-1.aqtnetwork.my.id:'.$dataport->portapi,
                     'user' => $username,
                     'pass' => $password,
+                    'port' => 9000
+
                 ]);
     
                 // If connection is successful
@@ -98,6 +100,8 @@ class MKController extends Controller
                     'host' => $ipmikrotik,
                     'user' => $username,
                     'pass' => $password,
+                    'port' => 9000
+
                 ]);
     
                 // If connection is successful
@@ -185,6 +189,8 @@ public function edit($id)
             'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
             'user' => $username,
             'pass' => $password,
+            'port' => 9000
+
         ];
 
         // Sertakan 'portweb' jika ada
@@ -252,6 +258,8 @@ public function edit($id)
             'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
             'user' => $data->username,
             'pass' => $data->password,
+            'port' => 9000
+
         ];
 
 
@@ -376,6 +384,8 @@ Log::info($activeUserCount);
 
                 'user' => $data->username,
                 'pass' => $data->password,
+                'port' => 9000
+
             ]);
             
             $query = new Query('/system/resource/print');
@@ -454,6 +464,8 @@ Log::info($activeUserCount);
             'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
             'user' => $data->username,
             'pass' => $data->password,
+            'port' => 9000
+
             ]);
             // Query untuk mengambil waktu dari MikroTik
             $queryDateTime = (new Query('/system/clock/print'));
@@ -509,6 +521,8 @@ Log::info($activeUserCount);
             'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Pastikan menggunakan IP dan port yang benar
             'user' => $data->username,
             'pass' => $data->password,
+            'port' => 9000
+
         ]);
 
         // Query untuk mengambil traffic dari interface yang dipilih
@@ -571,6 +585,8 @@ Log::info($activeUserCount);
                 'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
                 'user' => $username,
                 'pass' => $password,
+                'port' => 9000
+
             ];
     
         try {
@@ -660,6 +676,8 @@ Log::info($activeUserCount);
                 'host' => 'id-1.aqtnetwork.my.id:'.$portapi,
                 'user' => $username,
                 'pass' => $password,
+                'port' => 9000
+
             ];
     
             $client = new Client($config);
@@ -742,7 +760,8 @@ Log::info($activeUserCount);
                 'host' => 'id-1.aqtnetwork.my.id:'.$portapi,
                 'user' => $username,
                 'pass' => $password,
-                'port' => 8728
+                'port' => 9000
+
             ];
     
             $client = new Client($config);

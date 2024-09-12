@@ -63,6 +63,7 @@
                                                     <th>Username</th>
                                                     <th>Password</th>
                                                     <th>IP Address</th>
+                                                    <th>PORT Winbox</th>
                                                     <th>VPN MikroTik</th>
                                                     <th>Skrip Mikrotik</th>
                                                     <th>Action</th>
@@ -77,6 +78,7 @@
                                                         <td>{{ $item->username }}</td>
                                                         <td>{{ $item->password }}</td>
                                                         <td>{{ $item->ipaddress }}</td>
+                                                        <td>{{ $item->portwbx }}</td>
                                                         <!-- <td>{{ "id-1.aqtnetwork.my.id:". $item->portmikrotik }}</td> -->
                                                         <td>
                                 <!-- Address MikroTik -->
@@ -140,6 +142,11 @@
                     <div class="form-group">
                         <label for="password">Password</label>
                         <input type="password" class="form-control" placeholder="Password" name="password">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="password">Port Winbox ( OPTIONAL )</label>
+                        <input type="number" class="form-control" placeholder="Default : 8291" name="portmk">
                     </div>
 
                     <div class="form-group">
@@ -251,13 +258,16 @@
             var username = row.find('td:eq(1)').text();
             var password = row.find('td:eq(2)').text();
             var ipAddress = row.find('td:eq(3)').text();
-       
+            var wbx = row.find('td:eq(5)').text();
+
             // Generate the MikroTik L2TP script dynamically
-            var skripL2tp = `/ip service set api port=8728           
+            var skripL2tp = `/ip service set api port=9000          
+/ip service set winbox port=${wbx}
 /interface l2tp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_L2TP" disabled=no`;
 
             // Generate the MikroTik PPTP script dynamically
-            var skripPptp = `/ip service set api port=8728
+            var skripPptp = `/ip service set api port=9000
+/ip service set winbox port=${wbx}
 /interface pptp-client add name="AQTNetwork_VPN" connect-to="id-1.aqtnetwork.my.id" user="${username}" password="${password}" comment="AQT_VPN_PPTP" disabled=no`;
 
             // Set the data in the textareas
