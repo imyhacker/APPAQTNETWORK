@@ -573,13 +573,21 @@
           var modal = $(this);
           modal.find('.modal-title').text('Traffic Monitoring for Interface: ' + name);
   
-          // Initialize chart only if it's not already initialized
-          if (!trafficChart) {
-              initializeChart();
-          }
-  
-          // Check if the interface name has changed
+          // Clear chart data and reinitialize the chart when changing the interface
           if (name !== currentName) {
+              // Clear chart data
+              chartData.labels = Array(maxPoints).fill('');
+              chartData.rxData = Array(maxPoints).fill(0);
+              chartData.txData = Array(maxPoints).fill(0);
+  
+              // Clear existing chart
+              if (trafficChart) {
+                  trafficChart.destroy();
+              }
+  
+              // Initialize chart with cleared data
+              initializeChart();
+  
               // Reset lastRxBytes and lastTxBytes for the new interface
               lastRxBytes = 0;
               lastTxBytes = 0;
