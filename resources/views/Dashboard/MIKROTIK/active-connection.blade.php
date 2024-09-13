@@ -455,9 +455,9 @@
 </script>
 <script>
   $(document).ready(function() {
-      var trafficChart; // Declare chart variable outside the event handler
-      var lastRxBytes = 0; // Variable to store the last received bytes
-      var lastTxBytes = 0; // Variable to store the last transmitted bytes
+      var trafficChart;
+      var lastRxBytes = 0; // Store the last received bytes
+      var lastTxBytes = 0; // Store the last transmitted bytes
       var maxPoints = 20; // Maximum number of data points to display
       var chartData = {
           labels: Array(maxPoints).fill(''),
@@ -465,8 +465,8 @@
           txData: Array(maxPoints).fill(0)
       };
       var currentName = ''; // Track the current interface name
-      var intervalId; // Store the interval ID for polling
-  
+      var intervalId;
+
       // Initialize chart with 20 empty data points
       function initializeChart() {
           var ctx = document.getElementById('trafficChart').getContext('2d');
@@ -512,7 +512,7 @@
               }
           });
       }
-  
+
       // Function to fetch traffic data and update the chart
       function fetchTrafficData(interfaceName, ipmikrotik) {
           $.ajax({
@@ -525,9 +525,9 @@
                       return;
                   }
 
-                  var rxBytes = response.traffic.rx || 0;
-                  var txBytes = response.traffic.tx || 0;
-                  var pollingInterval = 2; // 2 seconds, matching the setInterval
+                  var rxBytes = response.traffic.rx || lastRxBytes; // Default to last value if missing
+                  var txBytes = response.traffic.tx || lastTxBytes; // Default to last value if missing
+                  var pollingInterval = 2; // 2 seconds interval
 
                   // Calculate traffic rates in bps, then convert to Mbps
                   var rxBps = ((rxBytes - lastRxBytes) * 8) / pollingInterval; // bps
@@ -542,6 +542,7 @@
 
                   var now = new Date().toLocaleTimeString();
 
+                  // Update chart only if data is valid (non-zero)
                   if (chartData.labels.length >= maxPoints) {
                       chartData.labels.shift(); // Remove oldest label
                       chartData.rxData.shift(); // Remove oldest RX data
@@ -549,8 +550,10 @@
                   }
 
                   chartData.labels.push(now); // Add new label
-                  chartData.rxData.push(Math.max(parseFloat(rxMbps), 0)); // Add new RX data
-                  chartData.txData.push(Math.max(parseFloat(txMbps), 0)); // Add new TX data
+
+                  // Only update if there is some valid data, else maintain the previous data point
+                  chartData.rxData.push(rxBps > 0 ? Math.max(parseFloat(rxMbps), 0) : chartData.rxData[chartData.rxData.length - 1]);
+                  chartData.txData.push(txBps > 0 ? Math.max(parseFloat(txMbps), 0) : chartData.txData[chartData.txData.length - 1]);
 
                   trafficChart.data.labels = chartData.labels;
                   trafficChart.data.datasets[0].data = chartData.rxData;
@@ -579,47 +582,40 @@
 
           // Clear chart data and reinitialize the chart when changing the interface
           if (name !== currentName) {
-              // Clear chart data
               chartData.labels = Array(maxPoints).fill('');
               chartData.rxData = Array(maxPoints).fill(0);
               chartData.txData = Array(maxPoints).fill(0);
 
-              // Clear existing chart
               if (trafficChart) {
                   trafficChart.destroy();
               }
 
-              // Initialize chart with cleared data
               initializeChart();
 
-              // Reset lastRxBytes and lastTxBytes for the new interface
               lastRxBytes = 0;
               lastTxBytes = 0;
 
-              // Update the current interface name
               currentName = name;
 
-              // Fetch and update traffic data
               function updateTrafficData() {
                   fetchTrafficData(name, ipmikrotik);
               }
 
-              updateTrafficData(); // Initial fetch
+              updateTrafficData();
               if (intervalId) {
-                  clearInterval(intervalId); // Clear previous interval if it exists
+                  clearInterval(intervalId);
               }
               intervalId = setInterval(updateTrafficData, 2000); // Poll every 2 seconds
           }
 
-          // Clear interval when modal is hidden
           $('#trafficModal').on('hidden.bs.modal', function () {
               clearInterval(intervalId);
-              intervalId = null; // Clear interval ID
+              intervalId = null;
               if (trafficChart) {
                   trafficChart.destroy();
-                  trafficChart = null; // Clear chart reference
+                  trafficChart = null;
               }
-              $('#trafficInfo').empty(); // Clear the traffic info display
+              $('#trafficInfo').empty();
           });
       });
   });
