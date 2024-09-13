@@ -1,4 +1,16 @@
 <x-dcore.head />
+<style>
+  /* Add some basic styling */
+  #trafficChart {
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+  }
+  #trafficInfo {
+      text-align: center;
+      margin-top: 20px;
+  }
+</style>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
@@ -190,7 +202,12 @@
 
                     </div>
                     <div class="col-lg-12">
+                      
                         <canvas id="trafficChart"></canvas>
+                        <div id="trafficInfo">
+                          <p>Received Traffic: <span id="currentRx">0</span> Mbps</p>
+                          <p>Transmitted Traffic: <span id="currentTx">0</span> Mbps</p>
+                      </div>
                     </div>
                     <div class="col-lg-12">
                     <small class="mt-2">*Data Dalam Bentuk Mpbs <br>Jika Berganti Ethernet Tunggu 20 Detik Maka Data Grafik Akan Berganti Ke Ethernet Yang Di Pilih</small>
@@ -375,18 +392,9 @@
                           return;
                       }
 
-                      // Check if rx and tx are valid
-                      if (response.rx === undefined || response.tx === undefined) {
-                          console.error('Data rx or tx is undefined:', response);
-                          return;
-                      }
-
                       // Convert RX and TX data from bytes to Mbps
                       const rxMbps = (response.rx * 8) / 1000000; // Convert RX to Mbps
                       const txMbps = (response.tx * 8) / 1000000; // Convert TX to Mbps
-
-                      console.log('Converted RX:', rxMbps, 'Mbps'); // Debugging
-                      console.log('Converted TX:', txMbps, 'Mbps'); // Debugging
 
                       // Update the chart data
                       if (chart) {
