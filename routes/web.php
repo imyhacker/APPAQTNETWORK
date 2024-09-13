@@ -54,6 +54,7 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::post('/keluarmikrotik', [MKController::class, 'keluarmikrotik'])->name('keluarmikrotik');
 
     Route::get('/active-connection', [MKController::class, 'getActiveConnection'])->name('active-connection');
+    Route::get('/active-connection/traffic', [MKController::class, 'getTrafficData'])->name('mikrotik.traffic');
 
 
 

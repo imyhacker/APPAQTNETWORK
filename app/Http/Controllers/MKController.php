@@ -305,44 +305,44 @@ public function edit($id)
         }
 
         $queryHotspotUsers = (new Query('/ip/hotspot/user/print'));
-$responseHotspotUsers = $client->query($queryHotspotUsers)->read();
+        $responseHotspotUsers = $client->query($queryHotspotUsers)->read();
 
 // Initialize an array to store the hotspot users
-$hotspotUsers = [];
+            $hotspotUsers = [];
 
 // Iterate over the response to extract the user data
-foreach ($responseHotspotUsers as $user) {
-    if (isset($user['name'])) {
-        $hotspotUsers[] = $user;
-    }
-}
+            foreach ($responseHotspotUsers as $user) {
+               if (isset($user['name'])) {
+                   $hotspotUsers[] = $user;
+                }
+            }
 
 
-$ttuser = count($hotspotUsers);
+        $ttuser = count($hotspotUsers);
 
 
 
 
-$queryActiveHotspotUsers = (new Query('/ip/hotspot/active/print'));
+        $queryActiveHotspotUsers = (new Query('/ip/hotspot/active/print'));
 
-// Execute the query
-$responseActiveHotspotUsers = $client->query($queryActiveHotspotUsers)->read();
+        // Execute the query
+        $responseActiveHotspotUsers = $client->query($queryActiveHotspotUsers)->read();
 
-// Initialize an array to store active hotspot users
-$activeHotspotUsers = [];
+        // Initialize an array to store active hotspot users
+        $activeHotspotUsers = [];
 
 // Iterate over the response to extract user data
-foreach ($responseActiveHotspotUsers as $user) {
-    if (isset($user['name'])) {
-        $activeHotspotUsers[] = $user;
-    }
-}
+        foreach ($responseActiveHotspotUsers as $user) {
+             if (isset($user['name'])) {
+                 $activeHotspotUsers[] = $user;
+            }
+        }
 
 // Count the number of active users
-$activeUserCount = count($activeHotspotUsers);
+        $activeUserCount = count($activeHotspotUsers);
 
 
-Log::info($activeUserCount);
+        Log::info($activeUserCount);
 
 
 
@@ -368,7 +368,7 @@ Log::info($activeUserCount);
 
 
 
-    }
+        }
     
     public function getUptime($ipmikrotik)
     {
@@ -402,49 +402,6 @@ Log::info($activeUserCount);
     }
     
 
-    // public function getCpuLoad($ipmikrotik, Request $request)
-    // {
-    //     // Ambil data MikroTik berdasarkan IP
-    //     $data = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
-    //     $totalvpn = VPN::where('unique_id', auth()->user()->unique_id)->count();
-    //     $totalmikrotik = Mikrotik::where('unique_id', auth()->user()->unique_id)->count();
-    //     $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
-        
-    //     // Set 'portweb' dari input request atau data VPN (jika ada)
-    //     $portweb = $request->input('portweb') ?? ($datavpn->portweb ?? null);
-    //     // Set 'portapi' dari data VPN jika tersedia
-    //     $portapi = $datavpn->portapi ?? null;
-    
-
-
-    //     try {
-    //         // Membuat koneksi ke MikroTik API menggunakan IP dari parameter URL
-    //         $client = new Client([
-    //             'host' => 'id-1.aqtnetwork.my.id:' . $portapi, // Menggunakan domain VPN dan port API dari data VPN
-    //         'user' => $data->username,
-    //         'pass' => $data->password,
-    //         ]);
-    
-    //         // Query untuk mengambil CPU dari MikroTik
-    //         $queryCPU = (new Query('/system/resource/print'));
-    //         $responseCPU = $client->query($queryCPU)->read();
-
-            
-    
-    //         // Memeriksa dan mengambil data dari response
-    //         if (!empty($responseCPU)) {
-    //             $cpuLoad = isset($responseCPU[0]['cpu-load']) ? $responseCPU[0]['cpu-load'] . '%' : 'N/A';
-    
-    //             // Mengirim data sebagai JSON
-    //             return response()->json(['cpuLoad' => $cpuLoad]);
-    //         }
-    
-    //         return response()->json(['cpuLoad' => 'N/A']);
-    //     } catch (\Exception $e) {
-    //         return response()->json(['cpuLoad' => 'Error']);
-    //     }
-    // }
-    
     public function getCurrentTime($ipmikrotik, Request $request)
     {
 
@@ -486,34 +443,34 @@ Log::info($activeUserCount);
     }
     
     public function getTraffic(Request $request)
-{
+    {
 
-    $interfaceName = $request->input('interface');
-    $ipmikrotikreq = $request->input('ipmikrotik'); // Ambil ipmikrotik dari request
-     $data = Mikrotik::where('ipmikrotik', $ipmikrotikreq)->first();
+        $interfaceName = $request->input('interface');
+        $ipmikrotikreq = $request->input('ipmikrotik'); // Ambil ipmikrotik dari request
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotikreq)->first();
       
         $datavpn = VPN::where('ipaddress', $data->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
     // Log input yang diterima
-    Log::info('Interface name: ' . $interfaceName);
+         Log::info('Interface name: ' . $interfaceName);
   
 
     // Debug apakah data MikroTik ditemukan
-    if (!$data) {
-        Log::error('MikroTik data not found for IP: ' . $data->ipmikrotik);
-        return response()->json(['error' => 'Data MikroTik tidak ditemukan.'], 404);
-    }
+        if (!$data) {
+             Log::error('MikroTik data not found for IP: ' . $data->ipmikrotik);
+             return response()->json(['error' => 'Data MikroTik tidak ditemukan.'], 404);
+        }
 
 
     // Debug apakah data VPN ditemukan
-    if (!$datavpn) {
-        Log::error('VPN data not found for IP: ' . $data->ipmikrotik);
-        return response()->json(['error' => 'Data VPN tidak ditemukan.'], 404);
-    }
+         if (!$datavpn) {
+             Log::error('VPN data not found for IP: ' . $data->ipmikrotik);
+             return response()->json(['error' => 'Data VPN tidak ditemukan.'], 404);
+         }
 
-    $portapi = $datavpn->portapi ?? null;
-    Log::info('Port API: ' . $portapi);
+        $portapi = $datavpn->portapi ?? null;
+            Log::info('Port API: ' . $portapi);
 
-    try {
+        try {
         // Membuat koneksi ke MikroTik API
         Log::info('Attempting connection to MikroTik API...');
 
@@ -545,11 +502,11 @@ Log::info($activeUserCount);
         ];
         Log::info($traffic);
         return response()->json($traffic);
-    } catch (\Exception $e) {
+         } catch (\Exception $e) {
         Log::error('Failed to connect to MikroTik: ' . $e->getMessage());
         return response()->json(['error' => 'Gagal terhubung ke MikroTik: ' . $e->getMessage()], 500);
+        }
     }
-}
 
     
 
@@ -598,7 +555,7 @@ Log::info($activeUserCount);
             //dd($response);
           
             //dd($query);
-            return view('Dashboard.MIKROTIK.active-connection', ['ipmikrotik' => $data->pmikrotik, 'response' => $response, 'portweb' => $portweb, 'portapi' => $portapi]);
+            return view('Dashboard.MIKROTIK.active-connection', ['ipmikrotik' => $data->ipmikrotik, 'response' => $response, 'portweb' => $portweb, 'portapi' => $portapi]);
             // Arahkan ke halaman dashboardmikrotik setelah berhasil terkoneksi
            // return redirect()->route('dashboardmikrotik', ['ipmikrotik' => $ipmikrotik]);
         } catch (\Exception $e) {
@@ -607,32 +564,6 @@ Log::info($activeUserCount);
             //dd($e->getMessage());
            return redirect()->back()->with('error', 'Error connecting to MikroTik: ' . $e->getMessage());
         }
-
-
-
-
-
-
-
-
-        
-
-
-
-        // ///// GENERATE
-        // // Ambil parameter 'ipmikrotik' dari query string
-        // $ipmikrotik = $request->query('ipmikrotik');
-
-        // // Pastikan parameter 'ipmikrotik' ada
-        // if (!$ipmikrotik) {
-        //     return redirect()->back()->with('error', 'IP MikroTik tidak ditemukan.');
-        // }
-
-        // // Lanjutkan logika Anda, misalnya mengambil active connection dari MikroTik
-        // // Sesuaikan dengan kebutuhan Anda
-        // // Contoh: Mengambil data dari MikroTik API atau memproses logika lain
-
-        // return view('Dashboard.MIKROTIK.active-connection', compact('ipmikrotik'));
     }
     public function addFirewallRule(Request $request)
     {
@@ -793,4 +724,55 @@ Log::info($activeUserCount);
             return response()->json(['success' => false, 'message' => 'An error occurred: ' . $e->getMessage()]);
         }
     }   
+   
+    public function getTrafficData(Request $request)
+    {
+        $interfaceName = $request->input('interface');
+        $ipmikrotikreq = $request->input('ipmikrotik'); 
+        
+        $data = Mikrotik::where('ipmikrotik', $ipmikrotikreq)->first();
+        $datavpn = VPN::where('ipaddress', $data->ipmikrotik)
+                      ->where('unique_id', auth()->user()->unique_id)
+                      ->first();
+
+        if (!$data) {
+            return response()->json(['error' => 'Data MikroTik tidak ditemukan.'], 404);
+        }
+
+        if (!$datavpn) {
+            return response()->json(['error' => 'Data VPN tidak ditemukan.'], 404);
+        }
+
+        $portapi = $datavpn->portapi ?? null;
+
+        try {
+            $client = new Client([
+                'host' => 'id-1.aqtnetwork.my.id:' . $portapi,
+                'user' => $data->username,
+                'pass' => $data->password,
+                'port' => 9000
+            ]);
+
+            $queryTraffic = (new Query('/interface/monitor-traffic'))
+                ->equal('interface', "<pppoe-" . $interfaceName . ">")
+                ->equal('once', true);
+
+            $responseTraffic = $client->query($queryTraffic)->read();
+
+            if (empty($responseTraffic)) {
+                return response()->json(['error' => 'Tidak ada data traffic yang tersedia.'], 404);
+            }
+
+            $traffic = [
+                'rx' => isset($responseTraffic[0]['rx-bits-per-second']) ? $responseTraffic[0]['rx-bits-per-second'] : 0,
+                'tx' => isset($responseTraffic[0]['tx-bits-per-second']) ? $responseTraffic[0]['tx-bits-per-second'] : 0,
+            ];
+
+            return response()->json(['traffic' => $traffic]);
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Gagal terhubung ke MikroTik: ' . $e->getMessage()], 500);
+        }
+    }
+
 }

@@ -36,10 +36,13 @@
                                 Action
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $d['.id'] }}">
-                                <a class="dropdown-item remote-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}">Remote Modem</a>
-                                <a class="dropdown-item restart-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}">Restart Modem</a>
-
-                                <a class="dropdown-item copy-btn" href="#">Copy IP Address</a>
+                                <a class="dropdown-item remote-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}"><i class="fas fa-bolt"></i> Remote Modem</a>
+                                <a class="dropdown-item restart-modem" href="#" data-ip="{{ $d['address'] }}" data-port="{{ $portweb }}"><i class="fas fa-sync-alt"></i> Restart Modem</a>
+                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#trafficModal" 
+                                data-ipmikrotik="{{ $ipmikrotik }}" data-name="{{ $d['name'] }}">
+                                <i class="fas fa-eye"></i> Pantau Traffik
+                             </a>
+                                <a class="dropdown-item copy-btn" href="#"><i class="fas fa-copy"></i> Copy IP Address</a>
                               </div>
                             </div>
                           </td>
@@ -98,6 +101,27 @@
   </div>
 </div>
 
+
+
+<div class="modal fade" id="trafficModal" tabindex="-1" role="dialog" aria-labelledby="trafficModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+      <div class="modal-content">
+          <div class="modal-header">
+              <h5 class="modal-title" id="trafficModalLabel">Traffic Monitoring</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+              </button>
+          </div>
+          <div class="modal-body">
+              <p id="trafficInfo">Loading...</p>
+              <canvas id="trafficChart" width="400" height="200"></canvas>
+          </div>
+          <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+      </div>
+  </div>
+</div>
 <x-dcore.script />
 {{-- <script>
   $(document).ready(function() {
@@ -429,3 +453,140 @@
     });
   });
 </script>
+<script>
+  $(document).ready(function() {
+      var trafficChart; // Declare chart variable outside the event handler
+      var lastRxBytes = 0; // Variable to store the last received bytes
+      var lastTxBytes = 0; // Variable to store the last transmitted bytes
+  
+      function initializeChart() {
+          var ctx = document.getElementById('trafficChart').getContext('2d');
+          trafficChart = new Chart(ctx, {
+              type: 'line',
+              data: {
+                  labels: [], // Initially empty labels
+                  datasets: [
+                      {
+                          label: 'Received Traffic (Mbps)',
+                          data: [],
+                          backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                          borderColor: 'rgba(75, 192, 192, 1)',
+                          borderWidth: 1,
+                          fill: false
+                      },
+                      {
+                          label: 'Transmitted Traffic (Mbps)',
+                          data: [],
+                          backgroundColor: 'rgba(153, 102, 255, 0.2)',
+                          borderColor: 'rgba(153, 102, 255, 1)',
+                          borderWidth: 1,
+                          fill: false
+                      }
+                  ]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          title: {
+                              display: true,
+                              text: 'Traffic (Mbps)'
+                          }
+                      },
+                      x: {
+                          title: {
+                              display: true,
+                              text: 'Time'
+                          }
+                      }
+                  }
+              }
+          });
+      }
+  
+      function fetchTrafficData(interfaceName, ipmikrotik) {
+          $.ajax({
+              url: '{{ route('mikrotik.traffic') }}', // Adjust the URL according to your route
+              method: 'GET',
+              data: { interface: interfaceName, ipmikrotik: ipmikrotik },
+              success: function(response) {
+                  if (response.error) {
+                      $('#trafficInfo').text(response.error);
+                      return;
+                  }
+  
+                  var rxBytes = response.traffic.rx || 0;
+                  var txBytes = response.traffic.tx || 0;
+  
+                  // Calculate traffic rates in Mbps
+                  var rxMbps = ((rxBytes - lastRxBytes) * 8 / 1000000).toFixed(2);
+                  var txMbps = ((txBytes - lastTxBytes) * 8 / 1000000).toFixed(2);
+  
+                  // Update last known values
+                  lastRxBytes = rxBytes;
+                  lastTxBytes = txBytes;
+  
+                  var now = new Date().toLocaleTimeString();
+  
+                  if (trafficChart.data.labels.length > 20) {
+                      trafficChart.data.labels.shift();
+                      trafficChart.data.datasets[0].data.shift();
+                      trafficChart.data.datasets[1].data.shift();
+                  }
+  
+                  trafficChart.data.labels.push(now);
+                  trafficChart.data.datasets[0].data.push(Math.max(parseFloat(rxMbps), 0));
+                  trafficChart.data.datasets[1].data.push(Math.max(parseFloat(txMbps), 0));
+  
+                  trafficChart.update();
+  
+                  $('#trafficInfo').html(
+                      `<p>RX Traffic: ${Math.max(parseFloat(rxMbps), 0)} Mbps</p>
+                       <p>TX Traffic: ${Math.max(parseFloat(txMbps), 0)} Mbps</p>`
+                  );
+              },
+              error: function(xhr) {
+                  console.error('AJAX Error:', xhr);
+              }
+          });
+      }
+  
+      $('#trafficModal').on('show.bs.modal', function (event) {
+          var button = $(event.relatedTarget);
+          var ipmikrotik = button.data('ipmikrotik');
+          var name = button.data('name');
+  
+          var modal = $(this);
+          modal.find('.modal-title').text('Traffic Monitoring for Interface: ' + name);
+  
+          // Check if trafficChart exists and destroy it
+          if (trafficChart) {
+              trafficChart.destroy();
+          }
+  
+          // Initialize chart
+          initializeChart();
+  
+          // Reset lastRxBytes and lastTxBytes for the new interface
+          lastRxBytes = 0;
+          lastTxBytes = 0;
+  
+          // Fetch and update traffic data
+          function updateTrafficData() {
+              fetchTrafficData(name, ipmikrotik);
+          }
+  
+          updateTrafficData(); // Initial fetch
+          setInterval(updateTrafficData, 2000); // Poll every 2 seconds
+      });
+  
+      $('#trafficModal').on('hidden.bs.modal', function () {
+          if (trafficChart) {
+              trafficChart.destroy();
+              trafficChart = null; // Clear chart reference
+          }
+          $('#trafficInfo').empty(); // Clear the traffic info display
+      });
+  });
+  </script>
+  
