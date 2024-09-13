@@ -327,7 +327,7 @@
               data: {
                   labels: initialLabels, // Start with static labels 1-20
                   datasets: [ {
-                      label: 'Received Traffic (Mbps)', // Label for RX in Mbps
+                      label: 'Received Traffic (Kbps)', // Label for RX in Kbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
                       borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
@@ -338,7 +338,7 @@
                       tension: 0.4 // Increased tension for a more fluid line
                   },
                   {
-                      label: 'Transmitted Traffic (Mbps)', // Label for TX in Mbps
+                      label: 'Transmitted Traffic (Kbps)', // Label for TX in Kbps
                       data: initialData.slice(), // Copy dummy data for TX
                       backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
                       borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
@@ -355,12 +355,12 @@
                           beginAtZero: true,
                           title: {
                               display: true,
-                              text: 'Traffic (Mbps)' // Changed to Mbps
+                              text: 'Traffic (Kbps)' // Changed to Kbps
                           },
                           ticks: {
-                              stepSize: 0.5, // Set the step size to 0.5 for 1 Mbps, 1.5 Mbps, etc.
+                              stepSize: 500, // Adjust step size for Kbps
                               callback: function(value) {
-                                  return value + ' Mbps'; // Add 'Mbps' to tick labels
+                                  return value + ' Kbps'; // Add 'Kbps' to tick labels
                               }
                           }
                       }
@@ -369,8 +369,8 @@
                       tooltip: {
                           callbacks: {
                               label: function(tooltipItem) {
-                                  // Add 'Mbps' suffix to tooltip data
-                                  return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Mbps';
+                                  // Add 'Kbps' suffix to tooltip data
+                                  return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Kbps';
                               }
                           }
                       }
@@ -392,17 +392,17 @@
                           return;
                       }
 
-                      // Convert RX and TX data from bytes to Mbps
-                      const rxMbps = (response.rx * 8) / 1000000; // Convert RX to Mbps
-                      const txMbps = (response.tx * 8) / 1000000; // Convert TX to Mbps
+                      // Convert RX and TX data from bytes to Kbps
+                      const rxKbps = (response.rx * 8) / 1000; // Convert RX to Kbps
+                      const txKbps = (response.tx * 8) / 1000; // Convert TX to Kbps
 
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
                           chart.data.labels.push(currentTime); // Add new label (time)
 
-                          chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
-                          chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
+                          chart.data.datasets[0].data.push(rxKbps); // Update RX data in Kbps
+                          chart.data.datasets[1].data.push(txKbps); // Update TX data in Kbps
 
                           // Maintain only the last dataPoints data points
                           if (chart.data.labels.length > dataPoints) {
@@ -414,8 +414,8 @@
                           chart.update(); // Redraw chart
 
                           // Update the traffic info
-                          $('#currentRx').text(rxMbps.toFixed(2));
-                          $('#currentTx').text(txMbps.toFixed(2));
+                          $('#currentRx').text(rxKbps.toFixed(2));
+                          $('#currentTx').text(txKbps.toFixed(2));
                       }
                   },
                   error: function(xhr) {
