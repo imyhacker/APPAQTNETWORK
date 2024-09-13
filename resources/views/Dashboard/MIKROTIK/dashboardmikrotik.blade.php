@@ -1,16 +1,4 @@
 <x-dcore.head />
-<style>
-  /* Add some basic styling */
-  #trafficChart {
-      width: 100%;
-      max-width: 800px;
-      margin: auto;
-  }
-  #trafficInfo {
-      text-align: center;
-      margin-top: 20px;
-  }
-</style>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
       <div class="navbar-bg"></div>
@@ -202,12 +190,7 @@
 
                     </div>
                     <div class="col-lg-12">
-                      
                         <canvas id="trafficChart"></canvas>
-                        <div id="trafficInfo">
-                          <p>Received Traffic: <span id="currentRx">0</span> Mbps</p>
-                          <p>Transmitted Traffic: <span id="currentTx">0</span> Mbps</p>
-                      </div>
                     </div>
                     <div class="col-lg-12">
                     <small class="mt-2">*Data Dalam Bentuk Mpbs <br>Jika Berganti Ethernet Tunggu 20 Detik Maka Data Grafik Akan Berganti Ke Ethernet Yang Di Pilih</small>
@@ -327,7 +310,7 @@
               data: {
                   labels: initialLabels, // Start with static labels 1-20
                   datasets: [ {
-                      label: 'Received Traffic (Kbps)', // Label for RX in Kbps
+                      label: 'Received Traffic (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
                       borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
@@ -338,7 +321,7 @@
                       tension: 0.4 // Increased tension for a more fluid line
                   },
                   {
-                      label: 'Transmitted Traffic (Kbps)', // Label for TX in Kbps
+                      label: 'Transmitted Traffic (Mbps)', // Label for TX in Mbps
                       data: initialData.slice(), // Copy dummy data for TX
                       backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
                       borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
@@ -355,12 +338,12 @@
                           beginAtZero: true,
                           title: {
                               display: true,
-                              text: 'Traffic (Kbps)' // Changed to Kbps
+                              text: 'Traffic (Mbps)' // Changed to Mbps
                           },
                           ticks: {
-                              stepSize: 500, // Adjust step size for Kbps
+                              stepSize: 0.5, // Set the step size to 0.5 for 1 Mbps, 1.5 Mbps, etc.
                               callback: function(value) {
-                                  return value + ' Kbps'; // Add 'Kbps' to tick labels
+                                  return value + ' Mbps'; // Add 'Mbps' to tick labels
                               }
                           }
                       }
@@ -369,8 +352,8 @@
                       tooltip: {
                           callbacks: {
                               label: function(tooltipItem) {
-                                  // Add 'Kbps' suffix to tooltip data
-                                  return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Kbps';
+                                  // Add 'Mbps' suffix to tooltip data
+                                  return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Mbps';
                               }
                           }
                       }
@@ -392,17 +375,26 @@
                           return;
                       }
 
-                      // Convert RX and TX data from bytes to Kbps
-                      const rxKbps = (response.rx * 8) / 1000; // Convert RX to Kbps
-                      const txKbps = (response.tx * 8) / 1000; // Convert TX to Kbps
+                      // Check if rx and tx are valid
+                      if (response.rx === undefined || response.tx === undefined) {
+                          console.error('Data rx or tx is undefined:', response);
+                          return;
+                      }
+
+                      // Convert RX and TX data from bytes to Mbps
+                      const rxMbps = (response.rx * 8) / 1000000; // Convert RX to Mbps
+                      const txMbps = (response.tx * 8) / 1000000; // Convert TX to Mbps
+
+                      console.log('Converted RX:', rxMbps, 'Mbps'); // Debugging
+                      console.log('Converted TX:', txMbps, 'Mbps'); // Debugging
 
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
                           chart.data.labels.push(currentTime); // Add new label (time)
 
-                          chart.data.datasets[0].data.push(rxKbps); // Update RX data in Kbps
-                          chart.data.datasets[1].data.push(txKbps); // Update TX data in Kbps
+                          chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
+                          chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
 
                           // Maintain only the last dataPoints data points
                           if (chart.data.labels.length > dataPoints) {
@@ -414,8 +406,8 @@
                           chart.update(); // Redraw chart
 
                           // Update the traffic info
-                          $('#currentRx').text(rxKbps.toFixed(2));
-                          $('#currentTx').text(txKbps.toFixed(2));
+                          $('#currentRx').text(rxMbps.toFixed(2));
+                          $('#currentTx').text(txMbps.toFixed(2));
                       }
                   },
                   error: function(xhr) {
