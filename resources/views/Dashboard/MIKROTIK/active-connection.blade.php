@@ -524,36 +524,40 @@
                       $('#trafficInfo').text(response.error);
                       return;
                   }
-  
+
                   var rxBytes = response.traffic.rx || 0;
                   var txBytes = response.traffic.tx || 0;
-  
-                  // Calculate traffic rates in Mbps
-                  var rxMbps = ((rxBytes - lastRxBytes) * 8 / 1000000).toFixed(2);
-                  var txMbps = ((txBytes - lastTxBytes) * 8 / 1000000).toFixed(2);
-  
+                  var pollingInterval = 2; // 2 seconds, matching the setInterval
+
+                  // Calculate traffic rates in bps, then convert to Mbps
+                  var rxBps = ((rxBytes - lastRxBytes) * 8) / pollingInterval; // bps
+                  var txBps = ((txBytes - lastTxBytes) * 8) / pollingInterval; // bps
+
+                  var rxMbps = (rxBps / 1000000).toFixed(2); // Convert to Mbps
+                  var txMbps = (txBps / 1000000).toFixed(2); // Convert to Mbps
+
                   // Update last known values
                   lastRxBytes = rxBytes;
                   lastTxBytes = txBytes;
-  
+
                   var now = new Date().toLocaleTimeString();
-  
+
                   if (chartData.labels.length >= maxPoints) {
                       chartData.labels.shift(); // Remove oldest label
                       chartData.rxData.shift(); // Remove oldest RX data
                       chartData.txData.shift(); // Remove oldest TX data
                   }
-  
+
                   chartData.labels.push(now); // Add new label
                   chartData.rxData.push(Math.max(parseFloat(rxMbps), 0)); // Add new RX data
                   chartData.txData.push(Math.max(parseFloat(txMbps), 0)); // Add new TX data
-  
+
                   trafficChart.data.labels = chartData.labels;
                   trafficChart.data.datasets[0].data = chartData.rxData;
                   trafficChart.data.datasets[1].data = chartData.txData;
-  
+
                   trafficChart.update(); // Update chart
-  
+
                   $('#trafficInfo').html(
                       `<p>RX Traffic: ${Math.max(parseFloat(rxMbps), 0)} Mbps</p>
                        <p>TX Traffic: ${Math.max(parseFloat(txMbps), 0)} Mbps</p>`
@@ -564,49 +568,49 @@
               }
           });
       }
-  
+
       $('#trafficModal').on('show.bs.modal', function (event) {
           var button = $(event.relatedTarget);
           var ipmikrotik = button.data('ipmikrotik');
           var name = button.data('name');
-  
+
           var modal = $(this);
           modal.find('.modal-title').text('Traffic Monitoring for Interface: ' + name);
-  
+
           // Clear chart data and reinitialize the chart when changing the interface
           if (name !== currentName) {
               // Clear chart data
               chartData.labels = Array(maxPoints).fill('');
               chartData.rxData = Array(maxPoints).fill(0);
               chartData.txData = Array(maxPoints).fill(0);
-  
+
               // Clear existing chart
               if (trafficChart) {
                   trafficChart.destroy();
               }
-  
+
               // Initialize chart with cleared data
               initializeChart();
-  
+
               // Reset lastRxBytes and lastTxBytes for the new interface
               lastRxBytes = 0;
               lastTxBytes = 0;
-  
+
               // Update the current interface name
               currentName = name;
-  
+
               // Fetch and update traffic data
               function updateTrafficData() {
                   fetchTrafficData(name, ipmikrotik);
               }
-  
+
               updateTrafficData(); // Initial fetch
               if (intervalId) {
                   clearInterval(intervalId); // Clear previous interval if it exists
               }
               intervalId = setInterval(updateTrafficData, 2000); // Poll every 2 seconds
           }
-  
+
           // Clear interval when modal is hidden
           $('#trafficModal').on('hidden.bs.modal', function () {
               clearInterval(intervalId);
