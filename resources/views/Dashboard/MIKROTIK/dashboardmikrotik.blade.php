@@ -396,13 +396,17 @@
                       const rxMbps = (response.rx * 8) / 1000000; // Convert RX bytes to Mbps
                       const txMbps = (response.tx * 8) / 1000000; // Convert TX bytes to Mbps
 
+                      // Batasi desimal untuk RX dan TX ke 2 angka desimal dan hindari format ribuan
+                      const rxMbpsFormatted = rxMbps.toFixed(2); // Format RX as 50.00 Mbps
+                      const txMbpsFormatted = txMbps.toFixed(2); // Format TX as 50.00 Mbps
+
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
                           chart.data.labels.push(currentTime); // Add new label (time)
 
-                          chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
-                          chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
+                          chart.data.datasets[0].data.push(rxMbpsFormatted); // Update RX data in Mbps
+                          chart.data.datasets[1].data.push(txMbpsFormatted); // Update TX data in Mbps
 
                           // Maintain only the last dataPoints data points
                           if (chart.data.labels.length > dataPoints) {
@@ -413,9 +417,9 @@
 
                           chart.update(); // Redraw chart
 
-                          // Update the traffic info
-                          $('#currentRx').text(rxMbps.toFixed(2));
-                          $('#currentTx').text(txMbps.toFixed(2));
+                          // Update the traffic info with formatted values
+                          $('#currentRx').text(rxMbpsFormatted);
+                          $('#currentTx').text(txMbpsFormatted);
                       }
                   },
                   error: function(xhr) {
