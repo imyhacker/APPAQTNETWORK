@@ -392,8 +392,10 @@
                           return;
                       }
 
-                      const rxMbps = ((response.rx * 8) / 1000000).toFixed(2); 
-                      const txMbps = ((response.tx * 8) / 1000000).toFixed(2);
+                      // Convert RX and TX data from bytes to Mbps and round to 2 decimal places
+                      const rxMbps = ((response.rx * 8) / 1000000).toFixed(2); // Convert RX to Mbps
+                      const txMbps = ((response.tx * 8) / 1000000).toFixed(2); // Convert TX to Mbps
+
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
