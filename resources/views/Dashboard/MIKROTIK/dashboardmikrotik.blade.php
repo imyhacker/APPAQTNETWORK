@@ -326,7 +326,7 @@
               type: 'line', // Use 'line' chart type
               data: {
                   labels: initialLabels, // Start with static labels 1-20
-                  datasets: [ {
+                  datasets: [{
                       label: 'Received Traffic (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
@@ -392,13 +392,9 @@
                           return;
                       }
 
-                      // Ensure you are receiving RX and TX in bytes per second
-                      const rxBytesPerSecond = response.rx; // RX traffic in bytes
-                      const txBytesPerSecond = response.tx; // TX traffic in bytes
-
-                      // Convert RX and TX data from bytes to Mbps
-                      const rxMbps = (rxBytesPerSecond * 8) / 1000000; // Convert RX to Mbps
-                      const txMbps = (txBytesPerSecond * 8) / 1000000; // Convert TX to Mbps
+                      // Perbaiki konversi RX dan TX dari byte per detik ke Mbps
+                      const rxMbps = (response.rx * 8) / 1000000; // Convert RX bytes to Mbps
+                      const txMbps = (response.tx * 8) / 1000000; // Convert TX bytes to Mbps
 
                       // Update the chart data
                       if (chart) {
@@ -417,9 +413,9 @@
 
                           chart.update(); // Redraw chart
 
-                          // Update the traffic info on the page
-                          $('#currentRx').text(rxMbps.toFixed(2) + ' Mbps');
-                          $('#currentTx').text(txMbps.toFixed(2) + ' Mbps');
+                          // Update the traffic info
+                          $('#currentRx').text(rxMbps.toFixed(2));
+                          $('#currentTx').text(txMbps.toFixed(2));
                       }
                   },
                   error: function(xhr) {
