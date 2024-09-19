@@ -369,7 +369,7 @@
                       tooltip: {
                           callbacks: {
                               label: function(tooltipItem) {
-                                  // Add 'Mbps' suffix to tooltip data
+                                  // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
                                   return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw) + ' Mbps';
                               }
                           }
@@ -392,10 +392,8 @@
                           return;
                       }
 
-                      // Convert RX and TX data from bytes to Mbps and round to nearest whole number
-                      const rxMbps = Math.round((response.rx * 8) / 1000000); // Convert RX to Mbps and round
-                      const txMbps = Math.round((response.tx * 8) / 1000000); // Convert TX to Mbps and round
-
+                      const rxMbps = ((response.rx * 8) / 1000000).toFixed(2); 
+                      const txMbps = ((response.tx * 8) / 1000000).toFixed(2);
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
@@ -414,8 +412,8 @@
                           chart.update(); // Redraw chart
 
                           // Update the traffic info
-                          $('#currentRx').text(Math.round((rxMbps * 8) / 1000000) + ' Mbps');
-                          $('#currentTx').text(Math.round((txMbps * 8) / 1000000) + ' Mbps');
+                          $('#currentRx').text(rxMbps + ' Mbps');
+                          $('#currentTx').text(txMbps + ' Mbps');
                       }
                   },
                   error: function(xhr) {
@@ -425,7 +423,7 @@
               });
           }
 
-          // Start polling the traffic data every 2 seconds
+          // Start polling the traffic data every 1 second
           pollingInterval = setInterval(fetchTrafficData, 1000);
           
           // Fetch initial data to populate the chart immediately
