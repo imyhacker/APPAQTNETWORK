@@ -1,15 +1,17 @@
 <x-dcore.head />
 <style>
   /* Add some basic styling */
-  #trafficChart {
-      width: 100%;
-      max-width: 800px;
-      margin: auto;
-  }
+  
   #trafficInfo {
       text-align: center;
       margin-top: 20px;
   }
+
+  #trafficChart {
+    width: 100%;
+    height: 300px; /* Tinggi chart dibatasi */
+    max-width: 600px; /* Lebar maksimal chart */
+}
 </style>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -203,8 +205,10 @@
                     </div>
                     <div class="col-lg-12">
                       
+                      <div id="chartContainer" style="max-width: 600px; margin: auto;">
                         <canvas id="trafficChart"></canvas>
-                        <div id="trafficInfo">
+                    </div>                        
+                    <div id="trafficInfo">
                           <p>Trafik Download: <span id="currentRx">0</span></p>
                           <p>Trafik Upload : <span id="currentTx">0</span></p>
                       </div>
@@ -295,7 +299,7 @@
   setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
 </script>
 <script>
- $(document).ready(function() {
+$(document).ready(function() {
     let chart = null;
     let pollingInterval = null;
     let dataPoints = 20;
@@ -319,7 +323,6 @@
 
         const ctx = document.getElementById('trafficChart').getContext('2d');
         
-        // Gradients for a smooth and modern look
         const gradientRx = ctx.createLinearGradient(0, 0, 0, 400);
         gradientRx.addColorStop(0, 'rgba(54, 162, 235, 0.5)');
         gradientRx.addColorStop(1, 'rgba(54, 162, 235, 0.1)');
@@ -339,7 +342,7 @@
                         backgroundColor: gradientRx,
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2,
-                        pointRadius: 0,  // Remove points to keep the line smooth
+                        pointRadius: 0,
                         fill: true,
                         tension: 0.4
                     },
@@ -359,22 +362,22 @@
                 scales: {
                     x: {
                         grid: {
-                            display: false, // Remove vertical grid lines for cleaner look
+                            display: false,
                         },
                         ticks: {
-                            display: false // Hide x-axis ticks
+                            display: false
                         }
                     },
                     y: {
                         beginAtZero: true,
                         grid: {
-                            color: 'rgba(200, 200, 200, 0.3)', // Lighten the grid lines
-                            borderDash: [5, 5], // Dashed lines for a modern look
+                            color: 'rgba(200, 200, 200, 0.3)',
+                            borderDash: [5, 5],
                         },
                         ticks: {
                             stepSize: 0.5,
                             callback: function(value) {
-                                return value + ' Mbps'; // Label y-axis with 'Mbps'
+                                return value + ' Mbps';
                             }
                         }
                     }
@@ -383,26 +386,26 @@
                     legend: {
                         display: true,
                         labels: {
-                            usePointStyle: true, // Change legend style to points
+                            usePointStyle: true,
                             font: {
                                 size: 12,
-                                family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif", // Custom font
+                                family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
                             }
                         }
                     },
                     tooltip: {
                         callbacks: {
                             label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw * 100) / 100 + ' Mbps'; // Format with 2 decimal places
+                                return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw * 100) / 100 + ' Mbps';
                             }
                         }
                     }
                 },
-                maintainAspectRatio: false, // Allow chart to resize properly
+                maintainAspectRatio: false, // Membuat chart responsive
                 responsive: true,
                 animation: {
-                    duration: 800, // Smooth animation when updating
-                    easing: 'easeInOutQuart' // Easing for smoother transition
+                    duration: 800,
+                    easing: 'easeInOutQuart'
                 }
             }
         });
