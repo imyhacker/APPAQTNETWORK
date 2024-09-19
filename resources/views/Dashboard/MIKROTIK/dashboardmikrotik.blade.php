@@ -327,7 +327,7 @@
               data: {
                   labels: initialLabels, // Start with static labels 1-20
                   datasets: [ {
-                      label: 'Received Traffic (Mbps)', // Label for RX in Mbps
+                      label: 'Trafik Download (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
                       borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
@@ -338,7 +338,7 @@
                       tension: 0.4 // Increased tension for a more fluid line
                   },
                   {
-                      label: 'Transmitted Traffic (Mbps)', // Label for TX in Mbps
+                      label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
                       data: initialData.slice(), // Copy dummy data for TX
                       backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
                       borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
