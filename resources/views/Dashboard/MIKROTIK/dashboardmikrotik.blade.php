@@ -414,8 +414,8 @@
                           chart.update(); // Redraw chart
 
                           // Update the traffic info
-                          $('#currentRx').text(rxMbps + ' Mbps');
-                          $('#currentTx').text(txMbps + ' Mbps');
+                          $('#currentRx').text(Math.round((rxMbps * 8) / 1000000) + ' Mbps');
+                          $('#currentTx').text(Math.round((txMbps * 8) / 1000000) + ' Mbps');
                       }
                   },
                   error: function(xhr) {
