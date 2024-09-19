@@ -320,14 +320,6 @@
           const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1); // Labels from 1 to 20
           const initialData = Array(dataPoints).fill(0); // Start with 0 values
 
-        // Create gradient for the line fill
-        const gradientRx = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientRx.addColorStop(0, 'rgba(54, 162, 235, 0.5)'); // Light blue
-        gradientRx.addColorStop(1, 'rgba(54, 162, 235, 0.1)'); // Fade to transparent
-
-        const gradientTx = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientTx.addColorStop(0, 'rgba(255, 99, 132, 0.5)'); // Light red
-        gradientTx.addColorStop(1, 'rgba(255, 99, 132, 0.1)'); // Fade to transparent
           // Create a new chart instance
           const ctx = document.getElementById('trafficChart').getContext('2d');
           chart = new Chart(ctx, {
@@ -337,7 +329,7 @@
                   datasets: [ {
                       label: 'Trafik Download (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
-                      backgroundColor: gradientRx, // Light blue with some opacity
+                      backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
                       borderColor: 'rgb(75, 192, 192)',
                       borderWidth: 2, // Thinner line
                       borderCapStyle: 'round', // Rounded cap style
@@ -348,7 +340,7 @@
                   {
                       label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
                       data: initialData.slice(), // Copy dummy data for TX
-                      backgroundColor: gradientTx, // Light red with some opacity
+                      backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
                       borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
                       borderWidth: 2, // Thinner line
                       borderCapStyle: 'round', // Rounded cap style
