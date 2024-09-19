@@ -326,7 +326,7 @@
               type: 'line', // Use 'line' chart type
               data: {
                   labels: initialLabels, // Start with static labels 1-20
-                  datasets: [{
+                  datasets: [ {
                       label: 'Received Traffic (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
@@ -370,7 +370,7 @@
                           callbacks: {
                               label: function(tooltipItem) {
                                   // Add 'Mbps' suffix to tooltip data
-                                  return tooltipItem.dataset.label + ': ' + tooltipItem.raw.toFixed(2) + ' Mbps';
+                                  return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw) + ' Mbps';
                               }
                           }
                       }
@@ -392,21 +392,17 @@
                           return;
                       }
 
-                      // Perbaiki konversi RX dan TX dari byte per detik ke Mbps
-                      const rxMbps = (response.rx * 8) / 1000000; // Convert RX bytes to Mbps
-                      const txMbps = (response.tx * 8) / 1000000; // Convert TX bytes to Mbps
-
-                      // Batasi desimal untuk RX dan TX ke 2 angka desimal dan hindari format ribuan
-                      const rxMbpsFormatted = rxMbps.toFixed(2); // Format RX as 50.00 Mbps
-                      const txMbpsFormatted = txMbps.toFixed(2); // Format TX as 50.00 Mbps
+                      // Convert RX and TX data from bytes to Mbps and round to nearest whole number
+                      const rxMbps = Math.round((response.rx * 8) / 1000000); // Convert RX to Mbps and round
+                      const txMbps = Math.round((response.tx * 8) / 1000000); // Convert TX to Mbps and round
 
                       // Update the chart data
                       if (chart) {
                           const currentTime = new Date().toLocaleTimeString(); // Add time label
                           chart.data.labels.push(currentTime); // Add new label (time)
 
-                          chart.data.datasets[0].data.push(rxMbpsFormatted); // Update RX data in Mbps
-                          chart.data.datasets[1].data.push(txMbpsFormatted); // Update TX data in Mbps
+                          chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
+                          chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
 
                           // Maintain only the last dataPoints data points
                           if (chart.data.labels.length > dataPoints) {
@@ -417,9 +413,9 @@
 
                           chart.update(); // Redraw chart
 
-                          // Update the traffic info with formatted values
-                          $('#currentRx').text(rxMbpsFormatted);
-                          $('#currentTx').text(txMbpsFormatted);
+                          // Update the traffic info
+                          $('#currentRx').text(rxMbps + ' Mbps');
+                          $('#currentTx').text(txMbps + ' Mbps');
                       }
                   },
                   error: function(xhr) {
