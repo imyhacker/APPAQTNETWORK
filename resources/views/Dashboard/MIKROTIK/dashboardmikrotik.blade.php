@@ -392,9 +392,13 @@
                           return;
                       }
 
+                      // Ensure you are receiving RX and TX in bytes per second
+                      const rxBytesPerSecond = response.rx; // RX traffic in bytes
+                      const txBytesPerSecond = response.tx; // TX traffic in bytes
+
                       // Convert RX and TX data from bytes to Mbps
-                      const rxMbps = (response.rx * 8) / 1000000; // Convert RX to Mbps
-                      const txMbps = (response.tx * 8) / 1000000; // Convert TX to Mbps
+                      const rxMbps = (rxBytesPerSecond * 8) / 1000000; // Convert RX to Mbps
+                      const txMbps = (txBytesPerSecond * 8) / 1000000; // Convert TX to Mbps
 
                       // Update the chart data
                       if (chart) {
@@ -413,9 +417,9 @@
 
                           chart.update(); // Redraw chart
 
-                          // Update the traffic info
-                          $('#currentRx').text(rxMbps.toFixed(2));
-                          $('#currentTx').text(txMbps.toFixed(2));
+                          // Update the traffic info on the page
+                          $('#currentRx').text(rxMbps.toFixed(2) + ' Mbps');
+                          $('#currentTx').text(txMbps.toFixed(2) + ' Mbps');
                       }
                   },
                   error: function(xhr) {
@@ -426,7 +430,7 @@
           }
 
           // Start polling the traffic data every 2 seconds
-          pollingInterval = setInterval(fetchTrafficData, 1000);
+          pollingInterval = setInterval(fetchTrafficData, 2000);
           
           // Fetch initial data to populate the chart immediately
           fetchTrafficData();
