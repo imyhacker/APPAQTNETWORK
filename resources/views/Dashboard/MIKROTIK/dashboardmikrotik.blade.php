@@ -205,8 +205,8 @@
                       
                         <canvas id="trafficChart"></canvas>
                         <div id="trafficInfo">
-                          <p>Received Traffic: <span id="currentRx">0</span></p>
-                          <p>Transmitted Traffic: <span id="currentTx">0</span></p>
+                          <p>Trafik Download: <span id="currentRx">0</span></p>
+                          <p>Trafik Upload : <span id="currentTx">0</span></p>
                       </div>
                     </div>
                     <div class="col-lg-12">
