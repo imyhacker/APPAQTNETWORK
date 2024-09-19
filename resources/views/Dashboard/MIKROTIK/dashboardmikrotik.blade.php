@@ -335,7 +335,7 @@
                       borderCapStyle: 'round', // Rounded cap style
                       borderJoinStyle: 'round', // Rounded join style
                       fill: true, // Fill under the line
-                      tension: 1 // Increased tension for a more fluid line
+                      tension: 0.5 // Increased tension for a more fluid line
                   },
                   {
                       label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
@@ -346,7 +346,7 @@
                       borderCapStyle: 'round', // Rounded cap style
                       borderJoinStyle: 'round', // Rounded join style
                       fill: true, // Fill under the line
-                      tension: 1 // Increased tension for a more fluid line
+                      tension: 0.5 // Increased tension for a more fluid line
                   }]
               },
               options: {
