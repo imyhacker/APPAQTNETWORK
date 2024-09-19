@@ -605,7 +605,7 @@
               if (intervalId) {
                   clearInterval(intervalId);
               }
-              intervalId = setInterval(updateTrafficData, 2000); // Poll every 2 seconds
+              intervalId = setInterval(updateTrafficData, 1000); // Poll every 2 seconds
           }
 
           $('#trafficModal').on('hidden.bs.modal', function () {

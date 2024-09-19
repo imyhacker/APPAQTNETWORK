@@ -426,7 +426,7 @@
           }
 
           // Start polling the traffic data every 2 seconds
-          pollingInterval = setInterval(fetchTrafficData, 2000);
+          pollingInterval = setInterval(fetchTrafficData, 1000);
           
           // Fetch initial data to populate the chart immediately
           fetchTrafficData();
