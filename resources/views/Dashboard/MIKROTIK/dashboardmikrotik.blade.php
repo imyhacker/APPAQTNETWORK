@@ -342,7 +342,8 @@ $(document).ready(function() {
                         backgroundColor: gradientRx,
                         borderColor: 'rgba(54, 162, 235, 1)',
                         borderWidth: 2,
-                        pointRadius: 0,
+                        pointRadius: 3, // Ukuran bulat-bulat di setiap step
+                        pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Warna bulat-bulat
                         fill: true,
                         tension: 0.4
                     },
@@ -352,7 +353,8 @@ $(document).ready(function() {
                         backgroundColor: gradientTx,
                         borderColor: 'rgba(255, 99, 132, 1)',
                         borderWidth: 2,
-                        pointRadius: 0,
+                        pointRadius: 3, // Ukuran bulat-bulat di setiap step
+                        pointBackgroundColor: 'rgba(255, 99, 132, 1)', // Warna bulat-bulat
                         fill: true,
                         tension: 0.4
                     }
@@ -401,7 +403,7 @@ $(document).ready(function() {
                         }
                     }
                 },
-                maintainAspectRatio: false, // Membuat chart responsive
+                maintainAspectRatio: false,
                 responsive: true,
                 animation: {
                     duration: 800,
