@@ -1,17 +1,15 @@
 <x-dcore.head />
 <style>
   /* Add some basic styling */
-  
+  #trafficChart {
+      width: 100%;
+      max-width: 800px;
+      margin: auto;
+  }
   #trafficInfo {
       text-align: center;
       margin-top: 20px;
   }
-
-  #trafficChart {
-    width: 100%;
-    height: 300px; /* Tinggi chart dibatasi */
-    max-width: 600px; /* Lebar maksimal chart */
-}
 </style>
   <div id="app">
     <div class="main-wrapper main-wrapper-1">
@@ -205,10 +203,8 @@
                     </div>
                     <div class="col-lg-12">
                       
-                      <div id="chartContainer" style="max-width: 600px; margin: auto;">
                         <canvas id="trafficChart"></canvas>
-                    </div>                        
-                    <div id="trafficInfo">
+                        <div id="trafficInfo">
                           <p>Trafik Download: <span id="currentRx">0</span></p>
                           <p>Trafik Upload : <span id="currentTx">0</span></p>
                       </div>
@@ -299,155 +295,141 @@
   setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
 </script>
 <script>
-$(document).ready(function() {
-    let chart = null;
-    let pollingInterval = null;
-    let dataPoints = 20;
+  $(document).ready(function() {
+      let chart = null;
+      let pollingInterval = null; // Variable for interval
+      let dataPoints = 20; // Number of points to show on the chart
 
-    $('#interfaceForm').on('submit', function(event) {
-        event.preventDefault();
-        const selectedInterface = $('#interface').val();
-        const ipmikrotik = $('#ipmikrotik').val();
+      $('#interfaceForm').on('submit', function(event) {
+          event.preventDefault();
+          const selectedInterface = $('#interface').val();
+          const ipmikrotik = $('#ipmikrotik').val();
 
-        if (pollingInterval) {
-            clearInterval(pollingInterval);
-        }
+          // Clear any previous polling
+          if (pollingInterval) {
+              clearInterval(pollingInterval);
+          }
 
-        if (chart) {
-            chart.destroy();
-            chart = null;
-        }
+          // Destroy existing chart if it exists
+          if (chart) {
+              chart.destroy();
+              chart = null;
+          }
 
-        const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1);
-        const initialData = Array(dataPoints).fill(0);
+          // Reset data for the new chart
+          const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1); // Labels from 1 to 20
+          const initialData = Array(dataPoints).fill(0); // Start with 0 values
 
-        const ctx = document.getElementById('trafficChart').getContext('2d');
-        
-        const gradientRx = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientRx.addColorStop(0, 'rgba(54, 162, 235, 0.5)');
-        gradientRx.addColorStop(1, 'rgba(54, 162, 235, 0.1)');
+          // Create a new chart instance
+          const ctx = document.getElementById('trafficChart').getContext('2d');
+          chart = new Chart(ctx, {
+              type: 'line', // Use 'line' chart type
+              data: {
+                  labels: initialLabels, // Start with static labels 1-20
+                  datasets: [ {
+                      label: 'Trafik Download (Mbps)', // Label for RX in Mbps
+                      data: initialData.slice(), // Copy dummy data for RX
+                      backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
+                      borderColor: 'rgb(75, 192, 192)',
+                      borderWidth: 2, // Thinner line
+                      borderCapStyle: 'round', // Rounded cap style
+                      borderJoinStyle: 'round', // Rounded join style
+                      fill: true, // Fill under the line
+                      tension: 0.4 // Increased tension for a more fluid line
+                  },
+                  {
+                      label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
+                      data: initialData.slice(), // Copy dummy data for TX
+                      backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
+                      borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
+                      borderWidth: 2, // Thinner line
+                      borderCapStyle: 'round', // Rounded cap style
+                      borderJoinStyle: 'round', // Rounded join style
+                      fill: true, // Fill under the line
+                      tension: 0.4 // Increased tension for a more fluid line
+                  }]
+              },
+              options: {
+                  scales: {
+                      y: {
+                          beginAtZero: true,
+                          title: {
+                              display: true,
+                              text: 'Traffic (Mbps)' // Changed to Mbps
+                          },
+                          ticks: {
+                              stepSize: 0.5, // Set the step size to 0.5 for 1 Mbps, 1.5 Mbps, etc.
+                              callback: function(value) {
+                                  return value + ' Mbps'; // Add 'Mbps' to tick labels
+                              }
+                          }
+                      }
+                  },
+                  plugins: {
+                      tooltip: {
+                          callbacks: {
+                              label: function(tooltipItem) {
+                                  // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
+                                  return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw) + ' Mbps';
+                              }
+                          }
+                      }
+                  }
+              }
+          });
 
-        const gradientTx = ctx.createLinearGradient(0, 0, 0, 400);
-        gradientTx.addColorStop(0, 'rgba(255, 99, 132, 0.5)');
-        gradientTx.addColorStop(1, 'rgba(255, 99, 132, 0.1)');
+          // Function to fetch traffic data and update chart
+          function fetchTrafficData() {
+              $.ajax({
+                  url: '/mikrotik/traffic',
+                  method: 'GET',
+                  data: { interface: selectedInterface, ipmikrotik: ipmikrotik },
+                  success: function(response) {
+                      console.log('Response Data:', response); // Debugging
 
-        chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: initialLabels,
-                datasets: [
-                    {
-                        label: 'Trafik Download (Mbps)',
-                        data: initialData.slice(),
-                        backgroundColor: gradientRx,
-                        borderColor: 'rgba(54, 162, 235, 1)',
-                        borderWidth: 2,
-                        pointRadius: 3, // Ukuran bulat-bulat di setiap step
-                        pointBackgroundColor: 'rgba(54, 162, 235, 1)', // Warna bulat-bulat
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Trafik Upload (Mbps)',
-                        data: initialData.slice(),
-                        backgroundColor: gradientTx,
-                        borderColor: 'rgba(255, 99, 132, 1)',
-                        borderWidth: 2,
-                        pointRadius: 3, // Ukuran bulat-bulat di setiap step
-                        pointBackgroundColor: 'rgba(255, 99, 132, 1)', // Warna bulat-bulat
-                        fill: true,
-                        tension: 0.4
-                    }
-                ]
-            },
-            options: {
-                scales: {
-                    x: {
-                        grid: {
-                            display: false,
-                        },
-                        ticks: {
-                            display: false
-                        }
-                    },
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(200, 200, 200, 0.3)',
-                            borderDash: [5, 5],
-                        },
-                        ticks: {
-                            stepSize: 0.5,
-                            callback: function(value) {
-                                return value + ' Mbps';
-                            }
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        display: true,
-                        labels: {
-                            usePointStyle: true,
-                            font: {
-                                size: 12,
-                                family: "'Helvetica Neue', 'Helvetica', 'Arial', sans-serif",
-                            }
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(tooltipItem) {
-                                return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw * 100) / 100 + ' Mbps';
-                            }
-                        }
-                    }
-                },
-                maintainAspectRatio: false,
-                responsive: true,
-                animation: {
-                    duration: 800,
-                    easing: 'easeInOutQuart'
-                }
-            }
-        });
+                      if (response.error) {
+                          alert(response.error);
+                          return;
+                      }
 
-        function fetchTrafficData() {
-            $.ajax({
-                url: '/mikrotik/traffic',
-                method: 'GET',
-                data: { interface: selectedInterface, ipmikrotik: ipmikrotik },
-                success: function(response) {
-                    const rxMbps = (response.rx / 1000000).toFixed(2);
-                    const txMbps = (response.tx / 1000000).toFixed(2);
+                      // Convert RX and TX data from bytes to Mbps and round to 2 decimal places
+                      const rxMbps = (response.rx / 1000000).toFixed(2); // Convert RX to Mbps
+                      const txMbps = (response.tx  / 1000000).toFixed(2); // Convert TX to Mbps
 
-                    if (chart) {
-                        const currentTime = new Date().toLocaleTimeString();
-                        chart.data.labels.push(currentTime);
+                      // Update the chart data
+                      if (chart) {
+                          const currentTime = new Date().toLocaleTimeString(); // Add time label
+                          chart.data.labels.push(currentTime); // Add new label (time)
 
-                        chart.data.datasets[0].data.push(rxMbps);
-                        chart.data.datasets[1].data.push(txMbps);
+                          chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
+                          chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
 
-                        if (chart.data.labels.length > dataPoints) {
-                            chart.data.labels.shift();
-                            chart.data.datasets[0].data.shift();
-                            chart.data.datasets[1].data.shift();
-                        }
+                          // Maintain only the last dataPoints data points
+                          if (chart.data.labels.length > dataPoints) {
+                              chart.data.labels.shift(); // Remove old label (time)
+                              chart.data.datasets[0].data.shift(); // Remove old RX data
+                              chart.data.datasets[1].data.shift(); // Remove old TX data
+                          }
 
-                        chart.update();
-                        $('#currentRx').text(rxMbps + ' Mbps');
-                        $('#currentTx').text(txMbps + ' Mbps');
-                    }
-                },
-                error: function(xhr) {
-                    alert('Error retrieving traffic data.');
-                }
-            });
-        }
+                          chart.update(); // Redraw chart
 
-        pollingInterval = setInterval(fetchTrafficData, 1000);
-        fetchTrafficData();
-    });
-});
+                          // Update the traffic info
+                          $('#currentRx').text(rxMbps + ' Mbps');
+                          $('#currentTx').text(txMbps + ' Mbps');
+                      }
+                  },
+                  error: function(xhr) {
+                      console.log('AJAX Error:', xhr); // Debugging
+                      alert('Error retrieving traffic data.');
+                  }
+              });
+          }
 
+          // Start polling the traffic data every 1 second
+          pollingInterval = setInterval(fetchTrafficData, 1000);
+          
+          // Fetch initial data to populate the chart immediately
+          fetchTrafficData();
+      });
+  });
 </script>
