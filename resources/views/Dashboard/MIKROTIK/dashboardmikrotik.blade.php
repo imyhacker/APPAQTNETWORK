@@ -330,7 +330,7 @@
                       label: 'Trafik Download (Mbps)', // Label for RX in Mbps
                       data: initialData.slice(), // Copy dummy data for RX
                       backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
-                      borderColor: 'rgba(54, 162, 235, 1)', // Blue for RX line
+                      borderColor: 'rgb(75, 192, 192)',
                       borderWidth: 2, // Thinner line
                       borderCapStyle: 'round', // Rounded cap style
                       borderJoinStyle: 'round', // Rounded join style
