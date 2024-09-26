@@ -21,10 +21,10 @@
                                 <th>Name</th>
                                 <th>Service</th>
                                 <th>Profile</th>
-                                <th>Local Address</th>
                                 <th>Remote Address</th>
                                 <th>Comment</th>
                                 <th>Disabled</th>
+                                <th>Last Logged Out</th> <!-- New Column -->
                               </tr>
                             </thead>
                             <tbody>
@@ -37,10 +37,16 @@
                                     <td>{{ $d['name'] ?? 'N/A' }}</td>
                                     <td>{{ $d['service'] ?? 'N/A' }}</td>
                                     <td>{{ $d['profile'] ?? 'N/A' }}</td>
-                                    <td>{{ $d['local-address'] ?? 'N/A' }}</td>
                                     <td>{{ $d['remote-address'] ?? 'N/A' }}</td>
                                     <td>{{ $d['comment'] ?? 'N/A' }}</td>
                                     <td>{{ $d['disabled'] ? 'Yes' : 'No' }}</td>
+                                    <td>
+                                        @if(isset($d['last_logged_out']))
+                                            {{ \Carbon\Carbon::parse($d['last_logged_out'])->format('Y-m-d H:i:s') }}
+                                        @else
+                                            N/A
+                                        @endif
+                                    </td> <!-- New Data Field -->
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -57,6 +63,7 @@
         <x-dcore.footer />
     </div>
 </div>
+
 <x-dcore.script />
 
 <script>
