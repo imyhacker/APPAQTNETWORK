@@ -19,7 +19,7 @@
                     <thead>
                       <tr>
                         <th>No</th>
-                        <th>ID</th>
+                      
                         <th>IFACE</th>
                         <th>MAC</th>
                         <th>Platform</th>
@@ -39,7 +39,7 @@
                         @foreach ($response as $res => $d)
                         <tr>
                             <td>{{$no++}}</td>
-                            <td>{{$d['.id']}}</td>
+                          
                             <td>{{$d['interface']}}</td>
                             <td>{{$d['mac-address']}}</td>
 
