@@ -11,22 +11,7 @@
               
                 <!-- MAIN CONTENT -->
                 <div class="row">
-                    <!-- Pemberitahuan Section -->
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-header">
-                                <h4 style="font-size: 20px;"> <i class="fas fa-info-circle"></i> Pemberitahuan</h4>
-                            </div>
-                            <div class="card-body">
-                                <p style="font-size: 20px;">Pada halam ini berfungsi sebagai halaman nighbore mikrotik, dari Mikrotik yang sudah terdaftar di halaman <a href="{{ route('datamikrotik') }}">Data Mikrotik</a></p>
-                                <hr>
-                                <p class="mb-0" style="font-size: 20px;">Jika Router MikroTik anda tidak mempunyai IP Public, silahkan buat account <a href="{{ route('datavpn') }}">vpn</a> pada form yang sudah di siapkan. Gratis tanpa ada biaya tambahan dan boleh lebih dari satu.</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Form to Add VPN -->
-                  
+              
                     <!-- Data VPN Section -->
                     <div class="col-lg-12">
                         <div class="card">
