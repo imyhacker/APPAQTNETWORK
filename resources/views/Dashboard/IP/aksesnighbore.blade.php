@@ -1,3 +1,37 @@
+@php
+    // Helper function to format uptime
+    function formatUptime($uptime) {
+        if (!$uptime) return "N/A"; // Handle if uptime is null
+
+        // Regular expression to match uptime format (w: weeks, d: days, h: hours, m: minutes, s: seconds)
+        preg_match('/(?:(\d+)w)?(?:(\d+)d)?(?:(\d+)h)?(?:(\d+)m)?(?:(\d+)s)?/', $uptime, $matches);
+
+        // Extract values or set default to 0
+        $weeks = isset($matches[1]) ? (int) $matches[1] : 0;
+        $days = isset($matches[2]) ? (int) $matches[2] : 0;
+        $hours = isset($matches[3]) ? (int) $matches[3] : 0;
+        $minutes = isset($matches[4]) ? (int) $matches[4] : 0;
+
+        // Calculate total days (weeks * 7 + days)
+        $totalDays = ($weeks * 7) + $days;
+
+        // Construct readable uptime string
+        $formattedUptime = '';
+        if ($totalDays > 0) {
+            $formattedUptime .= $totalDays . ' hari ';
+        }
+        if ($hours > 0) {
+            $formattedUptime .= $hours . ' jam ';
+        }
+        if ($totalDays == 0 && $hours == 0 && $minutes > 0) {
+            $formattedUptime .= $minutes . ' menit';
+        }
+
+        return trim($formattedUptime);
+    }
+@endphp
+
+
 <x-dcore.head />
 <div id="app">
   <div class="main-wrapper main-wrapper-1">
@@ -39,7 +73,7 @@
                             <td>{{$d['interface']}}</td>
                             <td>{{$d['mac-address']}}</td>
                             <td>{{$d['platform']}}</td>
-                            <td>{{ $d['uptime'] ?? "N/A"}}</td>
+                            <td>{{ formatUptime($d['uptime'] ?? "N/A") }}</td>
                             <td>{{$d['identity' ?? 'N/A']}}</td>
                             <td>{{$d['address'] ?? 'N/A'}}</td>
                             <td>{{$d['board'] ?? "N/A"}}</td>
