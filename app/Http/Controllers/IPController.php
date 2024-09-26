@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\VPN;
 use RouterOS\Query;
 use RouterOS\Client;
 use App\Models\Mikrotik;
@@ -19,7 +20,11 @@ class IPController extends Controller
 
     // Cek apakah IP Mikrotik valid di database
     $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
-    
+
+      
+    $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)->where('unique_id', auth()->user()->unique_id)->first();
+
+    //dd($datavpn);
     if (!$mikrotik) {
         return redirect()->back()->with('error', 'Mikrotik dengan IP tersebut tidak ditemukan.');
     }
@@ -30,10 +35,10 @@ class IPController extends Controller
 
     // Konfigurasi koneksi MikroTik
     $config = [
-        'host' => $ipmikrotik,
+        'host' => 'id-1.aqtnetwork.my.id:'.$datavpn->portapi,
         'user' => $username,
         'pass' => $password,
-        'port' => 8714
+       // 'port' => 8714
     ];
 
     try {

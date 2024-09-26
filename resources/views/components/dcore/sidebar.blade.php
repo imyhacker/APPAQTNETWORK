@@ -29,10 +29,10 @@
                     <ul class="dropdown-menu">
                     <li><a href="{{route('active-connection', ['ipmikrotik' => session('ipmikrotik')])}}">Active Connection</a></li>
                     <li><a href="">Secret</a></li>
-                        <li><a href="">Neighbore</a></li>
-                        <li><a href="">Interface</a></li>
-                        <li><a href="">Pool</a></li>
-                        <li><a href="">Service</a></li>
+                    <li><a href="{{route('nighbore', ['ipmikrotik' => session('ipmikrotik')])}}">Neighbore</a></li>
+                    <li><a href="">Interface</a></li>
+                    <li><a href="">Pool</a></li>
+                    <li><a href="">Service</a></li>
                     </ul>
                 </li>
 

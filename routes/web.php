@@ -75,11 +75,13 @@ Route::group(['prefix' => '/home/dataolt'], function(){
     Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
     Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
     Route::get('/{id}/hapusolt', [OLTController::class, 'hapusolt'])->name('hapusolt');
-})->middleware(['auth', 'verified']);;
+})->middleware(['auth', 'verified']);
 
-Route::group(['prefix' => '/home/dataip'], function(){
+
+
+Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
-    Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
+    Route::get('/nighbore/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
 
 })->middleware(['auth', 'verified']);
 
