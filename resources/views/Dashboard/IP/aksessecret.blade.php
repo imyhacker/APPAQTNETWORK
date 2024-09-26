@@ -27,7 +27,6 @@
                                                 <th>Comment</th>
                                                 <th>Disabled</th>
                                                 <th>Last Logged Out</th> <!-- New Column -->
-                                                <th>MikroTik ID</th> <!-- New Column for MikroTik ID -->
                                                 <th>Actions</th> <!-- New Column for Actions -->
                                             </tr>
                                         </thead>
@@ -45,13 +44,13 @@
                                                     <td>{{ $d['comment'] ?? 'N/A' }}</td>
                                                     <td>{{ $d['disabled'] ? 'Yes' : 'No' }}</td>
                                                     <td>
-                                                        @if(isset($d['last_logged_out']))
-                                                            {{ \Carbon\Carbon::parse($d['last_logged_out'])->format('Y-m-d H:i:s') }}
-                                                        @else
-                                                            N/A
-                                                        @endif
+                                                        @if(isset($d['last_logged_out']) && !empty($d['last_logged_out']))
+                {{ \Carbon\Carbon::parse($d['last_logged_out'])->format('Y-m-d H:i:s') }}
+            @else
+                N/A
+            @endif
                                                     </td>
-                                                    <td>{{ $d['mikrotik_id'] ?? 'N/A' }}</td> <!-- MikroTik ID -->
+                                                   
                                                     <td>
                                                         <!-- Delete Button -->
                                                         <form method="POST" action="{{ route('secrets.destroy', ['id' => $d['.id']]) }}" class="d-inline">
@@ -82,7 +81,7 @@
                     <div class="modal-content">
                         <div class="modal-header">
                             <h5 class="modal-title" id="addSecretModalLabel">Add New Secret</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          
                         </div>
                         <form method="post" action="{{ route('store') }}">
                             @csrf
