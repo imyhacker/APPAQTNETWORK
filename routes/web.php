@@ -83,6 +83,10 @@ Route::group(['prefix' => '/home/dataolt'], function(){
 Route::group(['prefix' => '/home/datamikrotik'], function(){
     // Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
      Route::get('/aksessecret', [IPController::class, 'aksessecret'])->name('aksessecret');
+     Route::post('/aksessecret/add-secret', [IPController::class, 'store'])->name('store');
+     Route::delete('/aksessecret/secrets/{id}', [IPController::class, 'destroy'])->name('secrets.destroy');
+
+
  })->middleware(['auth', 'verified']);
  
 

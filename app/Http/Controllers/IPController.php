@@ -100,14 +100,124 @@ class IPController extends Controller
             // Kirim perintah untuk mengambil PPP secrets
             $query = new \RouterOS\Query('/ppp/secret/print');
             $secrets = $client->query($query)->read();
-    
+
+            $query = new Query('/ppp/profile/print');
+            $profiles = $client->query($query)->read();
             // Mengirim data secrets ke view
-            return view('Dashboard.IP.aksessecret', compact('secrets'));
+            
+            //dd($profiles);
+            return view('Dashboard.IP.aksessecret', compact('secrets', 'profiles', 'ipmikrotik'));
     
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Gagal terhubung ke MikroTik: ' . $e->getMessage());
         }
     }
+    public function store(Request $request)
+    {
+        $ipmikrotik = $request->input('ipmikrotik');
+    
+        // Check if MikroTik IP exists in the database
+        $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+    
+        if (!$mikrotik) {
+            return redirect()->back()->with('error', 'MikroTik with this IP not found.');
+        }
+    
+        // Fetch VPN data based on IP and unique user ID
+        $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)
+            ->where('unique_id', auth()->user()->unique_id)
+            ->first();
+    
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'VPN data not found for this IP.');
+        }
+    
+        // Validate the request data
+        $validated = $request->validate([
+            'service' => 'required|string',
+            'profile' => 'required|string',
+            'name' => 'required|string',
+            'comment' => 'nullable|string',
+        ]);
+    
+        // Extract credentials
+        $username = $mikrotik->username;
+        $password = $mikrotik->password;
+    
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:'.$datavpn->portapi,
+            'user' => $username,
+            'pass' => $password,
+        ];
+    
+        try {
+            $client = new Client($config);
+    
+            // Prepare the query for adding PPP secret
+            $query = new Query('/ppp/secret/add');
+            $query->equal('service', $validated['service']);
+            $query->equal('profile', $validated['profile']);
+            $query->equal('name', $validated['name']);
+            $query->equal('comment', $validated['comment']);
+    
+            // Execute the query
+            $response = $client->query($query)->read();
+    
+            return redirect()->back()->with('success', 'Secret added successfully.');
+    
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to add secret: ' . $e->getMessage());
+        }
+    }
+    public function destroy(Request $request, $id)
+    {
+        // Fetch MikroTik details based on IP
+        $ipmikrotik = $request->input('ipmikrotik');
+        $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+    
+        if (!$mikrotik) {
+            return redirect()->back()->with('error', 'MikroTik with this IP not found.');
+        }
+    
+        // Fetch VPN data based on IP and unique user ID
+        $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)
+            ->where('unique_id', auth()->user()->unique_id)
+            ->first();
+    
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'VPN data not found for this IP.');
+        }
+    
+        // Extract credentials
+        $username = $mikrotik->username;
+        $password = $mikrotik->password;
+    
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:'.$datavpn->portapi,
+            'user' => $username,
+            'pass' => $password,
+        ];
+    
+        try {
+            $client = new Client($config);
+    
+            // Prepare the query for deleting the PPP secret
+            $query = new Query('/ppp/secret/remove');
+            $query->equal('.id', $id);
+    
+            // Execute the query
+            $client->query($query)->read();
+    
+            // Optionally delete the record from the local database
+            // Secret::where('.id', $id)->delete(); 
+    
+            return redirect()->back()->with('success', 'Secret deleted successfully.');
+    
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to delete secret: ' . $e->getMessage());
+        }
+    }
+    
     
     
 }
