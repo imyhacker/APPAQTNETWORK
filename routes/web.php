@@ -79,10 +79,16 @@ Route::group(['prefix' => '/home/dataolt'], function(){
 
 
 
-Route::group(['prefix' => '/home/datamikrotik'], function(){
-    Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
-    Route::get('/nighbore/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
 
+Route::group(['prefix' => '/home/datamikrotik'], function(){
+    // Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
+     Route::get('/aksessecret', [IPController::class, 'aksessecret'])->name('aksessecret');
+ })->middleware(['auth', 'verified']);
+ 
+
+Route::group(['prefix' => '/home/datamikrotik'], function(){
+   // Route::get('/nighbore', [IPController::class, 'nighbore'])->name('nighbore');
+    Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
 })->middleware(['auth', 'verified']);
 
 
