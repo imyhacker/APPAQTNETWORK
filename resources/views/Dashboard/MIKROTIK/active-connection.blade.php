@@ -14,7 +14,7 @@
             <div class="card">
               <div class="card-body">
                 <div class="table-responsive">
-                  <table id="myTable" class="table table-striped table-bordered">
+                  <table id="myTable" class="table table-striped table-bordered table-sm" style="font-size: 12px;">
                     <thead>
                       <tr>
                         <th>No</th>
@@ -32,7 +32,7 @@
                           <td>{{ $d['name'] }}</td>
                           <td>
                             <div class="dropdown">
-                              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ $d['.id'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                              <button class="btn btn-primary dropdown-toggle btn-sm" type="button" id="dropdownMenuButton{{ $d['.id'] }}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Action
                               </button>
                               <div class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ $d['.id'] }}">
@@ -128,7 +128,13 @@
   $(document).ready(function() {
     // Initialize DataTable with responsive design
     var table = $('#myTable').DataTable({
-      responsive: true
+       
+      responsive: true,
+            pageLength: 10, // Number of rows per page
+            autoWidth: false, // Disable automatic column width adjustment
+            columnDefs: [
+                { targets: "_all", className: "text-center" } // Center align all columns
+            ]
     });
 
     // Function to get query parameter from URL

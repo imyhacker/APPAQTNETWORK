@@ -217,7 +217,60 @@ class IPController extends Controller
             return redirect()->back()->with('error', 'Failed to delete secret: ' . $e->getMessage());
         }
     }
+    public function aksesinterface(Request $request) {
+        $ipmikrotik = $request->query('ipmikrotik');
+        
+        // Cek apakah IP Mikrotik valid di database
+        $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+        
+        if (!$mikrotik) {
+            return redirect()->back()->with('error', 'Mikrotik dengan IP tersebut tidak ditemukan.');
+        }
+        
+        // Ambil data VPN berdasarkan IP dan user unik
+        $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)
+            ->where('unique_id', auth()->user()->unique_id)
+            ->first();
+        
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'Data VPN tidak ditemukan untuk IP ini.');
+        }
+    
+        // Ambil username dan password dari database
+        $username = $mikrotik->username;
+        $password = $mikrotik->password;
+    
+        // Konfigurasi koneksi MikroTik
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:' . $datavpn->portapi,
+            'user' => $username,
+            'pass' => $password,
+        ];
+    
+        // Inisialisasi koneksi ke MikroTik menggunakan RouterOS-PHP
+        try {
+            // Membuat koneksi dengan MikroTik
+            $client = new \RouterOS\Client([
+                'host' => $config['host'],
+                'user' => $config['user'],
+                'pass' => $config['pass'],
+                'port' => $datavpn->portapi,
+            ]);
+    
+          
+            $query = new Query('/interface/print');
+            $interface = $client->query($query)->read();
+            // Mengirim data secrets ke view
+            
+            //dd($interface);
+            return view('Dashboard.IP.aksesinterface', compact('interface', 'ipmikrotik'));
+    
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal terhubung ke MikroTik: ' . $e->getMessage());
+        }
+    }
     
     
+
     
 }

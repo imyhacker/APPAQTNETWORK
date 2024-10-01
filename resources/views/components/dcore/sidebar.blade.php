@@ -30,7 +30,7 @@
                     <li><a href="{{route('active-connection', ['ipmikrotik' => session('ipmikrotik')])}}">Active Connection</a></li>
                     <li><a href="{{route('aksessecret', ['ipmikrotik' => session('ipmikrotik')])}}">Secret</a></li>
                     <li><a href="{{route('aksesnightbore', ['ipmikrotik' => session('ipmikrotik')])}}">Neighbore</a></li>
-                    <li><a href="">Interface</a></li>
+                    <li><a href="{{route('aksesinterface', ['ipmikrotik' => session('ipmikrotik')])}}">Interface</a></li>
                     <li><a href="">Pool</a></li>
                     <li><a href="">Service</a></li>
                     </ul>
