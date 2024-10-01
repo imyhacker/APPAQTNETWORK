@@ -93,6 +93,11 @@ Route::group(['prefix' => '/home/datamikrotik'], function(){
 
 Route::group(['prefix' => '/home/datamikrotik'], function(){
     Route::get('/aksesinterface', [IPController::class, 'aksesinterface'])->name('aksesinterface');
+    // Enable interface route
+Route::post('/aksesinterface/{id}/enable', [IPController::class, 'enable'])->name('interface.enable');
+
+// Disable interface route
+Route::post('/aksesinterface/{id}/disable', [IPController::class, 'disable'])->name('interface.disable');
 
 })->middleware(['auth', 'verified']);
 

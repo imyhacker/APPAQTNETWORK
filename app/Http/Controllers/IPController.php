@@ -269,7 +269,104 @@ class IPController extends Controller
             return redirect()->back()->with('error', 'Gagal terhubung ke MikroTik: ' . $e->getMessage());
         }
     }
-    
+    public function enable(Request $request, $id)
+    {
+        $ipmikrotik = $request->input('ipmikrotik');
+
+        // Cek apakah IP MikroTik valid di database
+        $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+
+        if (!$mikrotik) {
+            return redirect()->back()->with('error', 'Mikrotik dengan IP tersebut tidak ditemukan.');
+        }
+
+        // Ambil data VPN berdasarkan IP dan user unik
+        $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)
+            ->where('unique_id', auth()->user()->unique_id)
+            ->first();
+
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'Data VPN tidak ditemukan untuk IP ini.');
+        }
+
+        // Ambil username dan password dari database
+        $username = $mikrotik->username;
+        $password = $mikrotik->password;
+
+        // Konfigurasi koneksi MikroTik
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:' . $datavpn->portapi,
+            'user' => $username,
+            'pass' => $password,
+        ];
+
+        // Inisialisasi koneksi ke MikroTik menggunakan RouterOS-PHP
+        try {
+            // Membuat koneksi dengan MikroTik
+            $client = new Client($config);
+            
+            // Enable the interface
+            $query = (new Query('/interface/set'))
+                ->equal('disabled', 'no') // Enable the interface
+                ->equal('.id', $id); // Use the interface name or identifier
+
+                $interface = $client->query($query)->read();
+
+            return redirect()->back()->with('success', 'Interface enabled successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to enable interface: ' . $e->getMessage());
+        }
+    }
+
+    public function disable(Request $request, $id)
+    {
+        $ipmikrotik = $request->input('ipmikrotik');
+       // dd($ipmikrotik);
+        // Cek apakah IP MikroTik valid di database
+        $mikrotik = Mikrotik::where('ipmikrotik', $ipmikrotik)->first();
+
+        if (!$mikrotik) {
+            return redirect()->back()->with('error', 'Mikrotik dengan IP tersebut tidak ditemukan.');
+        }
+
+        // Ambil data VPN berdasarkan IP dan user unik
+        $datavpn = VPN::where('ipaddress', $mikrotik->ipmikrotik)
+            ->where('unique_id', auth()->user()->unique_id)
+            ->first();
+
+        if (!$datavpn) {
+            return redirect()->back()->with('error', 'Data VPN tidak ditemukan untuk IP ini.');
+        }
+
+        // Ambil username dan password dari database
+        $username = $mikrotik->username;
+        $password = $mikrotik->password;
+
+        // Konfigurasi koneksi MikroTik
+        $config = [
+            'host' => 'id-1.aqtnetwork.my.id:' . $datavpn->portapi,
+            'user' => $username,
+            'pass' => $password,
+        ];
+
+        // Inisialisasi koneksi ke MikroTik menggunakan RouterOS-PHP
+        try {
+            // Membuat koneksi dengan MikroTik
+            $client = new Client($config);
+            
+            // Disable the interface
+            $query = (new Query('/interface/set'))
+                ->equal('disabled', 'yes') // Disable the interface
+                ->equal('.id', $id); // Use the interface name or identifier
+
+                $interface = $client->query($query)->read();
+
+            return redirect()->back()->with('success', 'Interface disabled successfully.');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Failed to disable interface: ' . $e->getMessage());
+        }
+    }
+
     
 
     
