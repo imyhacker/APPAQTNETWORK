@@ -24,26 +24,19 @@
 
             {{-- Conditionally show IP and Setting menus if connected to MikroTik --}}
             @if(session('mikrotik_connected'))
-                <li class="dropdown">
-                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-route"></i> <span>IP</span></a>
+                <li class="dropdown active">
+                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-route"></i> <span>Main Menu</span></a>
                     <ul class="dropdown-menu">
                     <li><a href="{{route('active-connection', ['ipmikrotik' => session('ipmikrotik')])}}">Active Connection</a></li>
                     <li><a href="{{route('aksessecret', ['ipmikrotik' => session('ipmikrotik')])}}">Secret</a></li>
                     <li><a href="{{route('aksesnightbore', ['ipmikrotik' => session('ipmikrotik')])}}">Neighbore</a></li>
                     <li><a href="{{route('aksesinterface', ['ipmikrotik' => session('ipmikrotik')])}}">Interface</a></li>
-                    <li><a href="">Pool</a></li>
-                    <li><a href="">Service</a></li>
+                    {{-- <li><a class="nav-link" href="{{route('aksesschedule', ['ipmikrotik' => session('ipmikrotik')])}}">Schedule</a></li> --}}
+                    <li><a class="nav-link" href="">Reboot Mikrotik</a></li>
+                    <li><a class="nav-link" href="">Users</a></li>
                     </ul>
                 </li>
 
-                <li class="dropdown">
-                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-plug"></i> <span>Setting</span></a>
-                    <ul class="dropdown-menu">
-                        <li><a class="nav-link" href="">Schedule</a></li>
-                        <li><a class="nav-link" href="">Reboot Mikrotik</a></li>
-                        <li><a class="nav-link" href="">Users</a></li>
-                    </ul>
-                </li>
             @endif
 
             @can('isAdmin')
@@ -58,8 +51,8 @@
         </ul>
 
         <div class="mt-4 mb-4 p-3 hide-sidebar-mini">
-            <a href="https://getstisla.com/docs" class="btn btn-primary btn-lg btn-block btn-icon-split">
-                <i class="fas fa-rocket"></i> Documentation
+            <a href="#" class="btn btn-primary btn-lg btn-block btn-icon-split">
+                <i class="fas fa-rocket"></i> Billing
             </a>
         </div>
     </aside>

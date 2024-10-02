@@ -32,79 +32,70 @@ Auth::routes(['verify' => true, 'reset' => true]);
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 
-// VPN
-Route::group(['prefix' => '/home/datavpn'], function() {
-    Route::get('/', [VPNController::class, 'index'])->name('datavpn');
-    Route::post('/uploadvpn', [VPNController::class, 'uploadvpn'])->name('uploadvpn');
-    Route::delete('/{id}', [VPNController::class, 'hapusvpn'])->name('hapusvpn');
-})->middleware(['auth', 'verified']);
+// VPN Routes
+Route::group(['prefix' => '/home/datavpn', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(VPNController::class)->group(function () {
+        Route::get('/', 'index')->name('datavpn');
+        Route::post('/uploadvpn', 'uploadvpn')->name('uploadvpn');
+        Route::delete('/{id}', 'hapusvpn')->name('hapusvpn');
+    });
+});
 
+// MIKROTIK Routes
+Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(MKController::class)->group(function () {
+        Route::get('/', 'index')->name('datamikrotik');
+        Route::post('/tambahmikrotik', 'tambahmikrotik')->name('tambahmikrotik');
+        Route::get('/aksesmikrotik', 'aksesMikrotik')->name('aksesmikrotik');
+        Route::get('/masukmikrotik', 'masukmikrotik')->name('masukmikrotik');
+        Route::get('/dashboardmikrotik', 'dashboardmikrotik')->name('dashboardmikrotik');
+        Route::post('/keluarmikrotik', 'keluarmikrotik')->name('keluarmikrotik');
+        Route::get('/active-connection', 'getActiveConnection')->name('active-connection');
+        Route::get('/active-connection/traffic', 'getTrafficData')->name('mikrotik.traffic');
+        Route::post('/add-firewall-rule', 'addFirewallRule')->name('addFirewallRule');
+        Route::post('/restartmodem', 'restartmodem')->name('restartmodem');
+        Route::get('/edit/{id}', 'edit')->name('mikrotik.edit');
+        Route::post('/{id}/update', 'update')->name('mikrotik.update');
+        Route::delete('/delete/{id}', 'destroy')->name('mikrotik.delete');
+    });
+});
 
-// MIKROTIK
-Route::group(['prefix' => '/home/datamikrotik'], function(){
-    Route::get('/', [MKController::class, 'index'])->name('datamikrotik');
-    Route::post('/tambahmikrotik', [MKController::class, 'tambahmikrotik'])->name('tambahmikrotik');
+// OLT Routes
+Route::group(['prefix' => '/home/dataolt', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(OLTController::class)->group(function () {
+        Route::get('/', 'index')->name('dataolt');
+        Route::post('/tambaholt', 'tambaholt')->name('tambaholt');
+        Route::get('/aksesolt', 'aksesOLT')->name('aksesolt');
+        Route::get('/{id}/hapusolt', 'hapusolt')->name('hapusolt');
+    });
+});
 
+// Additional MIKROTIK Routes for IPController
+Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(IPController::class)->group(function () {
+        Route::get('/aksessecret', 'aksessecret')->name('aksessecret');
+        Route::post('/aksessecret/add-secret', 'store')->name('store');
+        Route::delete('/aksessecret/secrets/{id}', 'destroy')->name('secrets.destroy');
+    });
+});
 
-    Route::get('/aksesmikrotik', [MKController::class, 'aksesMikrotik'])->name('aksesmikrotik');
+Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(IPController::class)->group(function () {
+        Route::get('/aksesnightbore', 'aksesnightbore')->name('aksesnightbore');
+    });
+});
 
-    Route::get('/masukmikrotik', [MKController::class, 'masukmikrotik'])->name('masukmikrotik');
-    Route::get('/dashboardmikrotik', [MKController::class, 'dashboardmikrotik'])->name('dashboardmikrotik');
+Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(IPController::class)->group(function () {
+        Route::get('/aksesinterface', 'aksesinterface')->name('aksesinterface');
+        Route::post('/aksesinterface/{id}/enable', 'enable')->name('interface.enable');
+        Route::post('/aksesinterface/{id}/disable', 'disable')->name('interface.disable');
+    });
+});
 
-    Route::post('/keluarmikrotik', [MKController::class, 'keluarmikrotik'])->name('keluarmikrotik');
-
-    Route::get('/active-connection', [MKController::class, 'getActiveConnection'])->name('active-connection');
-    Route::get('/active-connection/traffic', [MKController::class, 'getTrafficData'])->name('mikrotik.traffic');
-
-
-
-    Route::post('/add-firewall-rule', [MKController::class, 'addFirewallRule'])->name('addFirewallRule');
-   Route::post('/restartmodem', [MKController::class, 'restartmodem'])->name('restartmodem');
-
-    Route::get('/edit/{id}', [MKController::class, 'edit'])->name('mikrotik.edit');
-    Route::post('/{id}/update', [MKController::class, 'update'])->name('mikrotik.update');
-
-    Route::delete('/delete/{id}', [MKController::class, 'destroy'])->name('mikrotik.delete');
-})->middleware(['auth', 'verified']);;
-
-
-
-// OLT
-Route::group(['prefix' => '/home/dataolt'], function(){
-    Route::get('/', [OLTController::class, 'index'])->name('dataolt');
-    Route::post('/tambaholt', [OLTController::class, 'tambaholt'])->name('tambaholt');
-    Route::get('/aksesolt', [OLTController::class, 'aksesOLT'])->name('aksesolt');
-    Route::get('/{id}/hapusolt', [OLTController::class, 'hapusolt'])->name('hapusolt');
-})->middleware(['auth', 'verified']);
-
-
-
-
-Route::group(['prefix' => '/home/datamikrotik'], function(){
-     Route::get('/aksessecret', [IPController::class, 'aksessecret'])->name('aksessecret');
-     Route::post('/aksessecret/add-secret', [IPController::class, 'store'])->name('store');
-     Route::delete('/aksessecret/secrets/{id}', [IPController::class, 'destroy'])->name('secrets.destroy');
- })->middleware(['auth', 'verified']);
- 
-
-Route::group(['prefix' => '/home/datamikrotik'], function(){
-    Route::get('/aksesnightbore', [IPController::class, 'aksesnightbore'])->name('aksesnightbore');
-})->middleware(['auth', 'verified']);
-
-Route::group(['prefix' => '/home/datamikrotik'], function(){
-    Route::get('/aksesinterface', [IPController::class, 'aksesinterface'])->name('aksesinterface');
-    // Enable interface route
-Route::post('/aksesinterface/{id}/enable', [IPController::class, 'enable'])->name('interface.enable');
-
-// Disable interface route
-Route::post('/aksesinterface/{id}/disable', [IPController::class, 'disable'])->name('interface.disable');
-
-})->middleware(['auth', 'verified']);
-
-
-route::get('/mikrotik/cpu-load/{ipmikrotik}', [MKController::class, 'getCpuLoad'])->middleware(['auth', 'verified']);
+// MIKROTIK CPU and Status Routes
+Route::get('/mikrotik/cpu-load/{ipmikrotik}', [MKController::class, 'getCpuLoad'])->middleware(['auth', 'verified']);
 Route::get('/mikrotik/current-time/{ipmikrotik}', [MKController::class, 'getCurrentTime']);
 Route::get('/mikrotik/interfaces', [MKController::class, 'dashboardmikrotik']);
 Route::get('/mikrotik/traffic', [MKController::class, 'getTraffic']);
 Route::get('/mikrotik/uptime/{ipmikrotik}', [MKController::class, 'getUptime']);
-
