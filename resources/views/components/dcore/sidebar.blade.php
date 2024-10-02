@@ -24,18 +24,43 @@
 
             {{-- Conditionally show IP and Setting menus if connected to MikroTik --}}
             @if(session('mikrotik_connected'))
-                <li class="dropdown active">
-                    <a href="#" class="nav-link has-dropdown"><i class="fas fa-route"></i> <span>Main Menu</span></a>
-                    <ul class="dropdown-menu">
-                    <li><a href="{{route('active-connection', ['ipmikrotik' => session('ipmikrotik')])}}">Active Connection</a></li>
-                    <li><a href="{{route('aksessecret', ['ipmikrotik' => session('ipmikrotik')])}}">Secret</a></li>
-                    <li><a href="{{route('aksesnightbore', ['ipmikrotik' => session('ipmikrotik')])}}">Neighbore</a></li>
-                    <li><a href="{{route('aksesinterface', ['ipmikrotik' => session('ipmikrotik')])}}">Interface</a></li>
+            <li class="dropdown active">
+                <a href="#" class="nav-link has-dropdown"><i class="fas fa-route"></i> <span>Main Menu</span></a>
+                <ul class="dropdown-menu">
+                    <li class="dropdown">
+                        <a href="#" class="nav-link has-dropdown"><i class="fas fa-sitemap"></i><span>Monitoring</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{route('active-connection', ['ipmikrotik' => session('ipmikrotik')])}}">Active Connection</a></li>
+                          
+                         
+                        </ul>
+                    </li>
+
+                   
+
+                    <li class="dropdown">
+                        <a href="#" class="nav-link has-dropdown"><i class="fas fa-users"></i><span>PPP</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{route('aksessecret', ['ipmikrotik' => session('ipmikrotik')])}}">Secret</a></li>
+                         
+                        </ul>
+                    </li>
+                    <li class="dropdown">
+                        <a href="#" class="nav-link has-dropdown"><i class="fa fa-tasks"></i><span>Interface</span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="{{route('aksesnightbore', ['ipmikrotik' => session('ipmikrotik')])}}">Neighbore</a></li>
+                            <li><a href="{{route('aksesinterface', ['ipmikrotik' => session('ipmikrotik')])}}">Interface</a></li>
+                         
+                        </ul>
+                    </li>
+                    
                     {{-- <li><a class="nav-link" href="{{route('aksesschedule', ['ipmikrotik' => session('ipmikrotik')])}}">Schedule</a></li> --}}
-                    <li><a class="nav-link" href="">Reboot Mikrotik</a></li>
-                    <li><a class="nav-link" href="">Users</a></li>
-                    </ul>
-                </li>
+            
+                    <!-- Dropdown di dalam dropdown -->
+                    
+                </ul>
+            </li>
+            
 
             @endif
 
