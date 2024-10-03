@@ -93,6 +93,15 @@ Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verifi
     });
 });
 
+Route::group(['prefix' => '/home/datamikrotik', 'middleware' => ['auth', 'verified']], function() {
+    Route::controller(IPController::class)->group(function () {
+        Route::get('/aksesschedule', 'aksesschedule')->name('aksesschedule');
+        // Route::post('/aksesinterface/{id}/enable', 'enable')->name('interface.enable');
+        // Route::post('/aksesinterface/{id}/disable', 'disable')->name('interface.disable');
+    });
+});
+
+
 // MIKROTIK CPU and Status Routes
 Route::get('/mikrotik/cpu-load/{ipmikrotik}', [MKController::class, 'getCpuLoad'])->middleware(['auth', 'verified']);
 Route::get('/mikrotik/current-time/{ipmikrotik}', [MKController::class, 'getCurrentTime']);
