@@ -65,54 +65,33 @@
 
 <x-dcore.script />
 
-<!-- Initialize DataTables and Set Auto Refresh -->
-<script>
+<script type="text/javascript">
     $(document).ready(function() {
-        // Initialize DataTable
         var table = $('#myTable2').DataTable({
             "pageLength": 10,
             "lengthMenu": [10, 25, 50, 75, 100],
             "order": [[0, 'asc']],
+            "destroy": true, // Allow DataTable to be re-initialized after the table refresh
         });
 
-        // Function to refresh table data
-        function refreshTableData() {
-            $.ajax({
-                url: "{{ route('aksesschedule') }}", // Your route to fetch the updated table data
-                type: 'GET',
-                success: function(data) {
-                    // Clear the existing table data
-                    table.clear();
-                    
-                    // Loop through the new data and add rows to the table
-                    $.each(data.formattedData, function(index, schedule) {
-                        var minutes = schedule.run_count * 20 / 60;
-                        var minutesDisplay = minutes < 60 ? Math.round(minutes) + ' minutes' : Math.round(minutes / 60) + ' hours';
-                        
-                        var hours = schedule.run_count * 20 / 60 / 60;
-                        var hoursDisplay = hours < 24 ? Math.round(hours) + ' hours' : Math.round(hours / 24) + ' days';
-
-                        table.row.add([
-                            index + 1,
-                            schedule.name,
-                            schedule.start_date,
-                            schedule.start_time,
-                            schedule.interval,
-                            schedule.run_count,
-                            minutesDisplay,
-                            hoursDisplay
-                        ]).draw(false); // Add row and redraw the table without resetting pagination
-                    });
-                },
-                error: function(xhr, status, error) {
-                    console.error("Error refreshing data: ", status, error);
-                }
+        // Function to reload the table from DOM
+        function reloadTable() {
+            console.log('sss');
+            // Destroy the existing DataTable
+            table.destroy();
+            // Reload the table with the current DOM data
+            table = $('#myTable2').DataTable({
+                "pageLength": 10,
+                "lengthMenu": [10, 25, 50, 75, 100],
+                "order": [[0, 'asc']],
+                "destroy": true, // Allows DataTable to reinitialize
             });
         }
 
-        // Set interval to refresh table data every 20 seconds
-        setInterval(function() {
-            refreshTableData();
-        }, 20000); // 20 seconds (20,000 milliseconds)
+        // Automatically reload the table every 20 seconds
+        setInterval(reloadTable, 20000); // 20000 milliseconds = 20 seconds
+
+        // Call once at the beginning
+        reloadTable();
     });
 </script>
