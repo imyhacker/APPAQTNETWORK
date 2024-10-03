@@ -20,7 +20,6 @@
                                                 <th>Name</th>
                                                 <th>Start Date</th>
                                                 <th>Start Time</th>
-                                                <th>Interval</th>
                                                 <th>Run Count</th>
                                                 <th>Duration (Minutes/Hours)</th>
                                                 <th>Duration (Hours/Days)</th>
@@ -33,7 +32,6 @@
                                                     <td>{{ $schedule['name'] }}</td>
                                                     <td>{{ $schedule['start_date'] }}</td>
                                                     <td>{{ $schedule['start_time'] }}</td>
-                                                    <td>{{ $schedule['interval'] }}</td>
                                                     <td>{{ $schedule['run_count'] }}</td>
                                                     <td>
                                                         @php
@@ -64,9 +62,9 @@
 </div>
 
 <x-dcore.script />
-
 <script type="text/javascript">
     $(document).ready(function() {
+        // Initialize DataTable
         var table = $('#myTable2').DataTable({
             "pageLength": 10,
             "lengthMenu": [10, 25, 50, 75, 100],
@@ -74,24 +72,56 @@
             "destroy": true, // Allow DataTable to be re-initialized after the table refresh
         });
 
-        // Function to reload the table from DOM
+        // Function to reload the table data via AJAX
         function reloadTable() {
-            console.log('sss');
-            // Destroy the existing DataTable
-            table.destroy();
-            // Reload the table with the current DOM data
-            table = $('#myTable2').DataTable({
-                "pageLength": 10,
-                "lengthMenu": [10, 25, 50, 75, 100],
-                "order": [[0, 'asc']],
-                "destroy": true, // Allows DataTable to reinitialize
+            $.ajax({
+                url: "{{ route('aksesschedule') }}", // Route that returns the updated HTML or JSON
+                type: 'GET',
+                success: function(data) {
+                    // Clear existing table content
+                    $('#tableBody').html('');
+
+                    // Iterate through new data and populate table
+                    $.each(data.formattedData, function(index, schedule) {
+                        var minutes = schedule.run_count * 20 / 60;
+                        var minutesDisplay = minutes < 60 ? Math.round(minutes) + ' minutes' : Math.round(minutes / 60) + ' hours';
+
+                        var hours = schedule.run_count * 20 / 60 / 60;
+                        var hoursDisplay = hours < 24 ? Math.round(hours) + ' hours' : Math.round(hours / 24) + ' days';
+
+                        $('#tableBody').append(`
+                            <tr>
+                                <td>${index + 1}</td>
+                                <td>${schedule.name}</td>
+                                <td>${schedule.start_date}</td>
+                                <td>${schedule.start_time}</td>
+                                <td>${schedule.interval}</td>
+                                <td>${schedule.run_count}</td>
+                                <td>${minutesDisplay}</td>
+                                <td>${hoursDisplay}</td>
+                            </tr>
+                        `);
+                    });
+
+                    // Destroy and reinitialize DataTable to refresh
+                    table.destroy();
+                    table = $('#myTable2').DataTable({
+                        "pageLength": 10,
+                        "lengthMenu": [10, 25, 50, 75, 100],
+                        "order": [[0, 'asc']],
+                        "destroy": true,
+                    });
+                },
+                error: function(xhr, status, error) {
+                    console.error("Error refreshing data: ", status, error);
+                }
             });
         }
 
         // Automatically reload the table every 20 seconds
         setInterval(reloadTable, 20000); // 20000 milliseconds = 20 seconds
 
-        // Call once at the beginning
+        // Initial call to load data
         reloadTable();
     });
 </script>
