@@ -70,6 +70,7 @@
             "lengthMenu": [10, 25, 50, 75, 100],
             "order": [[0, 'asc']],
             "destroy": true, // Allow DataTable to be re-initialized after the table refresh
+            "stateSave": true // Enable state saving
         });
 
         // Function to reload the table data via AJAX
