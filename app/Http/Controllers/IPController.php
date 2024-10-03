@@ -396,20 +396,17 @@ class IPController extends Controller
             'pass' => $password,
         ];
     
-        // Inisialisasi koneksi ke MikroTik menggunakan RouterOS-PHP
         try {
-            // Membuat koneksi dengan MikroTik
             $client = new \RouterOS\Client([
                 'host' => $config['host'],
                 'user' => $config['user'],
                 'pass' => $config['pass'],
                 'port' => $datavpn->portapi,
             ]);
-    
-          
+            // Your existing MikroTik connection code...
             $query = new Query('/system/scheduler/print');
             $interface = $client->query($query)->read();
-            // Mengirim data secrets ke view
+            
             $formattedData = array_map(function($item) {
                 return [
                     '.id' => $item['.id'],
@@ -420,7 +417,13 @@ class IPController extends Controller
                     'run_count' => isset($item['run-count']) ? $item['run-count'] : 'N/A', // Add run_count
                 ];
             }, $interface);
-            //dd($interface);
+    
+            // Check if the request is an AJAX request
+            if ($request->ajax()) {
+                return response()->json(['formattedData' => $formattedData]);
+            }
+    
+            // If not AJAX, return view as before
             return view('Dashboard.IP.aksesschedule', compact('formattedData', 'ipmikrotik'));
     
         } catch (\Exception $e) {

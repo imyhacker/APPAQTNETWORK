@@ -75,7 +75,7 @@
         // Function to reload the table data via AJAX
         function reloadTable() {
             $.ajax({
-                url: "{{ route('aksesschedule') }}", // Route that returns the updated HTML or JSON
+                url: "{{ route('aksesschedule') }}?ipmikrotik={{ request()->query('ipmikrotik') }}", // Pass the IP query parameter
                 type: 'GET',
                 success: function(data) {
                     // Clear existing table content
@@ -95,7 +95,6 @@
                                 <td>${schedule.name}</td>
                                 <td>${schedule.start_date}</td>
                                 <td>${schedule.start_time}</td>
-                                <td>${schedule.interval}</td>
                                 <td>${schedule.run_count}</td>
                                 <td>${minutesDisplay}</td>
                                 <td>${hoursDisplay}</td>
