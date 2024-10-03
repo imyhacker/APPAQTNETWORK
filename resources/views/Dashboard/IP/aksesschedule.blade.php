@@ -77,9 +77,10 @@
             $.ajax({
                 url: "{{ route('aksesschedule') }}?ipmikrotik={{ request()->query('ipmikrotik') }}", // Pass the IP query parameter
                 type: 'GET',
+                dataType: 'json', // Expect JSON response
                 success: function(data) {
                     // Clear existing table content
-                    $('#tableBody').html('');
+                    table.clear(); // Clear DataTable content
 
                     // Iterate through new data and populate table
                     $.each(data.formattedData, function(index, schedule) {
@@ -89,27 +90,20 @@
                         var hours = schedule.run_count * 20 / 60 / 60;
                         var hoursDisplay = hours < 24 ? Math.round(hours) + ' hours' : Math.round(hours / 24) + ' days';
 
-                        $('#tableBody').append(`
-                            <tr>
-                                <td>${index + 1}</td>
-                                <td>${schedule.name}</td>
-                                <td>${schedule.start_date}</td>
-                                <td>${schedule.start_time}</td>
-                                <td>${schedule.run_count}</td>
-                                <td>${minutesDisplay}</td>
-                                <td>${hoursDisplay}</td>
-                            </tr>
-                        `);
+                        // Add row to DataTable
+                        table.row.add([
+                            index + 1,
+                            schedule.name,
+                            schedule.start_date,
+                            schedule.start_time,
+                            schedule.run_count,
+                            minutesDisplay,
+                            hoursDisplay
+                        ]);
                     });
 
-                    // Destroy and reinitialize DataTable to refresh
-                    table.destroy();
-                    table = $('#myTable2').DataTable({
-                        "pageLength": 10,
-                        "lengthMenu": [10, 25, 50, 75, 100],
-                        "order": [[0, 'asc']],
-                        "destroy": true,
-                    });
+                    // Redraw the table to show the new data
+                    table.draw();
                 },
                 error: function(xhr, status, error) {
                     console.error("Error refreshing data: ", status, error);
