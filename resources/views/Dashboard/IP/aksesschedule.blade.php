@@ -66,7 +66,7 @@
     $(document).ready(function() {
         // Initialize DataTable
         var table = $('#myTable2').DataTable({
-            "pageLength": 10,
+            "pageLength": 50,
             "lengthMenu": [50, 100, 150, 200, 250],
             "order": [[0, 'asc']],
             "destroy": true, // Allow DataTable to be re-initialized after the table refresh
