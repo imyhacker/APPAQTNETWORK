@@ -68,13 +68,16 @@
             <div class="modal-header">
                 <h5 class="modal-title" id="scheduleModalLabel">Schedule Details</h5>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="modalBodyContent">
                 <p><strong>Name:</strong> <span id="modalName"></span></p>
                 <p><strong>Start Date:</strong> <span id="modalStartDate"></span></p>
                 <p><strong>Start Time:</strong> <span id="modalStartTime"></span></p>
                 <p><strong>Run Count:</strong> <span id="modalRunCount"></span></p>
                 <p><strong>Duration (Minutes/Hours):</strong> <span id="modalDurationMinutesHours"></span></p>
                 <p><strong>Duration (Hours/Days):</strong> <span id="modalDurationHoursDays"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button id="copyButton" class="btn btn-primary">Copy</button>
             </div>
         </div>
     </div>
@@ -152,5 +155,32 @@
             // Show the modal
             $('#scheduleModal').modal('show');
         });
+    });
+</script>
+<script>
+    document.getElementById('copyButton').addEventListener('click', function() {
+        // Mengambil elemen modal body
+        var modalBody = document.getElementById('modalBodyContent');
+        
+        // Menyalin teks dari modal body
+        var range = document.createRange();
+        range.selectNode(modalBody);
+        window.getSelection().removeAllRanges(); // Menghapus seleksi sebelumnya
+        window.getSelection().addRange(range); // Menyeleksi teks modal body
+        
+        try {
+            // Melakukan penyalinan
+            var successful = document.execCommand('copy');
+            if (successful) {
+                alert('Data copied successfully!');
+            } else {
+                alert('Failed to copy data.');
+            }
+        } catch (err) {
+            console.error('Error while copying data: ', err);
+        }
+
+        // Menghapus seleksi setelah penyalinan
+        window.getSelection().removeAllRanges();
     });
 </script>
