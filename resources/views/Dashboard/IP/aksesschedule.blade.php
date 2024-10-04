@@ -106,10 +106,10 @@
                     // Iterate through new data and populate table
                     $.each(data.formattedData, function(index, schedule) {
                         var minutes = schedule.run_count * 20 / 60;
-                        var minutesDisplay = minutes < 60 ? Math.round(minutes) + ' minutes' : Math.round(minutes / 60) + ' hours';
+                        var minutesDisplay = minutes < 60 ? Math.round(minutes) + ' menit' : Math.round(minutes / 60) + ' jam';
 
                         var hours = schedule.run_count * 20 / 60 / 60;
-                        var hoursDisplay = hours < 24 ? Math.round(hours) + ' hours' : Math.round(hours / 24) + ' days';
+                        var hoursDisplay = hours < 24 ? Math.round(hours) + ' jam' : Math.round(hours / 24) + ' hari';
 
                         // Add row to DataTable
                         table.row.add([
