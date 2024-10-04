@@ -410,18 +410,25 @@ $(document).ready(function() {
                             chart.data.datasets[1].data.shift(); // Remove old TX data
                         }
 
-                        const maxRx = Math.max(...chart.data.datasets[0].data);
+                           // Update minimum Y value based on current data
+                const maxRx = Math.max(...chart.data.datasets[0].data);
                 const maxTx = Math.max(...chart.data.datasets[1].data);
                 const trafficThreshold = Math.min(maxRx, maxTx);
 
                 // Determine the minY value based on the maximum traffic observed
-                if (trafficThreshold > 5) {
+                if (trafficThreshold >= 500) {
+                    minY = Math.floor(trafficThreshold / 100) * 100; // Round down to nearest hundred for high traffic
+                } else if (trafficThreshold > 5) {
                     minY = Math.floor(trafficThreshold - 5); // Start 5 Mbps below the minimum observed traffic
                 } else {
                     minY = 0; // If traffic is low, start from 0
                 }
 
                 chart.options.scales.yAxes[0].ticks.min = minY; // Update the chart's y-axis minimum
+
+                // Optionally, adjust maxY based on max traffic
+                const maxY = Math.ceil(trafficThreshold / 100) * 100; // Round up to the nearest hundred
+                chart.options.scales.yAxes[0].ticks.max = maxY; // Update the chart's y-axis maximum
 
                         
                         chart.update(); // Redraw chart
