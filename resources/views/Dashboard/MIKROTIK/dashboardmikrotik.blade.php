@@ -287,149 +287,162 @@
   setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
 </script>
 <script>
- $(document).ready(function() {
+$(document).ready(function() {
     let chart = null;
     let pollingInterval = null; // Variable for interval
     let dataPoints = 20; // Number of points to show on the chart
+    let minY = 0; // Minimum y-axis value
 
     $('#interfaceForm').on('submit', function(event) {
-    event.preventDefault();
-    const selectedInterface = $('#interface').val();
-    const ipmikrotik = $('#ipmikrotik').val();
+        event.preventDefault();
+        const selectedInterface = $('#interface').val();
+        const ipmikrotik = $('#ipmikrotik').val();
 
-    // Clear any previous polling
-    if (pollingInterval) {
-        clearInterval(pollingInterval);
-    }
+        // Clear any previous polling
+        if (pollingInterval) {
+            clearInterval(pollingInterval);
+        }
 
-    // Destroy existing chart if it exists
-    if (chart) {
-        chart.destroy();
-        chart = null;
-    }
+        // Destroy existing chart if it exists
+        if (chart) {
+            chart.destroy();
+            chart = null;
+        }
 
-    // Reset data for the new chart
-    const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1); // Labels from 1 to 20
-    const initialData = Array(dataPoints).fill(0); // Start with 0 values
+        // Reset data for the new chart
+        const initialLabels = Array(dataPoints).fill('').map((_, i) => i + 1); // Labels from 1 to 20
+        const initialData = Array(dataPoints).fill(0); // Start with 0 values
 
-    // Create a new chart instance
-    const ctx = document.getElementById('trafficChart').getContext('2d');
-    chart = new Chart(ctx, {
-        type: 'line', // Use 'line' chart type
-        data: {
-            labels: initialLabels, // Start with static labels 1-20
-            datasets: [{
-                label: 'Trafik Download (Mbps)', // Label for RX in Mbps
-                data: initialData.slice(), // Copy dummy data for RX
-                backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
-                borderColor: 'rgb(75, 192, 192)',
-                borderWidth: 2, // Thinner line
-                borderCapStyle: 'round', // Rounded cap style
-                borderJoinStyle: 'round', // Rounded join style
-                fill: true, // Fill under the line
-                tension: 0.4 // Increased tension for a more fluid line
-            },
-            {
-                label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
-                data: initialData.slice(), // Copy dummy data for TX
-                backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
-                borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
-                borderWidth: 2, // Thinner line
-                borderCapStyle: 'round', // Rounded cap style
-                borderJoinStyle: 'round', // Rounded join style
-                fill: true, // Fill under the line
-                tension: 0.4 // Increased tension for a more fluid line
-            }]
-        },
-        options: {
-            responsive: true, // Make the chart responsive
-            scales: {
-                yAxes: [{ // Menggunakan yAxes untuk versi 2.x
-                    ticks: {
-                        beginAtZero: true,
-                        stepSize: 1, // Mengatur step size agar lebih longgar
-                        maxTicksLimit: 10, // Maksimum label yang ditampilkan
-                        callback: function(value) {
-                            return value + ' Mbps'; // Add 'Mbps' to tick labels
-                        }
-                    },
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Traffic (Mbps)' // Changed to Mbps
-                    }
-                }],
-                xAxes: [{
-                    scaleLabel: {
-                        display: true,
-                        labelString: 'Time (units)' // Label for sumbu X, sesuaikan dengan kebutuhan
-                    }
+        // Create a new chart instance
+        const ctx = document.getElementById('trafficChart').getContext('2d');
+        chart = new Chart(ctx, {
+            type: 'line', // Use 'line' chart type
+            data: {
+                labels: initialLabels, // Start with static labels 1-20
+                datasets: [{
+                    label: 'Trafik Download (Mbps)', // Label for RX in Mbps
+                    data: initialData.slice(), // Copy dummy data for RX
+                    backgroundColor: 'rgba(54, 162, 235, 0.3)', // Light blue with some opacity
+                    borderColor: 'rgb(75, 192, 192)',
+                    borderWidth: 2, // Thinner line
+                    borderCapStyle: 'round', // Rounded cap style
+                    borderJoinStyle: 'round', // Rounded join style
+                    fill: true, // Fill under the line
+                    tension: 0.4 // Increased tension for a more fluid line
+                },
+                {
+                    label: 'Trafik Upload (Mbps)', // Label for TX in Mbps
+                    data: initialData.slice(), // Copy dummy data for TX
+                    backgroundColor: 'rgba(255, 99, 132, 0.3)', // Light red with some opacity
+                    borderColor: 'rgba(255, 99, 132, 1)', // Red for TX line
+                    borderWidth: 2, // Thinner line
+                    borderCapStyle: 'round', // Rounded cap style
+                    borderJoinStyle: 'round', // Rounded join style
+                    fill: true, // Fill under the line
+                    tension: 0.4 // Increased tension for a more fluid line
                 }]
             },
-            tooltips: {
-                callbacks: {
-                    label: function(tooltipItem) {
-                        // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
-                        return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.yLabel) + ' Mbps';
+            options: {
+                responsive: true, // Make the chart responsive
+                scales: {
+                    yAxes: [{ // Using yAxes for version 2.x
+                        ticks: {
+                            beginAtZero: true,
+                            stepSize: 1, // Set step size for ticks
+                            callback: function(value) {
+                                return value + ' Mbps'; // Add 'Mbps' to tick labels
+                            },
+                            min: minY // Set the minimum value dynamically
+                        },
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Traffic (Mbps)' // Changed to Mbps
+                        }
+                    }],
+                    xAxes: [{
+                        scaleLabel: {
+                            display: true,
+                            labelString: 'Time (units)' // Label for x-axis
+                        }
+                    }]
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem) {
+                            // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
+                            return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.yLabel) + ' Mbps';
+                        }
                     }
                 }
-            }
-        }
-    });
-
-    // Function to fetch traffic data and update chart
-    function fetchTrafficData() {
-        $.ajax({
-            url: '/mikrotik/traffic',
-            method: 'GET',
-            data: { interface: selectedInterface, ipmikrotik: ipmikrotik },
-            success: function(response) {
-                console.log('Response Data:', response); // Debugging
-
-                if (response.error) {
-                    alert(response.error);
-                    return;
-                }
-
-                // Convert RX and TX data from bytes to Mbps and round to 2 decimal places
-                const rxMbps = (response.rx / 1000000).toFixed(2); // Convert RX to Mbps
-                const txMbps = (response.tx / 1000000).toFixed(2); // Convert TX to Mbps
-
-                // Update the chart data
-                if (chart) {
-                    const currentTime = new Date().toLocaleTimeString(); // Add time label
-                    chart.data.labels.push(currentTime); // Add new label (time)
-
-                    chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
-                    chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
-
-                    // Maintain only the last dataPoints data points
-                    if (chart.data.labels.length > dataPoints) {
-                        chart.data.labels.shift(); // Remove old label (time)
-                        chart.data.datasets[0].data.shift(); // Remove old RX data
-                        chart.data.datasets[1].data.shift(); // Remove old TX data
-                    }
-
-                    chart.update(); // Redraw chart
-
-                    // Update the traffic info
-                    $('#currentRx').text(rxMbps + ' Mbps');
-                    $('#currentTx').text(txMbps + ' Mbps');
-                }
-            },
-            error: function(xhr) {
-                console.log('AJAX Error:', xhr); // Debugging
-                alert('Error retrieving traffic data.');
             }
         });
-    }
 
-    // Start polling the traffic data every 1 second
-    pollingInterval = setInterval(fetchTrafficData, 1000);
-    
-    // Fetch initial data to populate the chart immediately
-    fetchTrafficData();
+        // Function to fetch traffic data and update chart
+        function fetchTrafficData() {
+            $.ajax({
+                url: '/mikrotik/traffic',
+                method: 'GET',
+                data: { interface: selectedInterface, ipmikrotik: ipmikrotik },
+                success: function(response) {
+                    console.log('Response Data:', response); // Debugging
+
+                    if (response.error) {
+                        alert(response.error);
+                        return;
+                    }
+
+                    // Convert RX and TX data from bytes to Mbps and round to 2 decimal places
+                    const rxMbps = (response.rx / 1000000).toFixed(2); // Convert RX to Mbps
+                    const txMbps = (response.tx / 1000000).toFixed(2); // Convert TX to Mbps
+
+                    // Update the chart data
+                    if (chart) {
+                        const currentTime = new Date().toLocaleTimeString(); // Add time label
+                        chart.data.labels.push(currentTime); // Add new label (time)
+
+                        chart.data.datasets[0].data.push(rxMbps); // Update RX data in Mbps
+                        chart.data.datasets[1].data.push(txMbps); // Update TX data in Mbps
+
+                        // Maintain only the last dataPoints data points
+                        if (chart.data.labels.length > dataPoints) {
+                            chart.data.labels.shift(); // Remove old label (time)
+                            chart.data.datasets[0].data.shift(); // Remove old RX data
+                            chart.data.datasets[1].data.shift(); // Remove old TX data
+                        }
+
+                        const maxRx = Math.max(...chart.data.datasets[0].data);
+                const maxTx = Math.max(...chart.data.datasets[1].data);
+                const trafficThreshold = Math.min(maxRx, maxTx);
+
+                // Determine the minY value based on the maximum traffic observed
+                if (trafficThreshold > 5) {
+                    minY = Math.floor(trafficThreshold - 5); // Start 5 Mbps below the minimum observed traffic
+                } else {
+                    minY = 0; // If traffic is low, start from 0
+                }
+
+                chart.options.scales.yAxes[0].ticks.min = minY; // Update the chart's y-axis minimum
+
+                        
+                        chart.update(); // Redraw chart
+
+                        // Update the traffic info
+                        $('#currentRx').text(rxMbps + ' Mbps');
+                        $('#currentTx').text(txMbps + ' Mbps');
+                    }
+                },
+                error: function(xhr) {
+                    console.log('AJAX Error:', xhr); // Debugging
+                    alert('Error retrieving traffic data.');
+                }
+            });
+        }
+
+        // Start polling the traffic data every 1 second
+        pollingInterval = setInterval(fetchTrafficData, 1000);
+        
+        // Fetch initial data to populate the chart immediately
+        fetchTrafficData();
+    });
 });
-
-});
-
-</script> 
+</script>
