@@ -61,13 +61,33 @@
     </div>
 </div>
 
+<!-- Modal for Schedule Details -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="scheduleModalLabel">Schedule Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><strong>Name:</strong> <span id="modalName"></span></p>
+                <p><strong>Start Date:</strong> <span id="modalStartDate"></span></p>
+                <p><strong>Start Time:</strong> <span id="modalStartTime"></span></p>
+                <p><strong>Run Count:</strong> <span id="modalRunCount"></span></p>
+                <p><strong>Duration (Minutes/Hours):</strong> <span id="modalDurationMinutesHours"></span></p>
+                <p><strong>Duration (Hours/Days):</strong> <span id="modalDurationHoursDays"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
+
 <x-dcore.script />
 <script type="text/javascript">
     $(document).ready(function() {
-        // Initialize DataTable
+        // Initialize DataTable with state saving enabled
         var table = $('#myTable2').DataTable({
-            "pageLength": 50,
-            "lengthMenu": [50, 100, 150, 200, 250],
+            "pageLength": 50, // Set the default number of entries to 50
+            "lengthMenu": [50, 100, 200, 300, 400, 500], // Options for number of entries to show
             "order": [[0, 'asc']],
             "destroy": true, // Allow DataTable to be re-initialized after the table refresh
             "stateSave": true // Enable state saving
@@ -117,5 +137,21 @@
 
         // Initial call to load data
         reloadTable();
+
+        // Event listener for row click
+        $('#myTable2 tbody').on('click', 'tr', function() {
+            var data = table.row(this).data(); // Get data for the clicked row
+
+            // Populate the modal with data
+            $('#modalName').text(data[1]); // Name
+            $('#modalStartDate').text(data[2]); // Start Date
+            $('#modalStartTime').text(data[3]); // Start Time
+            $('#modalRunCount').text(data[4]); // Run Count
+            $('#modalDurationMinutesHours').text(data[5]); // Duration (Minutes/Hours)
+            $('#modalDurationHoursDays').text(data[6]); // Duration (Hours/Days)
+
+            // Show the modal
+            $('#scheduleModal').modal('show');
+        });
     });
 </script>
