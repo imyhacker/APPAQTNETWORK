@@ -287,11 +287,10 @@
   setInterval(fetchUptime, 300000); // Refresh uptime every 5 minutes (300000 milliseconds)
 </script>
 <script>
-$(document).ready(function() {
+ $(document).ready(function() {
     let chart = null;
     let pollingInterval = null; // Variable for interval
     let dataPoints = 20; // Number of points to show on the chart
-    let minY = 0; // Minimum y-axis value
 
     $('#interfaceForm').on('submit', function(event) {
         event.preventDefault();
@@ -345,32 +344,27 @@ $(document).ready(function() {
             options: {
                 responsive: true, // Make the chart responsive
                 scales: {
-                    yAxes: [{ // Using yAxes for version 2.x
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Traffic (Mbps)' // Changed to Mbps
+                        },
                         ticks: {
-                            beginAtZero: true,
-                            stepSize: 1, // Set step size for ticks
+                            stepSize: 0.5, // Set the step size to 0.5 for 1 Mbps, 1.5 Mbps, etc.
                             callback: function(value) {
                                 return value + ' Mbps'; // Add 'Mbps' to tick labels
-                            },
-                            min: minY // Set the minimum value dynamically
-                        },
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Traffic (Mbps)' // Changed to Mbps
+                            }
                         }
-                    }],
-                    xAxes: [{
-                        scaleLabel: {
-                            display: true,
-                            labelString: 'Time (units)' // Label for x-axis
-                        }
-                    }]
+                    }
                 },
-                tooltips: {
-                    callbacks: {
-                        label: function(tooltipItem) {
-                            // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
-                            return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.yLabel) + ' Mbps';
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(tooltipItem) {
+                                // Add 'Mbps' suffix to tooltip data, rounded to nearest whole number
+                                return tooltipItem.dataset.label + ': ' + Math.round(tooltipItem.raw) + ' Mbps';
+                            }
                         }
                     }
                 }
@@ -393,7 +387,7 @@ $(document).ready(function() {
 
                     // Convert RX and TX data from bytes to Mbps and round to 2 decimal places
                     const rxMbps = (response.rx / 1000000).toFixed(2); // Convert RX to Mbps
-                    const txMbps = (response.tx / 1000000).toFixed(2); // Convert TX to Mbps
+                    const txMbps = (response.tx  / 1000000).toFixed(2); // Convert TX to Mbps
 
                     // Update the chart data
                     if (chart) {
@@ -410,32 +404,6 @@ $(document).ready(function() {
                             chart.data.datasets[1].data.shift(); // Remove old TX data
                         }
 
-                        // Update minimum Y value based on current data
-                        // Update minimum Y value based on current data
-                const maxRx = Math.max(...chart.data.datasets[0].data);
-                const maxTx = Math.max(...chart.data.datasets[1].data);
-                const trafficThreshold = Math.min(maxRx, maxTx);
-
-                // Set the minY based on maximum observed traffic
-                if (trafficThreshold > 100) {
-                    minY = Math.floor(trafficThreshold / 50) * 50; // Start from nearest multiple of 50
-                } else if (trafficThreshold > 5) {
-                    minY = Math.floor(trafficThreshold / 5) * 5; // Start from nearest multiple of 5
-                } else {
-                    minY = 0; // Start from 0 if traffic is low
-                }
-
-                // Update chart's Y-axis minimum
-                chart.options.scales.yAxes[0].ticks.min = minY;
-
-                // Set Y-axis ticks step size
-                chart.options.scales.yAxes[0].ticks.stepSize = 50; // Set the step size for Y-axis ticks
-
-                // Optionally adjust maxY to accommodate the maximum traffic
-                const maxY = Math.ceil(trafficThreshold / 50) * 50; // Round up to nearest fifty
-                chart.options.scales.yAxes[0].ticks.max = maxY;
-
-                        
                         chart.update(); // Redraw chart
 
                         // Update the traffic info
@@ -457,4 +425,5 @@ $(document).ready(function() {
         fetchTrafficData();
     });
 });
+
 </script>
