@@ -410,25 +410,30 @@ $(document).ready(function() {
                             chart.data.datasets[1].data.shift(); // Remove old TX data
                         }
 
-                           // Update minimum Y value based on current data
+                        // Update minimum Y value based on current data
+                        // Update minimum Y value based on current data
                 const maxRx = Math.max(...chart.data.datasets[0].data);
                 const maxTx = Math.max(...chart.data.datasets[1].data);
                 const trafficThreshold = Math.min(maxRx, maxTx);
 
-                // Determine the minY value based on the maximum traffic observed
-                if (trafficThreshold >= 500) {
-                    minY = Math.floor(trafficThreshold / 100) * 100; // Round down to nearest hundred for high traffic
+                // Set the minY based on maximum observed traffic
+                if (trafficThreshold > 100) {
+                    minY = Math.floor(trafficThreshold / 50) * 50; // Start from nearest multiple of 50
                 } else if (trafficThreshold > 5) {
-                    minY = Math.floor(trafficThreshold - 5); // Start 5 Mbps below the minimum observed traffic
+                    minY = Math.floor(trafficThreshold / 5) * 5; // Start from nearest multiple of 5
                 } else {
-                    minY = 0; // If traffic is low, start from 0
+                    minY = 0; // Start from 0 if traffic is low
                 }
 
-                chart.options.scales.yAxes[0].ticks.min = minY; // Update the chart's y-axis minimum
+                // Update chart's Y-axis minimum
+                chart.options.scales.yAxes[0].ticks.min = minY;
 
-                // Optionally, adjust maxY based on max traffic
-                const maxY = Math.ceil(trafficThreshold / 100) * 100; // Round up to the nearest hundred
-                chart.options.scales.yAxes[0].ticks.max = maxY; // Update the chart's y-axis maximum
+                // Set Y-axis ticks step size
+                chart.options.scales.yAxes[0].ticks.stepSize = 50; // Set the step size for Y-axis ticks
+
+                // Optionally adjust maxY to accommodate the maximum traffic
+                const maxY = Math.ceil(trafficThreshold / 50) * 50; // Round up to nearest fifty
+                chart.options.scales.yAxes[0].ticks.max = maxY;
 
                         
                         chart.update(); // Redraw chart
