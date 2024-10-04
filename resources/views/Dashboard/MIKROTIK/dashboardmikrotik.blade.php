@@ -175,7 +175,7 @@
               
             </div>
             <!-- traffic -->
-            <div class="col-lg-6">
+            <div class="col-lg-12">
               <div class="card">
                 
                 <div class="card-body">
@@ -218,15 +218,7 @@
               
             </div>
              <!-- Voucher -->
-            <div class="col-lg-6">
-              <div class="card">
-                
-                <div class="card-body">
-                  Voucher
-                </div>
-              </div>
-              
-            </div>
+            
           </div>
         <!-- END OF CENTER CONTENT -->
        
